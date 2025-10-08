@@ -22,7 +22,9 @@ import {
   PenTool,
   Users,
   Monitor,
-  FileText
+  FileText,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 import { PlanWeekData } from '@/lib/types'
 
@@ -74,6 +76,19 @@ export default function WeekView({
   currentWeek 
 }: WeekViewProps) {
   const [notes, setNotes] = useState('')
+  const [expandedActivities, setExpandedActivities] = useState<Set<string>>(new Set())
+
+  const toggleActivityExpanded = (activityId: string) => {
+    setExpandedActivities(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(activityId)) {
+        newSet.delete(activityId)
+      } else {
+        newSet.add(activityId)
+      }
+      return newSet
+    })
+  }
 
   if (!weekData) {
     return (
@@ -178,6 +193,7 @@ export default function WeekView({
                     const categoryKey = activity.category.toLowerCase()
                     const icon = categoryIcons[categoryKey as keyof typeof categoryIcons] || <Circle className="h-4 w-4" />
                     const colorClass = categoryColors[categoryKey as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
+                    const isExpanded = expandedActivities.has(activity.id)
                     
                     return (
                       <div 
@@ -200,15 +216,48 @@ export default function WeekView({
                                 {activity.duration} min
                               </div>
                             </div>
-                            <h3 className="font-semibold mb-1">{activity.title}</h3>
-                            <p className="text-sm text-gray-600">{activity.description}</p>
+                            <h3 className="font-semibold mb-2">{activity.title}</h3>
+                            
+                            {/* Descripción colapsable */}
+                            <div className="space-y-2">
+                              {isExpanded ? (
+                                <div className="prose prose-sm max-w-none">
+                                  <div className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    {activity.description}
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-gray-600 line-clamp-2">
+                                  {activity.description.split('\n')[0]}
+                                </p>
+                              )}
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleActivityExpanded(activity.id)}
+                                className="text-blue-600 hover:text-blue-700 p-0 h-auto font-normal"
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="h-4 w-4 mr-1" />
+                                    Ver menos
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="h-4 w-4 mr-1" />
+                                    Ver guía completa
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           </div>
                           
                           <Button
                             variant={activity.completed ? "default" : "outline"}
                             size="sm"
                             onClick={() => onActivityComplete(activity.id, !activity.completed)}
-                            className={activity.completed ? "bg-green-600 hover:bg-green-700" : ""}
+                            className={`ml-4 flex-shrink-0 ${activity.completed ? "bg-green-600 hover:bg-green-700" : ""}`}
                           >
                             {activity.completed ? (
                               <>
@@ -225,8 +274,13 @@ export default function WeekView({
                         </div>
                         
                         {activity.completed && activity.completedAt && (
-                          <p className="text-xs text-green-600">
-                            Completada el {new Date(activity.completedAt).toLocaleDateString('es-ES')}
+                          <p className="text-xs text-green-600 mt-2">
+                            ✅ Completada el {new Date(activity.completedAt).toLocaleDateString('es-ES', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
                           </p>
                         )}
                       </div>

@@ -1,8 +1,205 @@
-
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
+
+// Helper function para generar descripciones detalladas por día
+function getDetailedDescription(day: string, weekNumber: number, objective: string, baseDescription: string): string {
+  const descriptions: Record<string, (obj: string) => string> = {
+    lunes: (obj) => `📚 **VOCABULARIO Y LISTENING - Enfoque: ${obj}**
+
+🎯 **Paso 1: Vocabulario Técnico (20 minutos)**
+- Revisa las 20 palabras técnicas de esta semana en la sección de vocabulario
+- Crea flashcards digitales o usa Anki para cada palabra
+- Escribe una oración técnica con cada palabra relacionada con: ${obj}
+- Ejemplo: Si la palabra es "deployment", escribe: "Our deployment process includes automated testing"
+
+🎧 **Paso 2: Listening BBC 6 Minute English (20 minutos)**
+- Ve a: https://www.bbc.co.uk/learningenglish/english/features/6-minute-english
+- Escoge un episodio relacionado con tecnología o negocios
+- Primera escucha: Sin subtítulos, capta la idea general
+- Segunda escucha: Con transcripción, identifica palabras nuevas
+- Anota 5 frases útiles que puedas usar en tu trabajo
+
+💡 **Tip del día**: No te preocupes si no entiendes todo. El objetivo es familiarizarte con el ritmo y los sonidos del inglés técnico.`,
+
+    martes: (obj) => `🗣️ **SPEAKING Y SHADOWING - Enfoque: ${obj}**
+
+🤖 **Paso 1: Speaking con ChatGPT (30 minutos)**
+- Abre ChatGPT y configúralo como tu tutor de inglés
+- Prompt sugerido: "I'm a CTO learning English. Let's have a conversation about: ${obj}. Please correct my mistakes and give me feedback."
+- Temas de conversación:
+  • Describe tu día típico como CTO
+  • Explica un proyecto reciente
+  • Discute un desafío técnico que enfrentaste
+- Graba tu audio para revisar después
+
+🎭 **Paso 2: Shadowing (30 minutos)**
+- Busca un video de TED Talk sobre tecnología (5-10 min)
+- Técnica de shadowing:
+  1. Escucha el video completo una vez
+  2. Reproduce frase por frase
+  3. Repite cada frase imitando pronunciación, ritmo y entonación
+  4. Graba tu versión y compara
+  
+💡 **Tip del día**: El shadowing mejora tu pronunciación y fluidez. No tengas vergüenza de exagerar la entonación.`,
+
+    miércoles: (obj) => `✍️ **GRAMÁTICA Y WRITING - Enfoque: ${obj}**
+
+📖 **Paso 1: Gramática Aplicada (30 minutos)**
+- Tema de hoy: Tiempos verbales en contexto técnico
+- Recursos: BBC Learning English Grammar section
+- Ejercicios prácticos:
+  • Present Perfect: "I have deployed 5 applications this month"
+  • Past Simple: "We migrated the database last week"
+  • Future: "We will implement the new feature next sprint"
+- Completa 10 ejercicios online
+- Crea 5 oraciones sobre tu trabajo usando los tiempos estudiados
+
+📧 **Paso 2: Writing Emails (30 minutos)**
+- Escribe 3 emails profesionales sobre: ${obj}
+- Tipos de email a practicar:
+  1. **Email de actualización**: Informa al equipo sobre el progreso de un proyecto
+  2. **Email de propuesta**: Sugiere una mejora técnica
+  3. **Email de respuesta**: Responde preguntas técnicas de stakeholders
+- Usa Grammarly para revisar errores
+- Guarda los emails como templates
+
+💡 **Tip del día**: Los emails profesionales deben ser claros, concisos y corteses. Usa bullet points para información importante.`,
+
+    jueves: (obj) => `🎯 **SIMULACIÓN PRÁCTICA - Enfoque: ${obj}**
+
+🤝 **Reunión Técnica Simulada con IA (60 minutos)**
+
+**Preparación (15 minutos):**
+- Define el tipo de reunión: Daily standup, Sprint planning, Technical review, o One-on-one
+- Contexto: ${obj}
+- Prepara 3 puntos clave que quieres comunicar
+- Anota vocabulario técnico relevante
+
+**Simulación con ChatGPT (35 minutos):**
+- Prompt: "You are my team. We're having a [tipo de reunión] about ${obj}. Ask me questions and I'll respond. Correct my English and give suggestions."
+- Practica:
+  • Presentar tu punto de vista
+  • Responder preguntas difíciles
+  • Negociar y persuadir
+  • Manejar desacuerdos profesionalmente
+- Graba la conversación completa
+
+**Autoevaluación (10 minutos):**
+- Escucha tu grabación
+- Identifica 3 errores comunes que cometiste
+- Anota frases que te costaron expresar
+- Busca formas mejores de decir esas frases
+
+💡 **Tip del día**: En reuniones, está bien pedir clarificación: "Could you repeat that?" o "Let me make sure I understand..."`,
+
+    viernes: (obj) => `📊 **PRESENTACIÓN TÉCNICA - Enfoque: ${obj}**
+
+🎤 **Preparación y Delivery de Presentación (60 minutos)**
+
+**Fase 1: Preparación (25 minutos)**
+- Tema: ${obj}
+- Estructura de tu presentación:
+  1. **Introducción** (1 min): "Today I'll talk about..."
+  2. **Problema** (2 min): "We're facing..."
+  3. **Solución** (3 min): "I propose..."
+  4. **Beneficios** (2 min): "This will help us..."
+  5. **Próximos pasos** (1 min): "Going forward..."
+  6. **Q&A** (1 min): Anticipa 3 preguntas
+- Crea 5-7 slides mentalmente o en papel
+- Practica transiciones: "Moving on to...", "Let me show you...", "This brings us to..."
+
+**Fase 2: Delivery (25 minutos)**
+- Grábate presentando (video si es posible)
+- Primera toma completa sin parar
+- Segunda toma: Mejora las partes difíciles
+- Tercera toma: Tu mejor versión
+- Objetivo: Hablar claro, con pausas estratégicas, y proyectar confianza
+
+**Fase 3: Feedback (10 minutos)**
+- Revisa tu video
+- Evalúa:
+  • Claridad de pronunciación
+  • Uso de conectores (however, therefore, additionally)
+  • Lenguaje corporal (si hay video)
+  • Manejo de nervios
+- Identifica 2 cosas que mejorarás la próxima semana
+
+💡 **Tip del día**: Las mejores presentaciones cuentan una historia. No solo datos, sino el journey y el impacto.`,
+
+    sábado: (obj) => `🎬 **INMERSIÓN CULTURAL - Enfoque: ${obj}**
+
+📺 **Serie Tech en Inglés (60 minutos)**
+
+**Series recomendadas:**
+- Silicon Valley (Comedy + Tech startup culture)
+- Mr. Robot (Cybersecurity + Hacking)
+- Halt and Catch Fire (Tech history)
+
+**Método de inmersión activa:**
+
+**Antes de ver (5 minutos):**
+- Lee un resumen del episodio en inglés
+- Identifica el tema principal
+- Relación con: ${obj}
+
+**Durante el episodio (45 minutos):**
+- Primera mitad: Subtítulos en inglés
+- Segunda mitad: Sin subtítulos (desafío)
+- Pausa cuando escuches:
+  • Una frase técnica nueva
+  • Una expresión idiomática
+  • Un término de negocios
+- Anota mínimo 10 frases o palabras nuevas
+
+**Después de ver (10 minutos):**
+- Escribe un resumen de 5 líneas en inglés
+- Lista 3 frases que quieres incorporar en tu vocabulario
+- Ejemplo: "Let's circle back", "I'll loop you in", "Let's take this offline"
+- Practica diciendo estas frases en voz alta
+
+💡 **Tip del día**: La inmersión cultural te ayuda a entender el contexto y la cultura de trabajo en inglés, no solo el idioma.`,
+
+    domingo: (obj) => `📈 **REVISIÓN Y PLANIFICACIÓN - Enfoque: ${obj}**
+
+🔍 **Revisión Semanal Completa (60 minutos)**
+
+**Parte 1: Autoevaluación (20 minutos)**
+Responde estas preguntas en inglés (escribe en tu diario):
+1. What was my biggest achievement this week?
+2. What was the most challenging activity and why?
+3. How many new words did I learn? (Cuenta tus flashcards)
+4. Can I explain "${obj}" better than last week?
+5. Rate your confidence level (1-10) speaking about ${obj}
+
+**Parte 2: Revisión de Materiales (20 minutos)**
+- Repasa todas las palabras nuevas de la semana
+- Vuelve a leer los emails que escribiste
+- Escucha tu grabación del jueves (reunión)
+- Ve tu presentación del viernes
+- Identifica patrones en tus errores
+
+**Parte 3: Plan para la Próxima Semana (20 minutos)**
+- Revisa el objetivo de la Semana ${weekNumber + 1}
+- Prepara tu calendario: Bloquea tiempo para cada actividad
+- Define 3 metas específicas:
+  • Meta de vocabulario: "Dominar 20 palabras nuevas"
+  • Meta de speaking: "Hablar más fluido sobre X"
+  • Meta de confianza: "Presentar sin leer mis notas"
+- Descarga recursos que necesitarás
+- Comparte tu progreso con alguien (accountability partner)
+
+**Celebración:**
+✅ ¡Completaste la semana ${weekNumber}!
+✅ Llevas [X] horas acumuladas de práctica
+✅ Estás [X]% más cerca de tu meta de 6 meses
+
+💡 **Tip del día**: El progreso no es lineal. Algunos días te sentirás genial, otros frustrado. Es normal. Lo importante es la consistencia.`
+  }
+
+  return descriptions[day] ? descriptions[day](objective) : baseDescription
+}
 
 async function main() {
   console.log('🌱 Iniciando seed de la base de datos...')
@@ -65,473 +262,396 @@ async function main() {
       })
     }
 
-    // Crear datos del plan basados en la estructura del Excel
-    console.log('📅 Creando plan semanal completo (24 semanas)...')
+    // Crear datos del plan completo (24 semanas) con descripciones detalladas
+    console.log('📅 Creando plan semanal completo con descripciones detalladas (24 semanas)...')
     
-    const sampleWeeksData = [
-  {
-    number: 1, month: 1, phase: 1,
-    objective: "Primeros pasos: Presentación personal básica",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 2, month: 1, phase: 1,
-    objective: "Rutina diaria: Describir tu día",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 3, month: 1, phase: 1,
-    objective: "Trabajo: Hablar sobre tu rol actual",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 4, month: 1, phase: 1,
-    objective: "Tecnología: Explicar stack técnico básico",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 5, month: 2, phase: 1,
-    objective: "Equipo: Describir tu equipo y proyectos",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 6, month: 2, phase: 1,
-    objective: "Procesos: Explicar metodologías ágiles",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 7, month: 2, phase: 1,
-    objective: "Desafíos: Hablar de problemas y soluciones",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 8, month: 2, phase: 1,
-    objective: "Consolidación Fase 1: Video presentación 5 min",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", description: "Vocabulario técnico (20 palabras) + Listening BBC 6 Min (40 min)", duration: 40, category: "vocabulario" },
-      { day: "martes", dayNumber: 2, title: "Práctica de Speaking", description: "Speaking con ChatGPT + Shadowing (30+30 min)", duration: 60, category: "speaking" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Gramática aplicada + Writing emails (30+30 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Simulación Práctica", description: "Simulación reunión técnica con IA (60 min)", duration: 60, category: "simulación" },
-      { day: "viernes", dayNumber: 5, title: "Presentación Técnica", description: "Presentación técnica (prep + delivery) (60 min)", duration: 60, category: "presentación" },
-      { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", description: "Inmersión: Serie tech (Silicon Valley/Mr Robot) (60 min)", duration: 60, category: "inmersión" },
-      { day: "domingo", dayNumber: 7, title: "Revisión Semanal", description: "Revisión semanal + Autoevaluación + Plan next week (60 min)", duration: 60, category: "revisión" },
-    ]
-  },
-  {
-    number: 9, month: 3, phase: 2,
-    objective: "Arquitectura: Explicar sistemas complejos",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 10, month: 3, phase: 2,
-    objective: "Decision-making: Justificar decisiones técnicas",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 11, month: 3, phase: 2,
-    objective: "Trade-offs: Discutir pros/contras de tecnologías",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 12, month: 3, phase: 2,
-    objective: "Estrategia: Presentar roadmap técnico",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 13, month: 4, phase: 2,
-    objective: "Liderazgo: Principios de gestión de equipos",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 14, month: 4, phase: 2,
-    objective: "Escalabilidad: Discutir growth y performance",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 15, month: 4, phase: 2,
-    objective: "Seguridad: Explicar prácticas de security",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 16, month: 4, phase: 2,
-    objective: "Consolidación Fase 2: Presentación técnica 10 min",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Vocab: Agile terms + Podcast: Tech Stuff", description: "Vocab: Agile terms + Podcast: Tech Stuff (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Role-play daily standup + Pronunciation practice", description: "Role-play daily standup + Pronunciation practice (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Complex sentences + Technical documentation", description: "Complex sentences + Technical documentation (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Sprint planning simulation + Note-taking", description: "Sprint planning simulation + Note-taking (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Demo presentation + Storytelling", description: "Demo presentation + Storytelling (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Movie: The Social Network + vocab notes", description: "Movie: The Social Network + vocab notes (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Weekly review + Record progress + Adjust", description: "Weekly review + Record progress + Adjust (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 17, month: 5, phase: 3,
-    objective: "Budget: Discutir inversiones y ROI",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 18, month: 5, phase: 3,
-    objective: "Cultura: Building and leading tech culture",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 19, month: 5, phase: 3,
-    objective: "Board: Reporting to stakeholders",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 20, month: 5, phase: 3,
-    objective: "Innovation: Liderar transformación digital",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 21, month: 6, phase: 3,
-    objective: "Risk: Gestión de crisis y contingencias",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 22, month: 6, phase: 3,
-    objective: "Hiring: Entrevistas y recruitment",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 23, month: 6, phase: 3,
-    objective: "Vision: Articular estrategia long-term",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Executive vocab + Harvard Business Review", description: "Executive vocab + Harvard Business Review (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Boardroom discussion + Executive presence", description: "Boardroom discussion + Executive presence (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Business cases + Strategic documents", description: "Business cases + Strategic documents (60 min)", duration: 60, category: "general" },
-      { day: "jueves", dayNumber: 4, title: "Investor pitch + Q&A handling", description: "Investor pitch + Q&A handling (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "M&A discussions + Negotiations", description: "M&A discussions + Negotiations (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Leadership documentaries + Analysis", description: "Leadership documentaries + Analysis (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Strategic planning + KPI review", description: "Strategic planning + KPI review (60 min)", duration: 60, category: "general" },
-    ]
-  },
-  {
-    number: 24, month: 6, phase: 3,
-    objective: "Consolidación Final: Simulación completa CTO",
-    activities: [
-      { day: "lunes", dayNumber: 1, title: "Advanced vocab + Conference talk (AWS/Google)", description: "Advanced vocab + Conference talk (AWS/Google) (60 min)", duration: 60, category: "general" },
-      { day: "martes", dayNumber: 2, title: "Mock interview + Feedback análisis", description: "Mock interview + Feedback análisis (60 min)", duration: 60, category: "general" },
-      { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", description: "Write thought leadership article + Review (60 min)", duration: 60, category: "writing" },
-      { day: "jueves", dayNumber: 4, title: "Full board meeting simulation", description: "Full board meeting simulation (60 min)", duration: 60, category: "general" },
-      { day: "viernes", dayNumber: 5, title: "Conference talk + Live Q&A simulation", description: "Conference talk + Live Q&A simulation (60 min)", duration: 60, category: "general" },
-      { day: "sábado", dayNumber: 6, title: "Tech leadership content + Community", description: "Tech leadership content + Community (60 min)", duration: 60, category: "general" },
-      { day: "domingo", dayNumber: 7, title: "Complete assessment + Future planning", description: "Complete assessment + Future planning (60 min)", duration: 60, category: "general" },
-    ]
-  },
-]
+    const weeklyPlans = [
+      // ============ FASE 1: CATARSIS (Semanas 1-8) ============
+      {
+        number: 1, month: 1, phase: 1,
+        objective: "Primeros pasos: Presentación personal básica",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 2, month: 1, phase: 1,
+        objective: "Rutina diaria: Describir tu día",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 3, month: 1, phase: 1,
+        objective: "Trabajo: Hablar sobre tu rol actual",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 4, month: 1, phase: 1,
+        objective: "Tecnología: Explicar stack técnico básico",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 5, month: 2, phase: 1,
+        objective: "Equipo: Describir tu equipo y proyectos",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 6, month: 2, phase: 1,
+        objective: "Procesos: Explicar metodologías ágiles",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 7, month: 2, phase: 1,
+        objective: "Desafíos: Hablar de problemas y soluciones",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 8, month: 2, phase: 1,
+        objective: "Consolidación Fase 1: Video presentación 5 min",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Escritura y Gramática", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Simulación Práctica", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Presentación Técnica", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Inmersión Cultural", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Revisión Semanal", duration: 60, category: "revisión" },
+        ]
+      },
 
-    for (const weekData of sampleWeeksData) {
+      // ============ FASE 2: SPEAKING MVP (Semanas 9-16) ============
+      {
+        number: 9, month: 3, phase: 2,
+        objective: "Arquitectura: Explicar sistemas complejos",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 10, month: 3, phase: 2,
+        objective: "Decision-making: Justificar decisiones técnicas",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 11, month: 3, phase: 2,
+        objective: "Trade-offs: Discutir pros/contras de tecnologías",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 12, month: 3, phase: 2,
+        objective: "Estrategia: Presentar roadmap técnico",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 13, month: 4, phase: 2,
+        objective: "Liderazgo: Principios de gestión de equipos",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 14, month: 4, phase: 2,
+        objective: "Escalabilidad: Discutir growth y performance",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 15, month: 4, phase: 2,
+        objective: "Seguridad: Explicar prácticas de security",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 16, month: 4, phase: 2,
+        objective: "Consolidación Fase 2: Presentación técnica 10 min",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Documentación Técnica", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Sprint Planning Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Demo Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Movie Time", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Weekly Review", duration: 60, category: "revisión" },
+        ]
+      },
+
+      // ============ FASE 3: PLAYBOOK (Semanas 17-24) ============
+      {
+        number: 17, month: 5, phase: 3,
+        objective: "Board meetings: Comunicar con stakeholders",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Technical Vocabulary Deep Dive", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Debate Técnico Avanzado", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Technical Proposal Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Architecture Review Meeting", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Roadmap Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Tech Documentary", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Strategic Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 18, month: 5, phase: 3,
+        objective: "Investor pitch: Presentar visión técnica",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Technical Vocabulary Deep Dive", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Debate Técnico Avanzado", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Technical Proposal Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Architecture Review Meeting", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Roadmap Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Tech Documentary", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Strategic Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 19, month: 5, phase: 3,
+        objective: "Negociación: Discutir presupuestos y recursos",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Technical Vocabulary Deep Dive", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Debate Técnico Avanzado", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Technical Proposal Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Architecture Review Meeting", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Roadmap Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Tech Documentary", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Strategic Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 20, month: 5, phase: 3,
+        objective: "Networking: Small talk profesional avanzado",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Technical Vocabulary Deep Dive", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Debate Técnico Avanzado", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Technical Proposal Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Architecture Review Meeting", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Roadmap Presentation", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "Tech Documentary", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Strategic Review", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 21, month: 6, phase: 3,
+        objective: "Crisis management: Comunicar en situaciones difíciles",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Advanced Vocabulary Mastery", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Mock Interview Practice", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Executive Summary Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Board Presentation Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Investor Pitch Practice", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "YouTube Tech Binge", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Reflection and Goal Setting", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 22, month: 6, phase: 3,
+        objective: "Hiring: Entrevistas y recruitment",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Advanced Vocabulary Mastery", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Mock Interview Practice", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Executive Summary Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Board Presentation Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Investor Pitch Practice", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "YouTube Tech Binge", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Reflection and Goal Setting", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 23, month: 6, phase: 3,
+        objective: "Vision: Articular estrategia long-term",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Advanced Vocabulary Mastery", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Mock Interview Practice", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Executive Summary Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Board Presentation Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Investor Pitch Practice", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "YouTube Tech Binge", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Reflection and Goal Setting", duration: 60, category: "revisión" },
+        ]
+      },
+      {
+        number: 24, month: 6, phase: 3,
+        objective: "Consolidación Final: Simulación completa CTO",
+        activities: [
+          { day: "lunes", dayNumber: 1, title: "Advanced Vocabulary Mastery", duration: 60, category: "vocabulario" },
+          { day: "martes", dayNumber: 2, title: "Mock Interview Practice", duration: 60, category: "speaking" },
+          { day: "miércoles", dayNumber: 3, title: "Executive Summary Writing", duration: 60, category: "writing" },
+          { day: "jueves", dayNumber: 4, title: "Board Presentation Simulation", duration: 60, category: "simulación" },
+          { day: "viernes", dayNumber: 5, title: "Investor Pitch Practice", duration: 60, category: "presentación" },
+          { day: "sábado", dayNumber: 6, title: "YouTube Tech Binge", duration: 60, category: "inmersión" },
+          { day: "domingo", dayNumber: 7, title: "Reflection and Goal Setting", duration: 60, category: "revisión" },
+        ]
+      },
+    ]
+
+    // Procesar cada semana y agregar descripciones detalladas
+    for (const weekPlan of weeklyPlans) {
       const phase = await prisma.planPhase.findUnique({
-        where: { number: weekData.phase }
+        where: { number: weekPlan.phase }
       })
 
-      if (!phase) continue
+      if (!phase) {
+        console.error(`❌ Fase ${weekPlan.phase} no encontrada`)
+        continue
+      }
 
       const week = await prisma.planWeek.upsert({
-        where: { number: weekData.number },
+        where: { number: weekPlan.number },
         update: {},
         create: {
-          number: weekData.number,
-          month: weekData.month,
+          number: weekPlan.number,
+          month: weekPlan.month,
           phaseId: phase.id,
-          objective: weekData.objective
+          objective: weekPlan.objective,
         }
       })
 
-      for (const activityData of weekData.activities) {
-        await prisma.planActivity.create({
-          data: {
+      // Crear actividades con descripciones detalladas
+      for (const activityData of weekPlan.activities) {
+        const detailedDescription = getDetailedDescription(
+          activityData.day,
+          weekPlan.number,
+          weekPlan.objective,
+          activityData.title
+        )
+
+        await prisma.planActivity.upsert({
+          where: {
+            weekId_day: {
+              weekId: week.id,
+              day: activityData.day
+            }
+          },
+          update: {},
+          create: {
             weekId: week.id,
             day: activityData.day,
             dayNumber: activityData.dayNumber,
             title: activityData.title,
-            description: activityData.description,
+            description: detailedDescription,
             duration: activityData.duration,
-            category: activityData.category
+            category: activityData.category,
           }
         })
       }
+
+      console.log(`✅ Semana ${weekPlan.number} creada con descripciones detalladas`)
     }
 
-    console.log(`✅ Creadas ${sampleWeeksData.length} semanas completas del plan (24 semanas, 168 actividades)`)
-
-    // Crear vocabulario CTO con datos de muestra
-    console.log('📚 Creando vocabulario técnico...')
-    
-    const vocabCategory = await prisma.vocabularyCategory.upsert({
-      where: { id: 'cto-vocabulary' },
-      update: {},
-      create: {
-        id: 'cto-vocabulary',
-        name: 'Vocabulario CTO',
-        description: 'Términos esenciales para CTOs y profesionales de tecnología'
-      }
-    })
-
-    const sampleVocabulary = [
-      { english: 'Microservices', spanish: 'Arquitectura de microservicios', example: 'Our system uses a microservices architecture for better scalability' },
-      { english: 'API Gateway', spanish: 'Puerta de enlace de API', example: 'The API gateway handles all incoming requests' },
-      { english: 'Load Balancer', spanish: 'Balanceador de carga', example: 'We need to configure the load balancer for better distribution' },
-      { english: 'Scalability', spanish: 'Escalabilidad', example: 'Horizontal scalability is crucial for our growth' },
-      { english: 'High Availability', spanish: 'Alta disponibilidad', example: 'We guarantee 99.99% high availability' },
-      { english: 'Fault Tolerance', spanish: 'Tolerancia a fallos', example: 'The system is designed with fault tolerance in mind' },
-      { english: 'Database Sharding', spanish: 'Fragmentación de base de datos', example: 'We implemented database sharding to improve performance' },
-      { english: 'CI/CD Pipeline', spanish: 'Pipeline de integración y despliegue continuo', example: 'Our CI/CD pipeline automates testing and deployment' },
-      { english: 'Container Orchestration', spanish: 'Orquestación de contenedores', example: 'Kubernetes provides container orchestration capabilities' },
-      { english: 'Technical Debt', spanish: 'Deuda técnica', example: 'We need to address the technical debt in our legacy systems' },
-      { english: 'Code Review', spanish: 'Revisión de código', example: 'All pull requests must go through code review' },
-      { english: 'Sprint Planning', spanish: 'Planificación de sprint', example: 'Sprint planning helps us define our two-week goals' },
-      { english: 'Stakeholder', spanish: 'Parte interesada', example: 'We need to align with all stakeholders before proceeding' },
-      { english: 'ROI', spanish: 'Retorno de inversión', example: 'The ROI for this project is expected to be 150%' },
-      { english: 'KPI', spanish: 'Indicador clave de rendimiento', example: 'Our KPIs show significant improvement this quarter' }
-    ]
-
-    for (const vocabWord of sampleVocabulary) {
-      await prisma.vocabularyWord.create({
-        data: {
-          categoryId: vocabCategory.id,
-          english: vocabWord.english,
-          spanish: vocabWord.spanish,
-          example: vocabWord.example
-        }
-      })
-    }
-
-    console.log(`✅ Creadas ${sampleVocabulary.length} palabras de vocabulario`)
-
-    // Crear recursos gratuitos con datos de muestra
-    console.log('🔧 Creando recursos gratuitos...')
-    
-    const resourceCategories = [
-      { id: 'mobile-apps', name: 'Apps Móviles', description: 'Aplicaciones para dispositivos móviles' },
-      { id: 'web-platforms', name: 'Plataformas Web', description: 'Sitios web y plataformas online' },
-      { id: 'podcasts', name: 'Podcasts', description: 'Podcasts para escuchar' },
-      { id: 'youtube', name: 'YouTube', description: 'Canales de YouTube' }
-    ]
-
-    for (const catData of resourceCategories) {
-      await prisma.resourceCategory.upsert({
-        where: { id: catData.id },
-        update: {},
-        create: catData
-      })
-    }
-
-    const sampleResources = [
-      // Apps Móviles
-      { categoryId: 'mobile-apps', name: 'Duolingo', description: 'Vocabulario y gramática básica', platform: 'iOS/Android', rating: 5 },
-      { categoryId: 'mobile-apps', name: 'ELSA Speak', description: 'Pronunciación con IA', platform: 'iOS/Android', rating: 5 },
-      { categoryId: 'mobile-apps', name: 'HelloTalk', description: 'Intercambio con nativos', platform: 'iOS/Android', rating: 4 },
-      { categoryId: 'mobile-apps', name: 'Tandem', description: 'Conversaciones 1-on-1', platform: 'iOS/Android', rating: 4 },
-      
-      // Plataformas Web
-      { categoryId: 'web-platforms', name: 'BBC Learning English', description: 'Contenido estructurado y profesional', platform: 'Web', rating: 5 },
-      { categoryId: 'web-platforms', name: 'TED Talks', description: 'Presentaciones profesionales con subtítulos', platform: 'Web', rating: 5 },
-      { categoryId: 'web-platforms', name: 'Coursera', description: 'Cursos técnicos en inglés', platform: 'Web', rating: 4 },
-      { categoryId: 'web-platforms', name: 'Stack Overflow', description: 'Documentación técnica en inglés', platform: 'Web', rating: 5 },
-      
-      // Podcasts
-      { categoryId: 'podcasts', name: 'Software Engineering Daily', description: 'Podcast técnico diario', platform: 'Podcast', rating: 5 },
-      { categoryId: 'podcasts', name: 'The Changelog', description: 'Conversaciones sobre desarrollo', platform: 'Podcast', rating: 4 },
-      { categoryId: 'podcasts', name: 'Syntax', description: 'Desarrollo web y tecnología', platform: 'Podcast', rating: 4 },
-      
-      // YouTube
-      { categoryId: 'youtube', name: 'Traversy Media', description: 'Tutoriales de programación', platform: 'YouTube', rating: 5 },
-      { categoryId: 'youtube', name: 'FreeCodeCamp', description: 'Cursos completos de programación', platform: 'YouTube', rating: 5 },
-      { categoryId: 'youtube', name: 'TechLead', description: 'Experiencias de liderazgo técnico', platform: 'YouTube', rating: 4 }
-    ]
-
-    for (const resourceData of sampleResources) {
-      await prisma.resource.create({
-        data: {
-          categoryId: resourceData.categoryId,
-          name: resourceData.name,
-          description: resourceData.description,
-          platform: resourceData.platform,
-          rating: resourceData.rating,
-          isFree: true
-        }
-      })
-    }
-
-    console.log(`✅ Creados ${sampleResources.length} recursos`)
-
-    console.log('🎉 Seed completado exitosamente!')
+    console.log('✅ Plan completo de 24 semanas creado exitosamente!')
+    console.log('📊 Total: 168 actividades con descripciones detalladas')
 
   } catch (error) {
-    console.error('❌ Error durante el seed:', error)
+    console.error('❌ Error en el seed:', error)
     throw error
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error fatal durante el seed:', e)
+    console.error(e)
     process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
   })

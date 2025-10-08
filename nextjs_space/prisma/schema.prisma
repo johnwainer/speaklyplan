@@ -94,12 +94,14 @@ model PlanActivity {
   day         String // "lunes", "martes", etc.
   dayNumber   Int    // 1-7
   title       String
-  description String
+  description String @db.Text
   duration    Int    // in minutes
   category    String // "vocabulario", "speaking", "listening", etc.
   
   week        PlanWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
   progress    UserProgress[]
+  
+  @@unique([weekId, day])
 }
 
 // User progress tracking
