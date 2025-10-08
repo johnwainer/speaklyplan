@@ -54,6 +54,12 @@ model User {
   notes           UserNote[]
   streaks         UserStreak[]
   vocabularyProgress UserVocabularyProgress[]
+  
+  // AI Tutor relations
+  conversations   ChatConversation[]
+  learningContext LearningContext?
+  mistakes        CommonMistake[]
+  practiceSessions PracticeSession[]
 }
 
 model VerificationToken {
@@ -206,4 +212,94 @@ model UserStreak {
   user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@unique([userId])
+}
+
+// AI Tutor System
+model ChatConversation {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String?
+  context      String?         // "casual", "meeting", "interview", "email", "grammar"
+  startedAt    DateTime        @default(now())
+  lastMessageAt DateTime       @default(now())
+  isActive     Boolean         @default(true)
+  messages     ChatMessage[]
+  
+  @@index([userId, isActive])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String           // "user" | "assistant" | "system"
+  content        String           @db.Text
+  translation    String?          @db.Text
+  createdAt      DateTime         @default(now())
+  
+  // Learning metrics
+  grammarErrors  Json?
+  vocabularyUsed Json?
+  
+  @@index([conversationId, createdAt])
+}
+
+model LearningContext {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Learning profile
+  currentLevel      String   @default("A1") // CEFR level
+  weakAreas         Json     @default("[]")
+  strongAreas       Json     @default("[]")
+  preferredTopics   Json     @default("[]")
+  learningGoals     Json     @default("[]")
+  
+  // Conversation progress
+  totalConversations Int     @default(0)
+  totalMessages      Int     @default(0)
+  
+  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now())
+}
+
+model CommonMistake {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  errorType    String   // "grammar", "vocabulary", "pronunciation"
+  mistake      String
+  correction   String
+  explanation  String?
+  occurrences  Int      @default(1)
+  lastSeenAt   DateTime @default(now())
+  mastered     Boolean  @default(false)
+  
+  @@index([userId, mastered])
+}
+
+model PracticeSession {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  sessionType  String   // "conversation", "grammar", "vocabulary"
+  topic        String?
+  duration     Int      // seconds
+  messagesCount Int
+  
+  // Session metrics
+  grammarScore      Float?
+  vocabularyScore   Float?
+  overallScore      Float?
+  
+  feedback         String?  @db.Text
+  achievements     Json?
+  
+  createdAt    DateTime @default(now())
+  
+  @@index([userId, createdAt])
 }

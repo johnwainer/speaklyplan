@@ -20,7 +20,8 @@ import {
   Flame,
   HelpCircle,
   Library,
-  Menu
+  Menu,
+  MessageSquare
 } from 'lucide-react'
 import {
   Sheet,
@@ -205,6 +206,18 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <div className="flex flex-col gap-2">
                     <Button
                       variant="outline"
+                      className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
+                      onClick={() => {
+                        router.push('/tutor')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2 text-blue-600" />
+                      <span className="font-medium">AI Tutor</span>
+                      <Badge variant="secondary" className="ml-auto">NUEVO</Badge>
+                    </Button>
+                    <Button
+                      variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
                         router.push('/vocabulario')
@@ -283,6 +296,15 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               </button>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => router.push('/tutor')}
+                className="my-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                AI Tutor
+                <Badge variant="secondary" className="ml-2">NUEVO</Badge>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
