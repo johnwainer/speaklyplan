@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -24,7 +25,8 @@ import {
   Monitor,
   FileText,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Sparkles
 } from 'lucide-react'
 import { PlanWeekData } from '@/lib/types'
 
@@ -284,15 +286,19 @@ export default function WeekView({
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3 sm:space-y-4">
-                  {dayActivities.map((activity) => {
+                  {dayActivities.map((activity, index) => {
                     const categoryKey = activity.category.toLowerCase()
                     const icon = categoryIcons[categoryKey as keyof typeof categoryIcons] || <Circle className="h-4 w-4" />
                     const colorClass = categoryColors[categoryKey as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
                     const isExpanded = expandedActivities.has(activity.id)
                     
                     return (
-                      <div 
+                      <motion.div 
                         key={activity.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
                         className={`p-3 sm:p-4 rounded-lg border transition-all ${
                           activity.completed 
                             ? 'bg-green-50 border-green-200' 
@@ -383,7 +389,7 @@ export default function WeekView({
                             </p>
                           )}
                         </div>
-                      </div>
+                      </motion.div>
                     )
                   })}
                 </div>

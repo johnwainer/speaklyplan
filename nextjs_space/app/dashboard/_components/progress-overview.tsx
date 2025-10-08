@@ -1,17 +1,21 @@
 
 'use client';
 
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { ProgressRing } from '@/components/gamification'
 import { 
   Calendar, 
   Target, 
   CheckCircle2, 
   Clock, 
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Trophy,
+  Star
 } from 'lucide-react'
 import { PlanWeekData, UserProgressData } from '@/lib/types'
 
@@ -57,48 +61,89 @@ export default function ProgressOverview({ planWeeks, progress, onWeekSelect }: 
       </div>
 
       {/* Overall Progress */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Target className="h-5 w-5 mr-2 text-blue-600" />
-            Tu Progreso General
-          </CardTitle>
-          <CardDescription>
-            Has completado {progress.completedActivities} de {progress.totalActivities} actividades totales
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Progreso Total</span>
-                <span className="font-medium">{progress.percentageCompleted}%</span>
-              </div>
-              <Progress value={progress.percentageCompleted} className="h-3" />
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-4 pt-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <Calendar className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <div className="font-semibold text-blue-600">Semana {progress.currentWeek}</div>
-                <div className="text-sm text-gray-600">Semana actual</div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Trophy className="h-6 w-6 mr-2 text-purple-600" />
+              Tu Progreso General
+            </CardTitle>
+            <CardDescription>
+              Has completado {progress.completedActivities} de {progress.totalActivities} actividades totales
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Progress Ring */}
+              <div className="flex justify-center py-4">
+                <ProgressRing 
+                  progress={progress.percentageCompleted}
+                  size="lg"
+                >
+                  <div className="text-center">
+                    <motion.div 
+                      className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.3, type: 'spring' }}
+                    >
+                      {progress.percentageCompleted}%
+                    </motion.div>
+                    <p className="text-sm text-gray-600 mt-1">Completado</p>
+                  </div>
+                </ProgressRing>
               </div>
               
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <CheckCircle2 className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                <div className="font-semibold text-green-600">{progress.currentStreak} días</div>
-                <div className="text-sm text-gray-600">Racha actual</div>
+              <div className="grid md:grid-cols-3 gap-4">
+                <motion.div 
+                  className="text-center p-4 bg-white/80 backdrop-blur rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-shadow"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Calendar className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                  <div className="font-semibold text-2xl text-blue-600">Semana {progress.currentWeek}</div>
+                  <div className="text-sm text-gray-600">de 24 semanas</div>
+                </motion.div>
+                
+                <motion.div 
+                  className="text-center p-4 bg-white/80 backdrop-blur rounded-lg border border-green-200 shadow-sm hover:shadow-md transition-shadow"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <CheckCircle2 className="h-6 w-6 text-green-600 mx-auto mb-2" />
+                  <div className="font-semibold text-2xl text-green-600">{progress.currentStreak} días</div>
+                  <div className="text-sm text-gray-600">Racha actual</div>
+                </motion.div>
+                
+                <motion.div 
+                  className="text-center p-4 bg-white/80 backdrop-blur rounded-lg border border-orange-200 shadow-sm hover:shadow-md transition-shadow"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Trophy className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+                  <div className="font-semibold text-2xl text-orange-600">{progress.completedActivities}</div>
+                  <div className="text-sm text-gray-600">Actividades completadas</div>
+                </motion.div>
               </div>
-              
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <Clock className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-                <div className="font-semibold text-orange-600">{Math.round((progress.completedActivities * 60) / 60)} horas</div>
-                <div className="text-sm text-gray-600">Tiempo invertido</div>
-              </div>
+
+              {progress.percentageCompleted >= 75 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center p-4 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg border-2 border-yellow-300"
+                >
+                  <Star className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
+                  <p className="font-bold text-yellow-800">¡Increíble progreso!</p>
+                  <p className="text-sm text-yellow-700">Estás muy cerca de completar todo el plan</p>
+                </motion.div>
+              )}
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Phases Overview */}
       {Object.entries(groupedWeeks || {}).map(([phaseName, weeks]) => {

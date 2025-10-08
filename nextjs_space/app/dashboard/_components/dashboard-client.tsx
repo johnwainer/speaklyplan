@@ -21,7 +21,9 @@ import {
   HelpCircle,
   Library,
   Menu,
-  MessageSquare
+  MessageSquare,
+  Trophy,
+  Zap
 } from 'lucide-react'
 import {
   Sheet,
@@ -34,6 +36,14 @@ import { PlanWeekData, UserProgressData } from '@/lib/types'
 import WeekView from './week-view'
 import ProgressOverview from './progress-overview'
 import { useToast } from '@/hooks/use-toast'
+import { 
+  LevelBadge, 
+  StreakDisplay, 
+  DailyMissions,
+  XpToast,
+  LevelUpModal,
+  ActivityCompletionCelebration
+} from '@/components/gamification'
 
 interface DashboardClientProps {
   initialData: {
@@ -56,9 +66,19 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
   const [planData, setPlanData] = useState(initialData.planWeeks)
   const [progressData, setProgressData] = useState(initialData.progress)
   
+  // Gamification states
+  const [gamificationStats, setGamificationStats] = useState<any>(null)
+  const [showXpToast, setShowXpToast] = useState(false)
+  const [xpToastData, setXpToastData] = useState({ points: 0, reason: '' })
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false)
+  const [levelUpData, setLevelUpData] = useState(0)
+  const [showCompletionCelebration, setShowCompletionCelebration] = useState(false)
+  const [completionData, setCompletionData] = useState({ activityTitle: '', xpEarned: 0 })
+  
   // Handle mounting for hydration safety
   useEffect(() => {
     setMounted(true)
+    loadGamificationStats()
   }, [])
   
   const { data: session, status } = useSession() || {};
@@ -67,6 +87,18 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
   
   // Usar los datos iniciales si la sesión aún no está cargada
   const user = session?.user || initialData.user;
+  
+  const loadGamificationStats = async () => {
+    try {
+      const response = await fetch('/api/tutor/gamification')
+      if (response.ok) {
+        const data = await response.json()
+        setGamificationStats(data)
+      }
+    } catch (error) {
+      console.error('Error loading gamification stats:', error)
+    }
+  }
 
   const handleActivityComplete = async (activityId: string, completed: boolean) => {
     try {
@@ -86,6 +118,13 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       }
 
       const updatedProgress = await response.json()
+      
+      // Find activity title for celebration
+      let activityTitle = ''
+      planData?.forEach(week => {
+        const activity = week?.activities?.find(a => a?.id === activityId)
+        if (activity) activityTitle = activity.title
+      })
 
       // Update local state
       setPlanData(prev => 
@@ -108,10 +147,60 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
         bestStreak: updatedProgress.bestStreak || prev.bestStreak,
       }))
 
-      toast({
-        title: completed ? "¡Actividad completada!" : "Actividad desmarcada",
-        description: completed ? "Sigue así, estás progresando genial." : "Actividad marcada como pendiente.",
-      })
+      if (completed) {
+        // Award points for completing activity
+        const xpEarned = 20 // Base XP for activity completion
+        
+        // Show completion celebration
+        setCompletionData({ activityTitle, xpEarned })
+        setShowCompletionCelebration(true)
+        
+        // Award points via API
+        try {
+          const gamificationResponse = await fetch('/api/tutor/gamification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'award_points',
+              points: xpEarned,
+              reason: `Actividad completada: ${activityTitle}`
+            })
+          })
+          
+          if (gamificationResponse.ok) {
+            const result = await gamificationResponse.json()
+            
+            // Update gamification stats
+            await loadGamificationStats()
+            
+            // Check if leveled up
+            if (result.points?.leveledUp) {
+              setTimeout(() => {
+                setLevelUpData(result.points.newLevel)
+                setShowLevelUpModal(true)
+              }, 3500)
+            } else {
+              // Show XP toast
+              setTimeout(() => {
+                setXpToastData({ points: xpEarned, reason: activityTitle })
+                setShowXpToast(true)
+              }, 3500)
+            }
+          }
+        } catch (error) {
+          console.error('Error awarding points:', error)
+        }
+        
+        toast({
+          title: "¡Actividad completada!",
+          description: "Sigue así, estás progresando genial.",
+        })
+      } else {
+        toast({
+          title: "Actividad desmarcada",
+          description: "Actividad marcada como pendiente.",
+        })
+      }
 
     } catch (error) {
       toast({
@@ -413,26 +502,124 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Main Content */}
       <main className="py-8 px-4">
         <div className="container max-w-7xl mx-auto">
-          {currentView === 'overview' ? (
-            <ProgressOverview
-              planWeeks={planData}
-              progress={progressData}
-              onWeekSelect={(weekNumber) => {
-                setSelectedWeek(weekNumber)
-                setCurrentView('week')
-              }}
-            />
-          ) : (
-            <WeekView
-              weekData={currentWeekData}
-              onActivityComplete={handleActivityComplete}
-              onWeekChange={setSelectedWeek}
-              totalWeeks={planData?.length || 0}
-              currentWeek={selectedWeek}
-            />
-          )}
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Main content area */}
+            <div className="lg:col-span-2">
+              {currentView === 'overview' ? (
+                <ProgressOverview
+                  planWeeks={planData}
+                  progress={progressData}
+                  onWeekSelect={(weekNumber) => {
+                    setSelectedWeek(weekNumber)
+                    setCurrentView('week')
+                  }}
+                />
+              ) : (
+                <WeekView
+                  weekData={currentWeekData}
+                  onActivityComplete={handleActivityComplete}
+                  onWeekChange={setSelectedWeek}
+                  totalWeeks={planData?.length || 0}
+                  currentWeek={selectedWeek}
+                />
+              )}
+            </div>
+
+            {/* Gamification sidebar */}
+            <div className="space-y-6">
+              {/* Level and XP */}
+              {gamificationStats && (
+                <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="w-5 h-5 text-purple-600" />
+                      Tu Nivel
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <LevelBadge
+                      level={gamificationStats.level}
+                      points={gamificationStats.points}
+                      size="md"
+                      showProgress={true}
+                      levelProgress={gamificationStats.levelProgress}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Streaks */}
+              {gamificationStats && (
+                <StreakDisplay
+                  currentStreak={gamificationStats.currentStreak}
+                  bestStreak={gamificationStats.bestStreak}
+                  size="sm"
+                />
+              )}
+
+              {/* Daily Missions */}
+              <DailyMissions />
+
+              {/* Quick Stats */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Estadísticas Rápidas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                      <span className="text-sm font-medium">Actividades</span>
+                    </div>
+                    <span className="text-lg font-bold text-blue-600">
+                      {progressData.completedActivities}/{progressData.totalActivities}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-green-600" />
+                      <span className="text-sm font-medium">Progreso</span>
+                    </div>
+                    <span className="text-lg font-bold text-green-600">
+                      {progressData.percentageCompleted}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-purple-600" />
+                      <span className="text-sm font-medium">Semana Actual</span>
+                    </div>
+                    <span className="text-lg font-bold text-purple-600">
+                      {progressData.currentWeek}/24
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </main>
+
+      {/* Gamification Notifications */}
+      <XpToast
+        points={xpToastData.points}
+        reason={xpToastData.reason}
+        show={showXpToast}
+        onHide={() => setShowXpToast(false)}
+      />
+
+      <LevelUpModal
+        show={showLevelUpModal}
+        level={levelUpData}
+        onClose={() => setShowLevelUpModal(false)}
+      />
+
+      <ActivityCompletionCelebration
+        show={showCompletionCelebration}
+        activityTitle={completionData.activityTitle}
+        xpEarned={completionData.xpEarned}
+        onComplete={() => setShowCompletionCelebration(false)}
+      />
     </div>
   )
 }
