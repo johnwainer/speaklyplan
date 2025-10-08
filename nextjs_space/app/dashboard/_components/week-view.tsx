@@ -72,29 +72,27 @@ const categoryColors = {
 function markdownToHtml(text: string): string {
   if (!text) return ''
   
-  let html = text
+  // First, convert links before any other processing to preserve them
+  let processedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '___LINK_START___$2___LINK_MIDDLE___$1___LINK_END___')
   
   // Convert **bold** to <strong>
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+  processedText = processedText.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
   
-  // Convert *italic* or _italic_ to <em>
-  html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
-  html = html.replace(/_(.+?)_/g, '<em class="italic">$1</em>')
-  
-  // Convert [text](url) to clickable links
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">$1</a>')
+  // Convert *italic* or _italic_ to <em> (but not list markers)
+  processedText = processedText.replace(/([^-*•\d])\*([^*\s][^*]*?)\*/g, '$1<em class="italic">$2</em>')
+  processedText = processedText.replace(/_(.+?)_/g, '<em class="italic">$1</em>')
   
   // Convert ### headers to h3
-  html = html.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-gray-900 mt-3 mb-2">$1</h3>')
+  processedText = processedText.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-gray-900 mt-3 mb-2">$1</h3>')
   
   // Convert ## headers to h2
-  html = html.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-gray-900 mt-4 mb-2">$1</h2>')
+  processedText = processedText.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-gray-900 mt-4 mb-2">$1</h2>')
   
   // Convert # headers to h1
-  html = html.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-gray-900 mt-4 mb-3">$1</h1>')
+  processedText = processedText.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-gray-900 mt-4 mb-3">$1</h1>')
   
   // Split into lines for list processing
-  const lines = html.split('\n')
+  const lines = processedText.split('\n')
   const processedLines: string[] = []
   let inUnorderedList = false
   let inOrderedList = false
@@ -148,11 +146,15 @@ function markdownToHtml(text: string): string {
   }
   
   // Join lines with <br> for paragraphs, but not after lists or headers
-  html = processedLines.join('\n')
+  let html = processedLines.join('\n')
   html = html.replace(/\n(?!<\/?(ul|ol|li|h[1-3]|br))/g, '<br/>')
   
   // Clean up multiple <br> tags
   html = html.replace(/(<br\/>){3,}/g, '<br/><br/>')
+  
+  // Finally, convert link placeholders back to actual anchor tags
+  html = html.replace(/___LINK_START___([^_]+)___LINK_MIDDLE___([^_]+)___LINK_END___/g, 
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors break-all">$2</a>')
   
   return html
 }
