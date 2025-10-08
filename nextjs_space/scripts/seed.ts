@@ -623,7 +623,13 @@ async function main() {
               day: activityData.day
             }
           },
-          update: {},
+          update: {
+            dayNumber: activityData.dayNumber,
+            title: activityData.title,
+            description: detailedDescription,
+            duration: activityData.duration,
+            category: activityData.category,
+          },
           create: {
             weekId: week.id,
             day: activityData.day,
