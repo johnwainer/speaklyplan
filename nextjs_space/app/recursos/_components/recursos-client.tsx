@@ -155,15 +155,15 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
         <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <div className="flex items-center space-x-4">
-            <BookOpen className="h-8 w-8 text-blue-600" />
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             <div>
-              <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
-              <p className="text-sm text-gray-600 hidden sm:block">Recursos Gratuitos</p>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Recursos Gratuitos</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
               <User className="h-4 w-4" />
               <span>{currentUser?.name || currentUser?.email}</span>
             </div>
@@ -171,9 +171,10 @@ export default function RecursosClient({ user }: RecursosClientProps) {
               variant="outline"
               size="sm"
               onClick={() => signOut({ callbackUrl: '/' })}
+              className="text-xs sm:text-sm"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Salir
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Salir</span>
             </Button>
           </div>
         </div>

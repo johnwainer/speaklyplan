@@ -1,12 +1,22 @@
 
+'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, Clock, Target, Users, BookOpen, TrendingUp, ArrowRight } from 'lucide-react'
+import { CheckCircle, Clock, Target, Users, BookOpen, TrendingUp, ArrowRight, Menu, X } from 'lucide-react'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const features = [
     {
       icon: <Target className="h-6 w-6 text-blue-600" />,
@@ -63,7 +73,9 @@ export default function HomePage() {
             <BookOpen className="h-8 w-8 text-blue-600" />
             <span className="text-xl font-bold text-gray-900">SpeaklyPlan</span>
           </div>
-          <div className="flex items-center space-x-4">
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
             <Link href="/auth/login">
               <Button variant="outline" size="sm">
                 Iniciar Sesión
@@ -75,6 +87,35 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
+
+          {/* Mobile Navigation */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
+                  <span>SpeaklyPlan</span>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-8">
+                <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" className="w-full" size="lg">
+                    Iniciar Sesión
+                  </Button>
+                </Link>
+                <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full" size="lg">
+                    Registrarse
+                  </Button>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 

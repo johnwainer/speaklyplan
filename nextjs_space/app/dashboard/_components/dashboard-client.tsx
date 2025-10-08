@@ -19,8 +19,16 @@ import {
   Award,
   Flame,
   HelpCircle,
-  Library
+  Library,
+  Menu
 } from 'lucide-react'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { PlanWeekData, UserProgressData } from '@/lib/types'
 import WeekView from './week-view'
 import ProgressOverview from './progress-overview'
@@ -41,6 +49,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ initialData, userId }: DashboardClientProps) {
   const [mounted, setMounted] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentView, setCurrentView] = useState<'overview' | 'week'>('overview')
   const [selectedWeek, setSelectedWeek] = useState<number>(initialData.progress.currentWeek)
   const [planData, setPlanData] = useState(initialData.planWeeks)
@@ -126,8 +135,10 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               <p className="text-sm text-gray-600 hidden sm:block">Dashboard</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
+          
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
               <User className="h-4 w-4" />
               <span>{user?.name || user?.email}</span>
             </div>
@@ -140,13 +151,115 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               Salir
             </Button>
           </div>
+
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
+                  <span>Menú</span>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-8">
+                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                  <User className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium truncate">{user?.name || user?.email}</span>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <p className="text-sm font-medium text-gray-500 mb-3">Vistas</p>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant={currentView === 'overview' ? 'default' : 'outline'}
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setCurrentView('overview')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Target className="h-4 w-4 mr-2" />
+                      Vista General
+                    </Button>
+                    <Button
+                      variant={currentView === 'week' ? 'default' : 'outline'}
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setCurrentView('week')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Vista Semanal
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <p className="text-sm font-medium text-gray-500 mb-3">Recursos</p>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/vocabulario')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Vocabulario
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/recursos')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Library className="h-4 w-4 mr-2" />
+                      Recursos
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/guia')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Guía de Uso
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4 mt-auto">
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Cerrar Sesión
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
       {/* Navigation */}
       <nav className="border-b bg-white">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex justify-between items-center">
             <div className="flex space-x-8">
               <button
                 onClick={() => setCurrentView('overview')}
@@ -197,6 +310,32 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 <HelpCircle className="h-4 w-4 mr-2" />
                 Guía de Uso
               </Button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation - Tabs only */}
+          <div className="md:hidden flex justify-center">
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setCurrentView('overview')}
+                className={`py-3 px-4 text-sm font-medium border-b-2 ${
+                  currentView === 'overview'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500'
+                }`}
+              >
+                General
+              </button>
+              <button
+                onClick={() => setCurrentView('week')}
+                className={`py-3 px-4 text-sm font-medium border-b-2 ${
+                  currentView === 'week'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500'
+                }`}
+              >
+                Semanal
+              </button>
             </div>
           </div>
         </div>
