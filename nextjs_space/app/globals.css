@@ -74,3 +74,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Estilos para descripciones de actividades con contenido rico */
+.activity-description-content p {
+  @apply mb-2 last:mb-0;
+}
+
+.activity-description-content a {
+  @apply text-blue-600 hover:text-blue-800 underline font-medium transition-colors inline-flex items-center gap-1;
+}
+
+.activity-description-content a:hover {
+  @apply bg-blue-50 px-1 -mx-1 rounded;
+}
+
+.activity-description-content ul,
+.activity-description-content ol {
+  @apply my-3;
+}
+
+.activity-description-content strong {
+  @apply font-semibold text-gray-900;
+}
+
+.activity-description-content em {
+  @apply italic text-gray-700;
+}
+
+.activity-description-content h1,
+.activity-description-content h2,
+.activity-description-content h3 {
+  @apply font-bold text-gray-900;
+}
+
+.activity-description-content h1 {
+  @apply text-xl mt-4 mb-3;
+}
+
+.activity-description-content h2 {
+  @apply text-lg mt-4 mb-2;
+}
+
+.activity-description-content h3 {
+  @apply text-base mt-3 mb-2;
+}

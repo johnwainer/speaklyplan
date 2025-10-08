@@ -68,17 +68,91 @@ const categoryColors = {
   'revisión': 'bg-gray-100 text-gray-800'
 }
 
-// Function to convert basic Markdown to HTML
+// Function to convert Markdown to HTML with rich formatting
 function markdownToHtml(text: string): string {
   if (!text) return ''
   
   let html = text
   
   // Convert **bold** to <strong>
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
   
-  // Convert line breaks to <br>
-  html = html.replace(/\n/g, '<br/>')
+  // Convert *italic* or _italic_ to <em>
+  html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
+  html = html.replace(/_(.+?)_/g, '<em class="italic">$1</em>')
+  
+  // Convert [text](url) to clickable links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">$1</a>')
+  
+  // Convert ### headers to h3
+  html = html.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-gray-900 mt-3 mb-2">$1</h3>')
+  
+  // Convert ## headers to h2
+  html = html.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-gray-900 mt-4 mb-2">$1</h2>')
+  
+  // Convert # headers to h1
+  html = html.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-gray-900 mt-4 mb-3">$1</h1>')
+  
+  // Split into lines for list processing
+  const lines = html.split('\n')
+  const processedLines: string[] = []
+  let inUnorderedList = false
+  let inOrderedList = false
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
+    
+    // Check for unordered list items (-, *, •)
+    if (line.match(/^[-*•]\s+(.+)$/)) {
+      if (!inUnorderedList) {
+        processedLines.push('<ul class="list-none space-y-2 my-3 pl-0">')
+        inUnorderedList = true
+      }
+      const content = line.replace(/^[-*•]\s+/, '')
+      processedLines.push(`<li class="flex items-start gap-2 text-gray-700"><span class="text-blue-600 font-bold flex-shrink-0 mt-0.5">•</span><span class="flex-1">${content}</span></li>`)
+    } 
+    // Check for ordered list items (1. 2. etc)
+    else if (line.match(/^\d+\.\s+(.+)$/)) {
+      if (!inOrderedList) {
+        processedLines.push('<ol class="list-decimal list-inside space-y-2 my-3 pl-4 marker:text-blue-600 marker:font-semibold">')
+        inOrderedList = true
+      }
+      const content = line.replace(/^\d+\.\s+/, '')
+      processedLines.push(`<li class="text-gray-700 pl-2">${content}</li>`)
+    } 
+    // Regular line
+    else {
+      // Close any open lists
+      if (inUnorderedList) {
+        processedLines.push('</ul>')
+        inUnorderedList = false
+      }
+      if (inOrderedList) {
+        processedLines.push('</ol>')
+        inOrderedList = false
+      }
+      
+      // Add the line if it's not empty
+      if (line) {
+        processedLines.push(line)
+      }
+    }
+  }
+  
+  // Close any remaining open lists
+  if (inUnorderedList) {
+    processedLines.push('</ul>')
+  }
+  if (inOrderedList) {
+    processedLines.push('</ol>')
+  }
+  
+  // Join lines with <br> for paragraphs, but not after lists or headers
+  html = processedLines.join('\n')
+  html = html.replace(/\n(?!<\/?(ul|ol|li|h[1-3]|br))/g, '<br/>')
+  
+  // Clean up multiple <br> tags
+  html = html.replace(/(<br\/>){3,}/g, '<br/><br/>')
   
   return html
 }
@@ -242,9 +316,9 @@ export default function WeekView({
                           {/* Descripción colapsable */}
                           <div className="space-y-2">
                             {isExpanded ? (
-                              <div className="prose prose-sm max-w-none">
+                              <div className="activity-description-content">
                                 <div 
-                                  className="text-sm leading-relaxed text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words"
+                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words shadow-sm"
                                   dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
                                 />
                               </div>
