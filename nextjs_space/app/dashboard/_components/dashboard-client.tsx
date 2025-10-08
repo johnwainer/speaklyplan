@@ -173,6 +173,15 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => router.push('/vocabulario')}
+                className="my-2"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Vocabulario
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => router.push('/recursos')}
                 className="my-2"
               >
