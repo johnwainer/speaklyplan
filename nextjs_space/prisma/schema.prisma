@@ -1,0 +1,202 @@
+
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/speaklyplan/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  progress        UserProgress[]
+  notes           UserNote[]
+  streaks         UserStreak[]
+  vocabularyProgress UserVocabularyProgress[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Plan structure
+model PlanPhase {
+  id          String @id @default(cuid())
+  number      Int
+  name        String
+  description String?
+  weeks       PlanWeek[]
+  
+  @@unique([number])
+}
+
+model PlanWeek {
+  id          String @id @default(cuid())
+  number      Int
+  month       Int
+  phaseId     String
+  objective   String
+  activities  PlanActivity[]
+  
+  phase       PlanPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  
+  @@unique([number])
+}
+
+model PlanActivity {
+  id          String @id @default(cuid())
+  weekId      String
+  day         String // "lunes", "martes", etc.
+  dayNumber   Int    // 1-7
+  title       String
+  description String
+  duration    Int    // in minutes
+  category    String // "vocabulario", "speaking", "listening", etc.
+  
+  week        PlanWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  progress    UserProgress[]
+}
+
+// User progress tracking
+model UserProgress {
+  id          String @id @default(cuid())
+  userId      String
+  activityId  String
+  completed   Boolean @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity    PlanActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, activityId])
+}
+
+// User notes and reflections
+model UserNote {
+  id          String @id @default(cuid())
+  userId      String
+  weekNumber  Int
+  content     String @db.Text
+  reflection  String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Vocabulary system
+model VocabularyCategory {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  words       VocabularyWord[]
+}
+
+model VocabularyWord {
+  id          String @id @default(cuid())
+  categoryId  String
+  english     String
+  spanish     String
+  example     String?
+  learned     UserVocabularyProgress[]
+  
+  category    VocabularyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model UserVocabularyProgress {
+  id          String @id @default(cuid())
+  userId      String
+  wordId      String
+  mastered    Boolean @default(false)
+  attempts    Int @default(0)
+  lastReviewed DateTime?
+  createdAt   DateTime @default(now())
+  
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  word        VocabularyWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, wordId])
+}
+
+// Resources system
+model ResourceCategory {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  resources   Resource[]
+}
+
+model Resource {
+  id          String @id @default(cuid())
+  categoryId  String
+  name        String
+  description String
+  url         String?
+  platform    String?
+  rating      Int?
+  isFree      Boolean @default(true)
+  
+  category    ResourceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+// User streaks and metrics
+model UserStreak {
+  id          String @id @default(cuid())
+  userId      String
+  currentStreak Int @default(0)
+  bestStreak  Int @default(0)
+  lastActivity DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId])
+}
