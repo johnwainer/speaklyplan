@@ -59,10 +59,15 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const router = useRouter();
+  const shouldAutoScroll = useRef(true);
   
-  // Auto-scroll al último mensaje
+  // Auto-scroll al último mensaje solo cuando se envía un nuevo mensaje
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (shouldAutoScroll.current && messages.length > 0) {
+      setTimeout(() => {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
   }, [messages]);
   
   // Load gamification stats on mount
@@ -235,6 +240,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   
   const loadConversation = async (convId: string) => {
     try {
+      shouldAutoScroll.current = false; // Desactivar auto-scroll al cargar conversación
       const response = await fetch(`/api/tutor/history?conversationId=${convId}`);
       if (response.ok) {
         const conversation = await response.json();
@@ -254,10 +260,16 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         setShowHistory(false);
         
         toast.success('Conversación cargada');
+        
+        // Reactivar auto-scroll después de un delay
+        setTimeout(() => {
+          shouldAutoScroll.current = true;
+        }, 500);
       }
     } catch (error) {
       console.error('Error loading conversation:', error);
       toast.error('Error al cargar conversación');
+      shouldAutoScroll.current = true;
     }
   };
   
@@ -353,10 +365,16 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   };
   
   const changeContext = (newContext: string) => {
+    shouldAutoScroll.current = false; // Desactivar auto-scroll al cambiar contexto
     setContext(newContext);
     setMessages([]);
     setConversationId(null);
     toast.success(`Modo cambiado: ${contextModes.find(m => m.value === newContext)?.label}`);
+    
+    // Reactivar auto-scroll después de un delay
+    setTimeout(() => {
+      shouldAutoScroll.current = true;
+    }, 300);
   };
   
   return (
