@@ -68,6 +68,21 @@ const categoryColors = {
   'revisión': 'bg-gray-100 text-gray-800'
 }
 
+// Function to convert basic Markdown to HTML
+function markdownToHtml(text: string): string {
+  if (!text) return ''
+  
+  let html = text
+  
+  // Convert **bold** to <strong>
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  
+  // Convert line breaks to <br>
+  html = html.replace(/\n/g, '<br/>')
+  
+  return html
+}
+
 export default function WeekView({ 
   weekData, 
   onActivityComplete, 
@@ -222,14 +237,16 @@ export default function WeekView({
                             <div className="space-y-2">
                               {isExpanded ? (
                                 <div className="prose prose-sm max-w-none">
-                                  <div className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                    {activity.description}
-                                  </div>
+                                  <div 
+                                    className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-200"
+                                    dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
+                                  />
                                 </div>
                               ) : (
-                                <p className="text-sm text-gray-600 line-clamp-2">
-                                  {activity.description.split('\n')[0]}
-                                </p>
+                                <div 
+                                  className="text-sm text-gray-600 line-clamp-2"
+                                  dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description.split('\n')[0]) }}
+                                />
                               )}
                               
                               <Button
