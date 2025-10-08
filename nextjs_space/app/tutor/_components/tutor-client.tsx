@@ -361,65 +361,34 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
+      {/* Main Header - Same as Dashboard */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
         <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
             <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">SpeaklyPlan</span>
-            <Badge variant="secondary" className="ml-2">AI Tutor</Badge>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-sm text-gray-600 hidden sm:block">AI Tutor</p>
+            </div>
           </div>
           
-          {/* Gamification Stats */}
-          {gamificationStats && (
-            <div className="hidden lg:flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full">
-                <Sparkles className="h-4 w-4" />
-                <span className="font-bold">{gamificationStats.points}</span>
-              </div>
-              <Badge variant="outline" className="gap-1">
-                Level {gamificationStats.level}
-              </Badge>
-              <Badge variant="outline" className="gap-1">
-                🔥 {gamificationStats.currentStreak}
-              </Badge>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAchievements(true)}
-              >
-                <Award className="h-4 w-4 mr-1" />
-                {gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements}
-              </Button>
-            </div>
-          )}
-          
-          <nav className="hidden md:flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={loadConversationHistory}
-            >
-              <History className="h-4 w-4 mr-2" />
-              Historial
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={endSessionAndAnalyze}
-              disabled={!conversationId || messages.length < 2}
-            >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Análisis
-            </Button>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-3">
             <Link href="/dashboard">
               <Button variant="ghost" size="sm">
                 <Home className="h-4 w-4 mr-2" />
                 Dashboard
               </Button>
             </Link>
-          </nav>
+            <Link href="/vocabulario">
+              <Button variant="ghost" size="sm">
+                <Languages className="h-4 w-4 mr-2" />
+                Vocabulario
+              </Button>
+            </Link>
+          </div>
           
+          {/* Mobile Menu */}
           <Button
             variant="ghost"
             size="sm"
@@ -430,6 +399,67 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </Button>
         </div>
       </header>
+      
+      {/* Tutor-Specific Bar */}
+      <div className="sticky top-16 z-40 w-full border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
+        <div className="container max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Badge variant="secondary" className="bg-white text-blue-600">
+                <MessageSquare className="h-3 w-3 mr-1" />
+                AI Tutor
+              </Badge>
+              
+              {/* Gamification Stats */}
+              {gamificationStats && (
+                <div className="hidden lg:flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="font-bold">{gamificationStats.points}</span>
+                  </div>
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white">
+                    Level {gamificationStats.level}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white">
+                    🔥 {gamificationStats.currentStreak}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                    onClick={() => setShowAchievements(true)}
+                  >
+                    <Award className="h-4 w-4 mr-1" />
+                    {gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements}
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            <nav className="hidden md:flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+                onClick={loadConversationHistory}
+              >
+                <History className="h-4 w-4 mr-2" />
+                Historial
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+                onClick={endSessionAndAnalyze}
+                disabled={!conversationId || messages.length < 2}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Análisis
+              </Button>
+            </nav>
+          </div>
+        </div>
+      </div>
       
       <div className="container max-w-7xl mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -505,7 +535,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
           
           {/* Panel Principal: Chat */}
-          <Card className="lg:col-span-3 flex flex-col h-[calc(100vh-12rem)]">
+          <Card className="lg:col-span-3 flex flex-col h-[calc(100vh-16rem)]">
             <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <MessageSquare className="h-6 w-6" />
