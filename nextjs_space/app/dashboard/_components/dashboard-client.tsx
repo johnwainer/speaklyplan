@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -16,7 +17,8 @@ import {
   LogOut,
   User,
   Award,
-  Flame
+  Flame,
+  HelpCircle
 } from 'lucide-react'
 import { PlanWeekData, UserProgressData } from '@/lib/types'
 import WeekView from './week-view'
@@ -50,6 +52,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
   
   const { data: session, status } = useSession() || {};
   const { toast } = useToast()
+  const router = useRouter()
   
   // Usar los datos iniciales si la sesión aún no está cargada
   const user = session?.user || initialData.user;
@@ -142,27 +145,38 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Navigation */}
       <nav className="border-b bg-white">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setCurrentView('overview')}
-              className={`py-4 text-sm font-medium border-b-2 ${
-                currentView === 'overview'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setCurrentView('overview')}
+                className={`py-4 text-sm font-medium border-b-2 ${
+                  currentView === 'overview'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Vista General
+              </button>
+              <button
+                onClick={() => setCurrentView('week')}
+                className={`py-4 text-sm font-medium border-b-2 ${
+                  currentView === 'week'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Vista Semanal
+              </button>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/guia')}
+              className="my-2"
             >
-              Vista General
-            </button>
-            <button
-              onClick={() => setCurrentView('week')}
-              className={`py-4 text-sm font-medium border-b-2 ${
-                currentView === 'week'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Vista Semanal
-            </button>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Guía de Uso
+            </Button>
           </div>
         </div>
       </nav>
