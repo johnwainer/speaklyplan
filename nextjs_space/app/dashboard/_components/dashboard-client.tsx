@@ -48,7 +48,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
     setMounted(true)
   }, [])
   
-  const { data: session, status } = mounted ? useSession() : { data: null, status: 'loading' };
+  const { data: session, status } = useSession() || {};
   const { toast } = useToast()
   
   // Usar los datos iniciales si la sesión aún no está cargada
