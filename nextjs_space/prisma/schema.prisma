@@ -136,20 +136,25 @@ model UserNote {
 // Vocabulary system
 model VocabularyCategory {
   id          String @id @default(cuid())
-  name        String
+  name        String @unique
+  icon        String?
   description String?
-  words       VocabularyWord[]
+  terms       VocabularyTerm[]
 }
 
-model VocabularyWord {
-  id          String @id @default(cuid())
-  categoryId  String
-  english     String
-  spanish     String
-  example     String?
-  learned     UserVocabularyProgress[]
+model VocabularyTerm {
+  id            String @id @default(cuid())
+  categoryId    String
+  term          String
+  pronunciation String
+  translation   String
+  example       String
+  difficulty    String
+  learned       UserVocabularyProgress[]
   
-  category    VocabularyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category      VocabularyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@unique([term, categoryId])
 }
 
 model UserVocabularyProgress {
@@ -162,7 +167,7 @@ model UserVocabularyProgress {
   createdAt   DateTime @default(now())
   
   user        User @relation(fields: [userId], references: [id], onDelete: Cascade) 
-  word        VocabularyWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  word        VocabularyTerm @relation(fields: [wordId], references: [id], onDelete: Cascade)
   
   @@unique([userId, wordId])
 }

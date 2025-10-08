@@ -7,10 +7,10 @@ import VocabularioClient from './_components/vocabulario-client'
 
 async function getVocabularyData(userId: string) {
   try {
-    // Get all vocabulary categories with words
+    // Get all vocabulary categories with terms
     const categories = await prisma.vocabularyCategory.findMany({
       include: {
-        words: {
+        terms: {
           include: {
             learned: {
               where: { userId: userId }
@@ -22,8 +22,8 @@ async function getVocabularyData(userId: string) {
     })
 
     // Calculate progress
-    const totalWords = await prisma.vocabularyWord.count()
-    const learnedWords = await prisma.userVocabularyProgress.count({
+    const totalTerms = await prisma.vocabularyTerm.count()
+    const learnedTerms = await prisma.userVocabularyProgress.count({
       where: {
         userId: userId,
         mastered: true
@@ -34,20 +34,23 @@ async function getVocabularyData(userId: string) {
       categories: categories.map(cat => ({
         id: cat.id,
         name: cat.name,
+        icon: cat.icon || '',
         description: cat.description || '',
-        words: cat.words.map(word => ({
-          id: word.id,
-          english: word.english,
-          spanish: word.spanish,
-          example: word.example || '',
-          mastered: word.learned?.[0]?.mastered || false,
-          lastReviewed: word.learned?.[0]?.lastReviewed || null
+        terms: cat.terms.map(term => ({
+          id: term.id,
+          term: term.term,
+          pronunciation: term.pronunciation,
+          translation: term.translation,
+          example: term.example || '',
+          difficulty: term.difficulty,
+          mastered: term.learned?.[0]?.mastered || false,
+          lastReviewed: term.learned?.[0]?.lastReviewed || null
         }))
       })),
       progress: {
-        total: totalWords,
-        learned: learnedWords,
-        percentage: totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0
+        total: totalTerms,
+        learned: learnedTerms,
+        percentage: totalTerms > 0 ? Math.round((learnedTerms / totalTerms) * 100) : 0
       }
     }
   } catch (error) {

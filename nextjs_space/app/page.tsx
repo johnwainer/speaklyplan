@@ -235,8 +235,8 @@ export default function HomePage() {
               <div className="text-gray-400">Semanas de contenido</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-green-400 mb-2">3000+</div>
-              <div className="text-gray-400">Palabras y frases útiles</div>
+              <div className="text-3xl font-bold text-green-400 mb-2">360</div>
+              <div className="text-gray-400">Términos en 12 categorías</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-purple-400 mb-2">60</div>

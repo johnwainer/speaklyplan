@@ -22,11 +22,13 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
-interface VocabularyWord {
+interface VocabularyTerm {
   id: string
-  english: string
-  spanish: string
+  term: string
+  pronunciation: string
+  translation: string
   example: string
+  difficulty: string
   mastered: boolean
   lastReviewed: Date | null
 }
@@ -34,8 +36,9 @@ interface VocabularyWord {
 interface VocabularyCategory {
   id: string
   name: string
+  icon: string
   description: string
-  words: VocabularyWord[]
+  terms: VocabularyTerm[]
 }
 
 interface VocabularioClientProps {
@@ -83,10 +86,10 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       setCategories(prev =>
         prev.map(cat => ({
           ...cat,
-          words: cat.words.map(word =>
-            word.id === wordId
-              ? { ...word, mastered: !currentStatus, lastReviewed: new Date() }
-              : word
+          terms: cat.terms.map(term =>
+            term.id === wordId
+              ? { ...term, mastered: !currentStatus, lastReviewed: new Date() }
+              : term
           )
         }))
       )
@@ -111,18 +114,18 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
     }
   }
 
-  // Filter categories and words based on search
+  // Filter categories and terms based on search
   const filteredCategories = categories
     .map(cat => ({
       ...cat,
-      words: cat.words.filter(word =>
-        word.english.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        word.spanish.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        word.example.toLowerCase().includes(searchTerm.toLowerCase())
+      terms: cat.terms.filter(term =>
+        term.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        term.translation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        term.example.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }))
     .filter(cat => 
-      selectedCategory ? cat.id === selectedCategory : cat.words.length > 0
+      selectedCategory ? cat.id === selectedCategory : cat.terms.length > 0
     )
 
   return (
@@ -279,16 +282,16 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                 <CardHeader>
                   <CardTitle className="text-2xl">{category.name}</CardTitle>
                   <CardDescription>
-                    {category.words.filter(w => w.mastered).length} de {category.words.length} términos dominados
+                    {category.terms.filter(w => w.mastered).length} de {category.terms.length} términos dominados
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {category.words.map((word, index) => (
+                    {category.terms.map((term, index) => (
                       <div
-                        key={word.id}
+                        key={term.id}
                         className={`p-4 rounded-lg border transition-all ${
-                          word.mastered
+                          term.mastered
                             ? 'bg-green-50 border-green-200'
                             : 'bg-white border-gray-200 hover:border-gray-300'
                         }`}
@@ -300,25 +303,31 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                                 {index + 1}
                               </Badge>
                               <div>
-                                <h3 className="text-lg font-bold text-gray-900">{word.english}</h3>
-                                <p className="text-sm text-gray-600">{word.spanish}</p>
+                                <h3 className="text-lg font-bold text-gray-900">{term.term}</h3>
+                                <p className="text-sm text-gray-500">{term.pronunciation}</p>
+                                <p className="text-sm text-gray-600">{term.translation}</p>
                               </div>
                             </div>
                             <div className="mt-3 pl-10">
                               <p className="text-sm text-gray-700 italic">
-                                <span className="font-semibold">Ejemplo:</span> {word.example}
+                                <span className="font-semibold">Ejemplo:</span> {term.example}
                               </p>
+                              <Badge variant="secondary" className="mt-2">
+                                {term.difficulty === 'beginner' && 'Principiante'}
+                                {term.difficulty === 'intermediate' && 'Intermedio'}
+                                {term.difficulty === 'advanced' && 'Avanzado'}
+                              </Badge>
                             </div>
                           </div>
                           <Button
-                            variant={word.mastered ? 'default' : 'outline'}
+                            variant={term.mastered ? 'default' : 'outline'}
                             size="sm"
-                            onClick={() => handleToggleMastered(word.id, word.mastered)}
+                            onClick={() => handleToggleMastered(term.id, term.mastered)}
                             className={`ml-4 flex-shrink-0 ${
-                              word.mastered ? 'bg-green-600 hover:bg-green-700' : ''
+                              term.mastered ? 'bg-green-600 hover:bg-green-700' : ''
                             }`}
                           >
-                            {word.mastered ? (
+                            {term.mastered ? (
                               <>
                                 <CheckCircle2 className="h-4 w-4 mr-1" />
                                 Dominada
