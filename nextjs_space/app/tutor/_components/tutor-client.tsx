@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X } from 'lucide-react';
+import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Message {
   id: string;
@@ -46,13 +47,219 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [context, setContext] = useState('casual');
   const [showSidebar, setShowSidebar] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [gamificationStats, setGamificationStats] = useState<any>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
   const router = useRouter();
   
   // Auto-scroll al último mensaje
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+  
+  // Load gamification stats on mount
+  useEffect(() => {
+    loadGamificationStats();
+    initSpeechRecognition();
+    setSessionStartTime(new Date());
+  }, []);
+  
+  // Update streak when component mounts
+  useEffect(() => {
+    updateStreakOnServer();
+  }, []);
+  
+  const loadGamificationStats = async () => {
+    try {
+      const response = await fetch('/api/tutor/gamification');
+      if (response.ok) {
+        const data = await response.json();
+        setGamificationStats(data);
+      }
+    } catch (error) {
+      console.error('Error loading gamification stats:', error);
+    }
+  };
+  
+  const updateStreakOnServer = async () => {
+    try {
+      await fetch('/api/tutor/gamification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_streak' })
+      });
+    } catch (error) {
+      console.error('Error updating streak:', error);
+    }
+  };
+  
+  const initSpeechRecognition = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsRecording(true);
+        toast.info('🎤 Listening...');
+      };
+      
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+          
+        setInput(transcript);
+        
+        if (event.results[0].isFinal) {
+          setIsRecording(false);
+        }
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+        toast.error('Error en reconocimiento de voz');
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+  };
+  
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      toast.error('Tu navegador no soporta reconocimiento de voz');
+      return;
+    }
+    
+    if (isRecording) {
+      recognitionRef.current.stop();
+    } else {
+      recognitionRef.current.start();
+    }
+  };
+  
+  const endSessionAndAnalyze = async () => {
+    if (!conversationId || messages.length < 2) return;
+    
+    try {
+      toast.loading('Analizando sesión...');
+      
+      const response = await fetch('/api/tutor/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          sessionType: context
+        })
+      });
+      
+      if (response.ok) {
+        const analytics = await response.json();
+        setAnalytics(analytics);
+        setShowAnalytics(true);
+        
+        // Check for achievements
+        await checkAchievements(analytics);
+        
+        toast.success('¡Sesión analizada!');
+      }
+    } catch (error) {
+      console.error('Error analyzing session:', error);
+      toast.error('Error al analizar sesión');
+    }
+  };
+  
+  const checkAchievements = async (sessionAnalytics: any) => {
+    try {
+      const response = await fetch('/api/tutor/gamification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'check_achievements',
+          metrics: {
+            streak: gamificationStats?.currentStreak,
+            totalMessages: gamificationStats?.points ? Math.floor(gamificationStats.points / 5) : 0,
+            totalSessions: sessionAnalytics ? 1 : 0,
+            perfectGrammarSessions: sessionAnalytics?.grammarAccuracy >= 95 ? 1 : 0,
+            vocabularyLearned: sessionAnalytics?.newWordsLearned?.length || 0
+          }
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.achievements && data.achievements.length > 0) {
+          data.achievements.forEach((achievement: any) => {
+            toast.success(`🏆 ¡Logro desbloqueado! ${achievement.achievement.name}`, {
+              duration: 5000
+            });
+          });
+          loadGamificationStats();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking achievements:', error);
+    }
+  };
+  
+  const loadConversationHistory = async () => {
+    try {
+      const response = await fetch('/api/tutor/history');
+      if (response.ok) {
+        const data = await response.json();
+        setConversationHistory(data);
+        setShowHistory(true);
+      }
+    } catch (error) {
+      console.error('Error loading history:', error);
+      toast.error('Error al cargar historial');
+    }
+  };
+  
+  const loadConversation = async (convId: string) => {
+    try {
+      const response = await fetch(`/api/tutor/history?conversationId=${convId}`);
+      if (response.ok) {
+        const conversation = await response.json();
+        
+        const loadedMessages: Message[] = conversation.messages.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          translation: msg.translation,
+          grammarFeedback: msg.grammarErrors,
+          timestamp: new Date(msg.createdAt)
+        }));
+        
+        setMessages(loadedMessages);
+        setConversationId(conversation.id);
+        setContext(conversation.context || 'casual');
+        setShowHistory(false);
+        
+        toast.success('Conversación cargada');
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+      toast.error('Error al cargar conversación');
+    }
+  };
   
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -97,6 +304,19 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       setMessages(prev => [...prev, assistantMessage]);
       setConversationId(data.conversationId);
+      
+      // Award points for sending message
+      await fetch('/api/tutor/gamification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'award_points',
+          points: 5,
+          reason: 'Mensaje enviado'
+        })
+      });
+      
+      loadGamificationStats();
       
       // Mostrar feedback de gramática si hay
       if (data.grammarFeedback?.hasErrors) {
@@ -150,23 +370,52 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             <Badge variant="secondary" className="ml-2">AI Tutor</Badge>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-4">
+          {/* Gamification Stats */}
+          {gamificationStats && (
+            <div className="hidden lg:flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full">
+                <Sparkles className="h-4 w-4" />
+                <span className="font-bold">{gamificationStats.points}</span>
+              </div>
+              <Badge variant="outline" className="gap-1">
+                Level {gamificationStats.level}
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                🔥 {gamificationStats.currentStreak}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAchievements(true)}
+              >
+                <Award className="h-4 w-4 mr-1" />
+                {gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements}
+              </Button>
+            </div>
+          )}
+          
+          <nav className="hidden md:flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={loadConversationHistory}
+            >
+              <History className="h-4 w-4 mr-2" />
+              Historial
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={endSessionAndAnalyze}
+              disabled={!conversationId || messages.length < 2}
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Análisis
+            </Button>
             <Link href="/dashboard">
               <Button variant="ghost" size="sm">
                 <Home className="h-4 w-4 mr-2" />
                 Dashboard
-              </Button>
-            </Link>
-            <Link href="/vocabulario">
-              <Button variant="ghost" size="sm">
-                <Languages className="h-4 w-4 mr-2" />
-                Vocabulario
-              </Button>
-            </Link>
-            <Link href="/guia">
-              <Button variant="ghost" size="sm">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Guía
               </Button>
             </Link>
           </nav>
@@ -219,7 +468,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 <BookOpen className="h-5 w-5 text-green-600" />
                 Vocabulario de la Semana
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-2 mb-3">
                 {initialData.currentWeekVocab?.slice(0, 8).map(term => (
                   <div key={term.id} className="p-2 bg-blue-50 rounded-lg">
                     <p className="font-medium text-sm">{term.term}</p>
@@ -227,6 +476,12 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   </div>
                 ))}
               </div>
+              <Link href="/tutor/vocabulary-review">
+                <Button variant="outline" size="sm" className="w-full">
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Sistema de Repaso
+                </Button>
+              </Link>
             </Card>
             
             {/* Estadísticas */}
@@ -342,11 +597,20 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 }}
                 className="flex gap-2 max-w-4xl mx-auto"
               >
+                <Button
+                  type="button"
+                  variant={isRecording ? "destructive" : "outline"}
+                  size="icon"
+                  onClick={toggleRecording}
+                  disabled={isLoading}
+                >
+                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type your message in English..."
+                  placeholder={isRecording ? "Listening..." : "Type or speak your message in English..."}
                   disabled={isLoading}
                   className="flex-1 bg-white"
                 />
@@ -359,12 +623,243 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 </Button>
               </form>
               <p className="text-xs text-center text-muted-foreground mt-2">
-                Presiona Enter para enviar • Shift + Enter para nueva línea
+                🎤 Habla o escribe • Enter para enviar
               </p>
             </div>
           </Card>
         </div>
       </div>
+      
+      {/* Historial Dialog */}
+      <Dialog open={showHistory} onOpenChange={setShowHistory}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Historial de Conversaciones
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {conversationHistory.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No hay conversaciones guardadas aún
+              </p>
+            ) : (
+              conversationHistory.map((conv) => (
+                <Card
+                  key={conv.id}
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => loadConversation(conv.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium">{conv.title || 'Conversación sin título'}</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {conv.context && contextModes.find(m => m.value === conv.context)?.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {conv._count?.messages || 0} mensajes • {new Date(conv.lastMessageAt).toLocaleDateString('es-ES')}
+                      </p>
+                      {conv.messages?.[0] && (
+                        <p className="text-sm mt-2 line-clamp-2">
+                          {conv.messages[0].content}
+                        </p>
+                      )}
+                    </div>
+                    <Badge variant="outline">{conv.isActive ? 'Activa' : 'Archivada'}</Badge>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Analytics Dialog */}
+      <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Análisis de Sesión
+            </DialogTitle>
+          </DialogHeader>
+          {analytics && (
+            <div className="space-y-4">
+              {/* Overall Score */}
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-2">Puntuación General</p>
+                  <p className="text-5xl font-bold text-blue-600">
+                    {analytics.overallScore?.toFixed(0) || 0}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">de 100</p>
+                </div>
+              </Card>
+              
+              {/* Detailed Scores */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Fluidez</p>
+                  <p className="text-2xl font-bold">{analytics.fluencyScore?.toFixed(0) || 0}</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Precisión</p>
+                  <p className="text-2xl font-bold">{analytics.accuracyScore?.toFixed(0) || 0}</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Comprensión</p>
+                  <p className="text-2xl font-bold">{analytics.comprehensionScore?.toFixed(0) || 0}</p>
+                </Card>
+              </div>
+              
+              {/* Stats */}
+              <Card className="p-4">
+                <h4 className="font-semibold mb-3">Estadísticas</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Duración</p>
+                    <p className="font-medium">{Math.floor(analytics.duration / 60)} min {analytics.duration % 60} seg</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Mensajes</p>
+                    <p className="font-medium">{analytics.messagesCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Palabras habladas</p>
+                    <p className="font-medium">{analytics.wordsSpoken}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Palabras nuevas</p>
+                    <p className="font-medium">{analytics.newWordsLearned?.length || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Precisión gramatical</p>
+                    <p className="font-medium">{analytics.grammarAccuracy?.toFixed(0) || 0}%</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Diversidad vocabulario</p>
+                    <p className="font-medium">{analytics.vocabularyDiversity?.toFixed(0) || 0}%</p>
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Strengths */}
+              {analytics.strengths && analytics.strengths.length > 0 && (
+                <Card className="p-4 bg-green-50 border-green-200">
+                  <h4 className="font-semibold mb-2 text-green-900">✨ Fortalezas</h4>
+                  <ul className="space-y-1">
+                    {analytics.strengths.map((strength: string, i: number) => (
+                      <li key={i} className="text-sm text-green-800">• {strength}</li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+              
+              {/* Areas to Improve */}
+              {analytics.areasToImprove && analytics.areasToImprove.length > 0 && (
+                <Card className="p-4 bg-yellow-50 border-yellow-200">
+                  <h4 className="font-semibold mb-2 text-yellow-900">🎯 Áreas de Mejora</h4>
+                  <ul className="space-y-1">
+                    {analytics.areasToImprove.map((area: string, i: number) => (
+                      <li key={i} className="text-sm text-yellow-800">• {area}</li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+              
+              {/* Feedback */}
+              {analytics.feedback && (
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-2">💬 Retroalimentación</h4>
+                  <p className="text-sm text-muted-foreground">{analytics.feedback}</p>
+                </Card>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Achievements Dialog */}
+      <Dialog open={showAchievements} onOpenChange={setShowAchievements}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5" />
+              Logros y Progreso
+            </DialogTitle>
+          </DialogHeader>
+          {gamificationStats && (
+            <div className="space-y-4">
+              {/* Level Progress */}
+              <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-muted-foreground mb-1">Nivel Actual</p>
+                  <p className="text-4xl font-bold text-purple-600">{gamificationStats.level}</p>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <span>{gamificationStats.levelProgress?.current || 0} puntos</span>
+                    <span>{gamificationStats.levelProgress?.needed || 0} necesarios</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min(gamificationStats.levelProgress?.percentage || 0, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-3">
+                <Card className="p-4 text-center">
+                  <Sparkles className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                  <p className="text-2xl font-bold">{gamificationStats.points}</p>
+                  <p className="text-xs text-muted-foreground">Puntos</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold">🔥</p>
+                  <p className="text-2xl font-bold">{gamificationStats.currentStreak}</p>
+                  <p className="text-xs text-muted-foreground">Racha</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <Award className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                  <p className="text-2xl font-bold">{gamificationStats.unlockedAchievements}</p>
+                  <p className="text-xs text-muted-foreground">Logros</p>
+                </Card>
+              </div>
+              
+              {/* Unlocked Achievements */}
+              <div>
+                <h4 className="font-semibold mb-3">Logros Desbloqueados</h4>
+                <div className="space-y-2">
+                  {gamificationStats.achievements?.map((ua: any) => (
+                    <Card key={ua.id} className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50">
+                      <div className="flex items-start gap-3">
+                        <div className="text-2xl">{ua.achievement.icon}</div>
+                        <div className="flex-1">
+                          <h5 className="font-medium">{ua.achievement.name}</h5>
+                          <p className="text-xs text-muted-foreground">{ua.achievement.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Desbloqueado: {new Date(ua.unlockedAt).toLocaleDateString('es-ES')}
+                          </p>
+                        </div>
+                        <Badge variant="secondary">+{ua.achievement.points}</Badge>
+                      </div>
+                    </Card>
+                  ))}
+                  {(!gamificationStats.achievements || gamificationStats.achievements.length === 0) && (
+                    <p className="text-center text-muted-foreground py-4">
+                      Aún no has desbloqueado logros. ¡Sigue practicando!
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
