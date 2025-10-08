@@ -133,46 +133,50 @@ export default function WeekView({
   return (
     <div className="space-y-6">
       {/* Week Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <Button
           variant="outline"
           onClick={() => onWeekChange(Math.max(1, currentWeek - 1))}
           disabled={currentWeek <= 1}
+          className="w-full sm:w-auto order-2 sm:order-1"
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
-          Semana Anterior
+          <span className="hidden sm:inline">Semana Anterior</span>
+          <span className="sm:hidden">Anterior</span>
         </Button>
         
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Semana {weekData.number}</h1>
-          <p className="text-gray-600">Mes {weekData.month} • {weekData.phase}</p>
+        <div className="text-center order-1 sm:order-2">
+          <h1 className="text-xl sm:text-2xl font-bold">Semana {weekData.number}</h1>
+          <p className="text-sm sm:text-base text-gray-600">Mes {weekData.month} • {weekData.phase}</p>
         </div>
         
         <Button
           variant="outline"
           onClick={() => onWeekChange(Math.min(totalWeeks, currentWeek + 1))}
           disabled={currentWeek >= totalWeeks}
+          className="w-full sm:w-auto order-3"
         >
-          Siguiente Semana
+          <span className="hidden sm:inline">Siguiente Semana</span>
+          <span className="sm:hidden">Siguiente</span>
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
 
       {/* Week Progress */}
       <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center">
-              <Target className="h-5 w-5 mr-2 text-blue-600" />
-              Objetivo de la Semana
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <CardTitle className="flex items-center text-base sm:text-lg">
+              <Target className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" />
+              <span>Objetivo de la Semana</span>
             </CardTitle>
-            <Badge variant="secondary">{weekProgress}% completado</Badge>
+            <Badge variant="secondary" className="self-start sm:self-auto">{weekProgress}% completado</Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700 mb-4">{weekData.objective}</p>
-          <Progress value={weekProgress} className="h-3" />
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm sm:text-base text-gray-700 mb-4 leading-relaxed">{weekData.objective}</p>
+          <Progress value={weekProgress} className="h-2.5 sm:h-3" />
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">
             {weekData?.activities?.filter(a => a?.completed)?.length || 0} de {weekData?.activities?.length || 0} actividades completadas
           </p>
         </CardContent>
@@ -188,22 +192,22 @@ export default function WeekView({
 
           return (
             <Card key={dayKey} className={`border-0 shadow-lg ${dayCompleted ? 'bg-green-50' : ''}`}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-gray-600" />
-                    {dayName}
+              <CardHeader className="pb-3">
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center text-base sm:text-lg">
+                    <Calendar className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                    <span>{dayName}</span>
                   </div>
                   {dayCompleted && (
-                    <Badge className="bg-green-100 text-green-800">
-                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                    <Badge className="bg-green-100 text-green-800 self-start sm:self-auto text-xs">
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
                       Completado
                     </Badge>
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="pt-0">
+                <div className="space-y-3 sm:space-y-4">
                   {dayActivities.map((activity) => {
                     const categoryKey = activity.category.toLowerCase()
                     const icon = categoryIcons[categoryKey as keyof typeof categoryIcons] || <Circle className="h-4 w-4" />
@@ -213,93 +217,96 @@ export default function WeekView({
                     return (
                       <div 
                         key={activity.id}
-                        className={`p-4 rounded-lg border transition-all ${
+                        className={`p-3 sm:p-4 rounded-lg border transition-all ${
                           activity.completed 
                             ? 'bg-green-50 border-green-200' 
                             : 'bg-white border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="flex items-center mb-2">
-                              <Badge className={`${colorClass} mr-2`}>
-                                {icon}
-                                <span className="ml-1 capitalize">{activity.category}</span>
-                              </Badge>
-                              <div className="flex items-center text-sm text-gray-500">
-                                <Clock className="h-4 w-4 mr-1" />
-                                {activity.duration} min
-                              </div>
-                            </div>
-                            <h3 className="font-semibold mb-2">{activity.title}</h3>
-                            
-                            {/* Descripción colapsable */}
-                            <div className="space-y-2">
-                              {isExpanded ? (
-                                <div className="prose prose-sm max-w-none">
-                                  <div 
-                                    className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-200"
-                                    dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
-                                  />
-                                </div>
-                              ) : (
-                                <div 
-                                  className="text-sm text-gray-600 line-clamp-2"
-                                  dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description.split('\n')[0]) }}
-                                />
-                              )}
-                              
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => toggleActivityExpanded(activity.id)}
-                                className="text-blue-600 hover:text-blue-700 p-0 h-auto font-normal"
-                              >
-                                {isExpanded ? (
-                                  <>
-                                    <ChevronUp className="h-4 w-4 mr-1" />
-                                    Ver menos
-                                  </>
-                                ) : (
-                                  <>
-                                    <ChevronDown className="h-4 w-4 mr-1" />
-                                    Ver guía completa
-                                  </>
-                                )}
-                              </Button>
+                        <div className="space-y-3">
+                          {/* Header - Categoría y duración */}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge className={`${colorClass} text-xs`}>
+                              {icon}
+                              <span className="ml-1 capitalize">{activity.category}</span>
+                            </Badge>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {activity.duration} min
                             </div>
                           </div>
                           
+                          {/* Título */}
+                          <h3 className="font-semibold text-base sm:text-lg leading-tight">{activity.title}</h3>
+                          
+                          {/* Descripción colapsable */}
+                          <div className="space-y-2">
+                            {isExpanded ? (
+                              <div className="prose prose-sm max-w-none">
+                                <div 
+                                  className="text-sm leading-relaxed text-gray-700 bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words"
+                                  dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
+                                />
+                              </div>
+                            ) : (
+                              <div 
+                                className="text-sm leading-relaxed text-gray-600 line-clamp-2 overflow-hidden break-words"
+                                dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description.split('\n')[0]) }}
+                              />
+                            )}
+                            
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleActivityExpanded(activity.id)}
+                              className="text-blue-600 hover:text-blue-700 p-0 h-auto font-normal text-sm"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="h-4 w-4 mr-1" />
+                                  Ver menos
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-4 w-4 mr-1" />
+                                  Ver guía completa
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                          
+                          {/* Botón de completar - full width en mobile */}
                           <Button
                             variant={activity.completed ? "default" : "outline"}
                             size="sm"
                             onClick={() => onActivityComplete(activity.id, !activity.completed)}
-                            className={`ml-4 flex-shrink-0 ${activity.completed ? "bg-green-600 hover:bg-green-700" : ""}`}
+                            className={`w-full sm:w-auto ${activity.completed ? "bg-green-600 hover:bg-green-700" : ""}`}
                           >
                             {activity.completed ? (
                               <>
-                                <CheckCircle2 className="h-4 w-4 mr-1" />
+                                <CheckCircle2 className="h-4 w-4 mr-2" />
                                 Completada
                               </>
                             ) : (
                               <>
-                                <Circle className="h-4 w-4 mr-1" />
-                                Marcar
+                                <Circle className="h-4 w-4 mr-2" />
+                                Marcar como completada
                               </>
                             )}
                           </Button>
+                          
+                          {/* Fecha de completado */}
+                          {activity.completed && activity.completedAt && (
+                            <p className="text-xs text-green-600 pt-2 border-t border-green-200">
+                              ✅ Completada el {new Date(activity.completedAt).toLocaleDateString('es-ES', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}
+                            </p>
+                          )}
                         </div>
-                        
-                        {activity.completed && activity.completedAt && (
-                          <p className="text-xs text-green-600 mt-2">
-                            ✅ Completada el {new Date(activity.completedAt).toLocaleDateString('es-ES', { 
-                              weekday: 'long', 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            })}
-                          </p>
-                        )}
                       </div>
                     )
                   })}
@@ -312,25 +319,26 @@ export default function WeekView({
 
       {/* Notes Section */}
       <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle>Notas y Reflexiones</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg">Notas y Reflexiones</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             Guarda tus reflexiones, dudas o logros de esta semana
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div>
-              <Label htmlFor="notes">Notas de la semana</Label>
+              <Label htmlFor="notes" className="text-sm">Notas de la semana</Label>
               <Textarea
                 id="notes"
                 placeholder="¿Cómo te fue esta semana? ¿Qué aprendiste? ¿Qué te resultó más difícil?"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
+                className="text-sm resize-none"
               />
             </div>
-            <Button>
+            <Button className="w-full sm:w-auto">
               Guardar Notas
             </Button>
           </div>
