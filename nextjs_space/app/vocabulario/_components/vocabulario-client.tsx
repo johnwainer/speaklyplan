@@ -18,8 +18,6 @@ import {
   Circle,
   TrendingUp,
   Home,
-  Library,
-  HelpCircle,
   Brain
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
@@ -167,22 +165,6 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
             >
               <Home className="h-4 w-4 mr-2" />
               Dashboard
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/recursos')}
-            >
-              <Library className="h-4 w-4 mr-2" />
-              Recursos
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/guia')}
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              Guía de Uso
             </Button>
           </div>
         </div>
