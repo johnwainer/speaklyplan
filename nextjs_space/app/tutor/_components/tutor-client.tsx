@@ -12,6 +12,7 @@ import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Langua
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 interface Message {
   id: string;
@@ -46,7 +47,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [context, setContext] = useState('casual');
-  const [showSidebar, setShowSidebar] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [gamificationStats, setGamificationStats] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -389,14 +389,138 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
           
           {/* Mobile Menu */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setShowSidebar(!showSidebar)}
-          >
-            {showSidebar ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                  Menú del Tutor
+                </SheetTitle>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-6">
+                {/* Navigation */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">NAVEGACIÓN</h4>
+                  <div className="space-y-2">
+                    <Link href="/dashboard" className="block">
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <Home className="h-4 w-4 mr-2" />
+                        Volver al Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/vocabulario" className="block">
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <Languages className="h-4 w-4 mr-2" />
+                        Vocabulario
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Gamification Stats */}
+                {gamificationStats && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-muted-foreground">TU PROGRESO</h4>
+                    <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-yellow-500" />
+                            <span className="font-bold text-lg">{gamificationStats.points}</span>
+                          </div>
+                          <Badge variant="secondary">
+                            Nivel {gamificationStats.level}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Racha actual</span>
+                          <span className="text-lg font-bold">🔥 {gamificationStats.currentStreak}</span>
+                        </div>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setShowAchievements(true);
+                            document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                          }}
+                        >
+                          <Award className="h-4 w-4 mr-2" />
+                          Ver Logros ({gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements})
+                        </Button>
+                      </div>
+                    </Card>
+                  </div>
+                )}
+                
+                {/* Actions */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">ACCIONES</h4>
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        loadConversationHistory();
+                        document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                      }}
+                    >
+                      <History className="h-4 w-4 mr-2" />
+                      Ver Historial
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        endSessionAndAnalyze();
+                        document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                      }}
+                      disabled={!conversationId || messages.length < 2}
+                    >
+                      <TrendingUp className="h-4 w-4 mr-2" />
+                      Analizar Sesión
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Context Modes */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">MODO DE PRÁCTICA</h4>
+                  <div className="space-y-2">
+                    {contextModes.map(mode => (
+                      <Button
+                        key={mode.value}
+                        variant={context === mode.value ? 'default' : 'outline'}
+                        className="w-full justify-start text-left h-auto py-3"
+                        size="sm"
+                        onClick={() => {
+                          changeContext(mode.value);
+                          document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                        }}
+                      >
+                        <div>
+                          <div className="font-medium text-sm">{mode.label}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {mode.description}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
       
@@ -410,7 +534,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 AI Tutor
               </Badge>
               
-              {/* Gamification Stats */}
+              {/* Gamification Stats - Desktop */}
               {gamificationStats && (
                 <div className="hidden lg:flex items-center gap-3">
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
@@ -432,6 +556,19 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                     <Award className="h-4 w-4 mr-1" />
                     {gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements}
                   </Button>
+                </div>
+              )}
+              
+              {/* Gamification Stats - Mobile (compact) */}
+              {gamificationStats && (
+                <div className="flex lg:hidden items-center gap-2">
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    {gamificationStats.points}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs">
+                    🔥 {gamificationStats.currentStreak}
+                  </Badge>
                 </div>
               )}
             </div>
@@ -464,8 +601,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       <div className="container max-w-7xl mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
-          {/* Panel Lateral */}
-          <div className={`lg:col-span-1 space-y-4 ${showSidebar ? 'block' : 'hidden lg:block'}`}>
+          {/* Panel Lateral - Solo Desktop */}
+          <div className="hidden lg:block lg:col-span-1 space-y-4">
             <Card className="p-4">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-600" />
@@ -535,7 +672,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
           
           {/* Panel Principal: Chat */}
-          <Card className="lg:col-span-3 flex flex-col h-[calc(100vh-16rem)]">
+          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[calc(100vh-16rem)]">
             <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <MessageSquare className="h-6 w-6" />
