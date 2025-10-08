@@ -41,7 +41,7 @@ export default function GuiaClient({ user }: GuiaClientProps) {
       content: (
         <div className="space-y-4">
           <p className="text-lg">
-            Este plan te llevará de nivel básico a comunicarte con confianza como CTO en inglés, 
+            Este plan te llevará de nivel básico a comunicarte con confianza en inglés profesional, 
             usando <strong>solo recursos gratuitos</strong> y dedicando <strong>1 hora diaria</strong>.
           </p>
           <div className="bg-primary/10 p-4 rounded-lg">
@@ -49,23 +49,23 @@ export default function GuiaClient({ user }: GuiaClientProps) {
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>Liderar reuniones técnicas en inglés con confianza</span>
+                <span>Participar activamente en reuniones de trabajo en inglés</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>Presentar a boards e investors sin nervios</span>
+                <span>Presentar ideas y proyectos con claridad</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>Negociar con vendors internacionales</span>
+                <span>Comunicarte efectivamente con colegas internacionales</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>Participar en conferencias globales</span>
+                <span>Participar en eventos y conferencias profesionales</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>Consumir contenido técnico sin subtítulos</span>
+                <span>Consumir contenido profesional sin dificultad</span>
               </li>
             </ul>
           </div>
@@ -342,15 +342,15 @@ export default function GuiaClient({ user }: GuiaClientProps) {
             <ul className="space-y-1 text-sm">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Liderarás meetings técnicos con confianza
+                Participarás en reuniones profesionales con confianza
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Presentarás a boards sin traducir mentalmente
+                Presentarás ideas sin traducir mentalmente
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Consumirás contenido técnico sin esfuerzo
+                Consumirás contenido profesional sin esfuerzo
               </li>
             </ul>
           </div>
@@ -429,8 +429,8 @@ export default function GuiaClient({ user }: GuiaClientProps) {
               Escribe tu razón personal aquí (en tu mente o en un papel que veas todos los días):
             </p>
             <div className="bg-white p-4 rounded border-2 border-dashed min-h-[100px] text-gray-500 italic">
-              Ejemplo: "Quiero liderar un equipo global", "Aspiro a trabajar en Silicon Valley",
-              "Necesito presentar nuestro producto a inversores internacionales"...
+              Ejemplo: "Quiero trabajar en una empresa internacional", "Aspiro a comunicarme con clientes extranjeros",
+              "Necesito presentar proyectos en inglés", "Quiero expandir mis oportunidades laborales"...
             </div>
           </div>
 
@@ -512,7 +512,7 @@ export default function GuiaClient({ user }: GuiaClientProps) {
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-center flex items-center justify-center gap-3">
                 <BookOpen className="h-8 w-8 text-blue-600" />
-                Guía de Uso: Plan Maestro de Inglés para CTO
+                Guía de Uso: Plan Maestro de Inglés Profesional
               </CardTitle>
               <p className="text-center text-muted-foreground mt-2">
                 Todo lo que necesitas saber para dominar el inglés en 6 meses

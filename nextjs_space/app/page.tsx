@@ -1,4 +1,5 @@
 
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,7 +11,7 @@ export default function HomePage() {
     {
       icon: <Target className="h-6 w-6 text-blue-600" />,
       title: "Plan Estructurado",
-      description: "24 semanas organizadas en 3 fases específicas para profesionales de tecnología"
+      description: "24 semanas organizadas en 3 fases específicas para profesionales ocupados"
     },
     {
       icon: <Clock className="h-6 w-6 text-green-600" />,
@@ -32,22 +33,22 @@ export default function HomePage() {
   const phases = [
     {
       phase: "FASE 1",
-      title: "CATARSIS",
-      description: "Fundamentos y vocabulario técnico básico",
+      title: "FUNDACIÓN SÓLIDA",
+      description: "Vocabulario esencial y gramática básica",
       weeks: "Semanas 1-8",
       color: "bg-blue-100 text-blue-800"
     },
     {
       phase: "FASE 2", 
-      title: "SPEAKING MÍNIMO VIABLE",
-      description: "Conversaciones técnicas y presentaciones",
+      title: "CONSTRUCCIÓN ACTIVA",
+      description: "Conversaciones prácticas y fluidez",
       weeks: "Semanas 9-16",
       color: "bg-green-100 text-green-800"
     },
     {
       phase: "FASE 3",
-      title: "PLAYBOOK FOR JTBD",
-      description: "Dominio avanzado y simulaciones reales",
+      title: "DOMINIO PROFESIONAL",
+      description: "Inglés avanzado para el trabajo",
       weeks: "Semanas 17-24",
       color: "bg-purple-100 text-purple-800"
     }
@@ -84,11 +85,11 @@ export default function HomePage() {
             ✨ Método 1% - De Básico a Fluido
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Aprende <span className="text-blue-600">Inglés Técnico</span><br />
+            Aprende <span className="text-blue-600">Inglés Profesional</span><br />
             en 6 Meses
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Plan completo diseñado específicamente para <strong>CTOs y profesionales de tecnología</strong>. 
+            Plan completo diseñado para <strong>profesionales con nivel básico de inglés</strong>. 
             Solo 1 hora diaria usando recursos 100% gratuitos.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -115,7 +116,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-              Enfoque técnico
+              Enfoque profesional
             </div>
           </div>
         </div>
@@ -129,8 +130,8 @@ export default function HomePage() {
               ¿Por qué SpeaklyPlan?
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Un enfoque metodológico diseñado específicamente para profesionales de tecnología 
-              que necesitan dominar el inglés técnico.
+              Un enfoque metodológico diseñado para profesionales ocupados 
+              que necesitan dominar el inglés profesional desde nivel básico.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -193,8 +194,8 @@ export default function HomePage() {
               <div className="text-gray-400">Semanas de contenido</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-green-400 mb-2">2000+</div>
-              <div className="text-gray-400">Palabras técnicas</div>
+              <div className="text-3xl font-bold text-green-400 mb-2">3000+</div>
+              <div className="text-gray-400">Palabras y frases útiles</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-purple-400 mb-2">60</div>
@@ -215,7 +216,7 @@ export default function HomePage() {
             Comienza Tu Transformación Hoy
           </h2>
           <p className="text-xl mb-8 text-blue-100">
-            Únete a cientos de profesionales de tecnología que ya están dominando el inglés técnico
+            Únete a cientos de profesionales que ya están dominando el inglés profesional
           </p>
           <Link href="/auth/register">
             <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
@@ -234,7 +235,7 @@ export default function HomePage() {
             <span className="text-lg font-semibold text-white">SpeaklyPlan</span>
           </div>
           <p className="text-sm">
-            © 2024 SpeaklyPlan. Transformando profesionales de tecnología a través del inglés.
+            © 2024 SpeaklyPlan. Transformando profesionales a través del inglés.
           </p>
         </div>
       </footer>

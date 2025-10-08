@@ -27,15 +27,15 @@ function getDetailedDescription(day: string, weekNumber: number, objective: stri
 
 🤖 **Paso 1: Speaking con ChatGPT (30 minutos)**
 - Abre ChatGPT y configúralo como tu tutor de inglés
-- Prompt sugerido: "I'm a CTO learning English. Let's have a conversation about: ${obj}. Please correct my mistakes and give me feedback."
+- Prompt sugerido: "I'm a professional learning English. Let's have a conversation about: ${obj}. Please correct my mistakes and give me feedback."
 - Temas de conversación:
-  • Describe tu día típico como CTO
+  • Describe tu día típico en el trabajo
   • Explica un proyecto reciente
-  • Discute un desafío técnico que enfrentaste
+  • Discute un desafío profesional que enfrentaste
 - Graba tu audio para revisar después
 
 🎭 **Paso 2: Shadowing (30 minutos)**
-- Busca un video de TED Talk sobre tecnología (5-10 min)
+- Busca un video de TED Talk relacionado con tu área (5-10 min)
 - Técnica de shadowing:
   1. Escucha el video completo una vez
   2. Reproduce frase por frase
@@ -47,12 +47,12 @@ function getDetailedDescription(day: string, weekNumber: number, objective: stri
     miércoles: (obj) => `✍️ **GRAMÁTICA Y WRITING - Enfoque: ${obj}**
 
 📖 **Paso 1: Gramática Aplicada (30 minutos)**
-- Tema de hoy: Tiempos verbales en contexto técnico
+- Tema de hoy: Tiempos verbales en contexto profesional
 - Recursos: BBC Learning English Grammar section
 - Ejercicios prácticos:
-  • Present Perfect: "I have deployed 5 applications this month"
-  • Past Simple: "We migrated the database last week"
-  • Future: "We will implement the new feature next sprint"
+  • Present Perfect: "I have completed 5 projects this month"
+  • Past Simple: "We finished the report last week"
+  • Future: "We will start the new phase next month"
 - Completa 10 ejercicios online
 - Crea 5 oraciones sobre tu trabajo usando los tiempos estudiados
 
@@ -60,8 +60,8 @@ function getDetailedDescription(day: string, weekNumber: number, objective: stri
 - Escribe 3 emails profesionales sobre: ${obj}
 - Tipos de email a practicar:
   1. **Email de actualización**: Informa al equipo sobre el progreso de un proyecto
-  2. **Email de propuesta**: Sugiere una mejora técnica
-  3. **Email de respuesta**: Responde preguntas técnicas de stakeholders
+  2. **Email de propuesta**: Sugiere una mejora o idea
+  3. **Email de respuesta**: Responde preguntas de colegas o clientes
 - Usa Grammarly para revisar errores
 - Guarda los emails como templates
 
@@ -69,16 +69,16 @@ function getDetailedDescription(day: string, weekNumber: number, objective: stri
 
     jueves: (obj) => `🎯 **SIMULACIÓN PRÁCTICA - Enfoque: ${obj}**
 
-🤝 **Reunión Técnica Simulada con IA (60 minutos)**
+🤝 **Reunión Profesional Simulada con IA (60 minutos)**
 
 **Preparación (15 minutos):**
-- Define el tipo de reunión: Daily standup, Sprint planning, Technical review, o One-on-one
+- Define el tipo de reunión: Team meeting, Project update, Client call, o One-on-one
 - Contexto: ${obj}
 - Prepara 3 puntos clave que quieres comunicar
-- Anota vocabulario técnico relevante
+- Anota vocabulario relevante para tu área
 
 **Simulación con ChatGPT (35 minutos):**
-- Prompt: "You are my team. We're having a [tipo de reunión] about ${obj}. Ask me questions and I'll respond. Correct my English and give suggestions."
+- Prompt: "You are my team/client. We're having a [tipo de reunión] about ${obj}. Ask me questions and I'll respond. Correct my English and give suggestions."
 - Practica:
   • Presentar tu punto de vista
   • Responder preguntas difíciles
@@ -94,7 +94,7 @@ function getDetailedDescription(day: string, weekNumber: number, objective: stri
 
 💡 **Tip del día**: En reuniones, está bien pedir clarificación: "Could you repeat that?" o "Let me make sure I understand..."`,
 
-    viernes: (obj) => `📊 **PRESENTACIÓN TÉCNICA - Enfoque: ${obj}**
+    viernes: (obj) => `📊 **PRESENTACIÓN PROFESIONAL - Enfoque: ${obj}**
 
 🎤 **Preparación y Delivery de Presentación (60 minutos)**
 
@@ -130,36 +130,37 @@ function getDetailedDescription(day: string, weekNumber: number, objective: stri
 
     sábado: (obj) => `🎬 **INMERSIÓN CULTURAL - Enfoque: ${obj}**
 
-📺 **Serie Tech en Inglés (60 minutos)**
+📺 **Serie o Contenido en Inglés (60 minutos)**
 
-**Series recomendadas:**
-- Silicon Valley (Comedy + Tech startup culture)
-- Mr. Robot (Cybersecurity + Hacking)
-- Halt and Catch Fire (Tech history)
+**Opciones recomendadas:**
+- Series profesionales: The Office, Suits, Mad Men
+- Documentales: Netflix documentaries relacionados con tu campo
+- TED Talks: Busca charlas sobre ${obj}
+- YouTube: Videos profesionales de tu industria
 
 **Método de inmersión activa:**
 
 **Antes de ver (5 minutos):**
-- Lee un resumen del episodio en inglés
+- Lee un resumen del contenido en inglés
 - Identifica el tema principal
 - Relación con: ${obj}
 
-**Durante el episodio (45 minutos):**
+**Durante la visualización (45 minutos):**
 - Primera mitad: Subtítulos en inglés
 - Segunda mitad: Sin subtítulos (desafío)
 - Pausa cuando escuches:
-  • Una frase técnica nueva
+  • Una frase profesional nueva
   • Una expresión idiomática
-  • Un término de negocios
+  • Un término relevante para tu trabajo
 - Anota mínimo 10 frases o palabras nuevas
 
 **Después de ver (10 minutos):**
 - Escribe un resumen de 5 líneas en inglés
 - Lista 3 frases que quieres incorporar en tu vocabulario
-- Ejemplo: "Let's circle back", "I'll loop you in", "Let's take this offline"
+- Ejemplo: "Let's circle back", "I'll keep you posted", "That makes sense"
 - Practica diciendo estas frases en voz alta
 
-💡 **Tip del día**: La inmersión cultural te ayuda a entender el contexto y la cultura de trabajo en inglés, no solo el idioma.`,
+💡 **Tip del día**: La inmersión cultural te ayuda a entender el contexto y la cultura profesional en inglés, no solo el idioma.`,
 
     domingo: (obj) => `📈 **REVISIÓN Y PLANIFICACIÓN - Enfoque: ${obj}**
 
@@ -295,7 +296,7 @@ async function main() {
       },
       {
         number: 3, month: 1, phase: 1,
-        objective: "Trabajo: Hablar sobre tu rol actual",
+        objective: "Trabajo: Describir tu rol y responsabilidades",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
@@ -308,7 +309,7 @@ async function main() {
       },
       {
         number: 4, month: 1, phase: 1,
-        objective: "Tecnología: Explicar stack técnico básico",
+        objective: "Herramientas: Explicar las que usas en tu trabajo",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
@@ -334,7 +335,7 @@ async function main() {
       },
       {
         number: 6, month: 2, phase: 1,
-        objective: "Procesos: Explicar metodologías ágiles",
+        objective: "Procesos: Explicar cómo funciona tu trabajo",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Listening", duration: 40, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Práctica de Speaking", duration: 60, category: "speaking" },
@@ -375,7 +376,7 @@ async function main() {
       // ============ FASE 2: SPEAKING MVP (Semanas 9-16) ============
       {
         number: 9, month: 3, phase: 2,
-        objective: "Arquitectura: Explicar sistemas complejos",
+        objective: "Explicar: Sistemas y procesos complejos",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
@@ -388,7 +389,7 @@ async function main() {
       },
       {
         number: 10, month: 3, phase: 2,
-        objective: "Decision-making: Justificar decisiones técnicas",
+        objective: "Toma de decisiones: Justificar tus elecciones",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
@@ -401,7 +402,7 @@ async function main() {
       },
       {
         number: 11, month: 3, phase: 2,
-        objective: "Trade-offs: Discutir pros/contras de tecnologías",
+        objective: "Análisis: Discutir pros y contras de opciones",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
@@ -414,7 +415,7 @@ async function main() {
       },
       {
         number: 12, month: 3, phase: 2,
-        objective: "Estrategia: Presentar roadmap técnico",
+        objective: "Planificación: Presentar planes y estrategias",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
@@ -440,7 +441,7 @@ async function main() {
       },
       {
         number: 14, month: 4, phase: 2,
-        objective: "Escalabilidad: Discutir growth y performance",
+        objective: "Crecimiento: Discutir expansión y mejora",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
@@ -453,7 +454,7 @@ async function main() {
       },
       {
         number: 15, month: 4, phase: 2,
-        objective: "Seguridad: Explicar prácticas de security",
+        objective: "Buenas prácticas: Explicar estándares de tu área",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Vocabulario y Podcast", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Role-play y Pronunciación", duration: 60, category: "speaking" },
@@ -481,7 +482,7 @@ async function main() {
       // ============ FASE 3: PLAYBOOK (Semanas 17-24) ============
       {
         number: 17, month: 5, phase: 3,
-        objective: "Board meetings: Comunicar con stakeholders",
+        objective: "Reuniones importantes: Comunicar con stakeholders",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Technical Vocabulary Deep Dive", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Debate Técnico Avanzado", duration: 60, category: "speaking" },
@@ -494,7 +495,7 @@ async function main() {
       },
       {
         number: 18, month: 5, phase: 3,
-        objective: "Investor pitch: Presentar visión técnica",
+        objective: "Presentaciones clave: Comunicar tu visión",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Technical Vocabulary Deep Dive", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Debate Técnico Avanzado", duration: 60, category: "speaking" },
@@ -572,7 +573,7 @@ async function main() {
       },
       {
         number: 24, month: 6, phase: 3,
-        objective: "Consolidación Final: Simulación completa CTO",
+        objective: "Consolidación Final: Dominio completo",
         activities: [
           { day: "lunes", dayNumber: 1, title: "Advanced Vocabulary Mastery", duration: 60, category: "vocabulario" },
           { day: "martes", dayNumber: 2, title: "Mock Interview Practice", duration: 60, category: "speaking" },
