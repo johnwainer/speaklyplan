@@ -672,7 +672,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
           
           {/* Panel Principal: Chat */}
-          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[calc(100vh-16rem)]">
+          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[600px] lg:h-[calc(100vh-12rem)]">
             <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <MessageSquare className="h-6 w-6" />
@@ -683,7 +683,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               </p>
             </div>
             
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea className="flex-1 p-4 overflow-y-auto">
               <div className="space-y-4 max-w-4xl mx-auto">
                 {messages.length === 0 && (
                   <div className="text-center py-16 text-muted-foreground">
