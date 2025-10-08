@@ -17,7 +17,7 @@ import {
   CheckCircle2,
   Circle,
   TrendingUp,
-  Home,
+  ArrowLeft,
   Brain
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
@@ -157,14 +157,15 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       {/* Navigation */}
       <nav className="border-b bg-white">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-2 py-2">
+          <div className="flex items-center">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => router.push('/dashboard')}
+              className="my-2"
             >
-              <Home className="h-4 w-4 mr-2" />
-              Dashboard
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al Dashboard
             </Button>
           </div>
         </div>
