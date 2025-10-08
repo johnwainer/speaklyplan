@@ -18,7 +18,8 @@ import {
   User,
   Award,
   Flame,
-  HelpCircle
+  HelpCircle,
+  Library
 } from 'lucide-react'
 import { PlanWeekData, UserProgressData } from '@/lib/types'
 import WeekView from './week-view'
@@ -168,15 +169,26 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 Vista Semanal
               </button>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/guia')}
-              className="my-2"
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              Guía de Uso
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/recursos')}
+                className="my-2"
+              >
+                <Library className="h-4 w-4 mr-2" />
+                Recursos
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/guia')}
+                className="my-2"
+              >
+                <HelpCircle className="h-4 w-4 mr-2" />
+                Guía de Uso
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
