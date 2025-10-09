@@ -45,6 +45,42 @@ import {
   ActivityCompletionCelebration
 } from '@/components/gamification'
 
+// Helper function to format Markdown text
+function formatMarkdownText(text: string | null | undefined): React.ReactNode {
+  if (!text) return null;
+  
+  const parts: React.ReactNode[] = [];
+  let currentIndex = 0;
+  let key = 0;
+  
+  // Match **bold** text
+  const boldRegex = /\*\*(.*?)\*\*/g;
+  let match;
+  
+  while ((match = boldRegex.exec(text)) !== null) {
+    // Add text before the bold
+    if (match.index > currentIndex) {
+      parts.push(text.substring(currentIndex, match.index));
+    }
+    
+    // Add the bold text
+    parts.push(
+      <strong key={key++} className="font-semibold">
+        {match[1]}
+      </strong>
+    );
+    
+    currentIndex = match.index + match[0].length;
+  }
+  
+  // Add remaining text
+  if (currentIndex < text.length) {
+    parts.push(text.substring(currentIndex));
+  }
+  
+  return parts.length > 0 ? parts : text;
+}
+
 interface DashboardClientProps {
   initialData: {
     user: {
@@ -695,7 +731,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                                   {activity?.title}
                                 </h4>
                                 <p className="text-xs text-gray-600 line-clamp-1">
-                                  {activity?.description}
+                                  {formatMarkdownText(activity?.description)}
                                 </p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <Badge variant="secondary" className="text-xs py-0 px-2">
