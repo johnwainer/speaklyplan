@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/table"
 import { signOut } from "next-auth/react"
 import { CreateUserDialog } from "./create-user-dialog"
+import { UserDetailsDialog } from "./user-details-dialog"
 
 interface DashboardStats {
   totalUsers: number
@@ -469,9 +470,11 @@ export function AdminDashboard() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Button variant="ghost" size="sm">
-                              Ver detalles
-                            </Button>
+                            <UserDetailsDialog
+                              userId={user.id}
+                              userName={user.name}
+                              userEmail={user.email}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
