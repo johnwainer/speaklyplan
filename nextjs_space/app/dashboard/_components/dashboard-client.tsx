@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -88,6 +89,7 @@ interface DashboardClientProps {
       id: string
       name?: string | null
       email?: string | null
+      image?: string | null
     }
     planWeeks: PlanWeekData[]
     progress: UserProgressData
@@ -411,7 +413,18 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <User className="h-4 w-4" />
+              {user?.image ? (
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-blue-200">
+                  <Image
+                    src={user.image}
+                    alt={user.name || 'User'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <User className="h-4 w-4" />
+              )}
               <span>{user?.name || user?.email}</span>
             </div>
             <Button
@@ -448,7 +461,18 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-8">
                 <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                  <User className="h-5 w-5 text-blue-600" />
+                  {user?.image ? (
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-200 flex-shrink-0">
+                      <Image
+                        src={user.image}
+                        alt={user.name || 'User'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <User className="h-5 w-5 text-blue-600" />
+                  )}
                   <span className="text-sm font-medium truncate">{user?.name || user?.email}</span>
                 </div>
                 

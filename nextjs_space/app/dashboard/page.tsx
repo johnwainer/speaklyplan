@@ -74,6 +74,7 @@ async function getDashboardData(userId: string) {
         id: user?.id || '',
         name: user?.name || '',
         email: user?.email || '',
+        image: user?.image || null,
       },
       planWeeks: (planWeeks || []).map(week => ({
         id: week?.id || '',
@@ -106,7 +107,7 @@ async function getDashboardData(userId: string) {
     console.error('Error getting dashboard data:', error)
     // Return safe fallback data
     return {
-      user: { id: userId, name: '', email: '' },
+      user: { id: userId, name: '', email: '', image: null },
       planWeeks: [],
       progress: {
         totalActivities: 0,

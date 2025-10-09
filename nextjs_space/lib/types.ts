@@ -8,6 +8,7 @@ export interface SessionUser {
   email: string
   name?: string | null
   role: string
+  image?: string | null
 }
 
 declare module "next-auth" {
