@@ -218,13 +218,16 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
         <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <BookOpen className="h-8 w-8 text-blue-600" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
               <p className="text-sm text-gray-600 hidden sm:block">Dashboard</p>
             </div>
-          </div>
+          </button>
           
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">

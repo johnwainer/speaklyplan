@@ -384,13 +384,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       {/* Main Header - Same as Dashboard */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
         <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <div className="flex items-center space-x-4">
+          <Link href="/dashboard" className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity">
             <BookOpen className="h-8 w-8 text-blue-600" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
               <p className="text-sm text-gray-600 hidden sm:block">AI Tutor</p>
             </div>
-          </div>
+          </Link>
           
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
@@ -424,25 +424,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               </SheetHeader>
               
               <div className="mt-6 space-y-6">
-                {/* Navigation */}
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">NAVEGACIÓN</h4>
-                  <div className="space-y-2">
-                    <Link href="/dashboard" className="block">
-                      <Button variant="outline" size="sm" className="w-full justify-start">
-                        <Home className="h-4 w-4 mr-2" />
-                        Volver al Dashboard
-                      </Button>
-                    </Link>
-                    <Link href="/vocabulario" className="block">
-                      <Button variant="outline" size="sm" className="w-full justify-start">
-                        <Languages className="h-4 w-4 mr-2" />
-                        Vocabulario
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-                
                 {/* Gamification Stats */}
                 {gamificationStats && (
                   <div>

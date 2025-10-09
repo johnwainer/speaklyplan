@@ -133,13 +133,16 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
         <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
               <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Vocabulario Profesional</p>
             </div>
-          </div>
+          </button>
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
               <User className="h-4 w-4" />
