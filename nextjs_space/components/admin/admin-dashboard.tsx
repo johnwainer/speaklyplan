@@ -50,6 +50,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { signOut } from "next-auth/react"
+import { CreateUserDialog } from "./create-user-dialog"
 
 interface DashboardStats {
   totalUsers: number
@@ -354,10 +355,7 @@ export function AdminDashboard() {
                       Administra y supervisa a todos los usuarios del sistema
                     </CardDescription>
                   </div>
-                  <Button>
-                    <Users className="h-4 w-4 mr-2" />
-                    Crear Usuario
-                  </Button>
+                  <CreateUserDialog onUserCreated={fetchDashboardData} />
                 </div>
 
                 {/* Filters */}
