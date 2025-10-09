@@ -5,59 +5,54 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@speaklyplan.com'
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123!'
-  const adminName = process.env.ADMIN_NAME || 'Administrador'
-
-  // Check if admin already exists
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail }
-  })
-
-  if (existingAdmin) {
-    console.log('✅ El administrador ya existe')
-    console.log('Email:', adminEmail)
+  const adminEmail = 'admin@speaklyplan.com'
+  const adminPassword = 'Admin123!'
+  const adminName = 'Administrador'
+  
+  try {
+    // Verificar si el usuario ya existe
+    const existingUser = await prisma.user.findUnique({
+      where: { email: adminEmail }
+    })
     
-    // Update to admin role if not already
-    if (existingAdmin.role !== 'admin') {
-      await prisma.user.update({
+    if (existingUser) {
+      // Si existe, solo actualizar el rol
+      const updatedUser = await prisma.user.update({
         where: { email: adminEmail },
         data: { role: 'admin' }
       })
-      console.log('✅ Usuario actualizado a rol de administrador')
+      console.log(`✅ Usuario existente ${adminEmail} actualizado a rol: ${updatedUser.role}`)
+    } else {
+      // Si no existe, crear el usuario
+      const hashedPassword = await bcrypt.hash(adminPassword, 10)
+      
+      const newUser = await prisma.user.create({
+        data: {
+          email: adminEmail,
+          name: adminName,
+          password: hashedPassword,
+          role: 'admin',
+          emailVerified: new Date()
+        }
+      })
+      
+      console.log(`✅ Usuario administrador creado exitosamente`)
+      console.log(`   Email: ${newUser.email}`)
+      console.log(`   Contraseña: ${adminPassword}`)
+      console.log(`   Rol: ${newUser.role}`)
     }
-    
-    return
+  } catch (error) {
+    console.error('Error procesando usuario:', error)
+    process.exit(1)
   }
-
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(adminPassword, 10)
-
-  // Create admin user
-  const admin = await prisma.user.create({
-    data: {
-      email: adminEmail,
-      name: adminName,
-      password: hashedPassword,
-      role: 'admin',
-      points: 0,
-      level: 1,
-      currentStreak: 0,
-      bestStreak: 0
-    }
-  })
-
-  console.log('✅ Administrador creado exitosamente')
-  console.log('Email:', admin.email)
-  console.log('Password:', adminPassword)
-  console.log('⚠️  Por favor, cambia la contraseña después del primer inicio de sesión')
 }
 
 main()
-  .catch((e) => {
-    console.error('Error creating admin:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
   })
