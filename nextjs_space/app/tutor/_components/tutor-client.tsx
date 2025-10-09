@@ -386,9 +386,9 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
           <Link href="/dashboard" className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity">
             <BookOpen className="h-8 w-8 text-blue-600" />
-            <div>
+            <div className="text-left">
               <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
-              <p className="text-sm text-gray-600 hidden sm:block">AI Tutor</p>
+              <p className="text-sm text-gray-600 hidden sm:block text-left">AI Tutor</p>
             </div>
           </Link>
           

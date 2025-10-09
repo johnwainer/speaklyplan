@@ -138,9 +138,9 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
             className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-            <div>
+            <div className="text-left">
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
-              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Vocabulario Profesional</p>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Vocabulario Profesional</p>
             </div>
           </button>
           <div className="flex items-center space-x-2 sm:space-x-4">
