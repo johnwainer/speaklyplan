@@ -21,6 +21,8 @@ export function getProfileImageUrl(imagePath: string | null | undefined): string
     return imagePath
   }
   
-  // If it's an S3 key, generate the API URL
-  return `/api/profile/image/${encodeURIComponent(imagePath)}`
+  // If it's an S3 key, generate the API URL with cache-busting timestamp
+  // This forces the browser to reload the image when it changes
+  const timestamp = Date.now()
+  return `/api/profile/image/${encodeURIComponent(imagePath)}?t=${timestamp}`
 }

@@ -211,10 +211,13 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
         description: "Tu foto de perfil se ha actualizado correctamente.",
       })
 
+      // Actualizar la sesión de NextAuth y recargar datos
+      await fetch('/api/auth/session?update', { method: 'GET' })
+      
       // Forzar recarga completa para actualizar en todos los componentes
       setTimeout(() => {
         window.location.reload()
-      }, 1000)
+      }, 500)
     } catch (error: any) {
       toast({
         title: "Error",
@@ -252,10 +255,13 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
         description: "Tu foto de perfil se ha eliminado correctamente.",
       })
 
+      // Actualizar la sesión de NextAuth y recargar datos
+      await fetch('/api/auth/session?update', { method: 'GET' })
+
       // Forzar recarga completa para actualizar en todos los componentes
       setTimeout(() => {
         window.location.reload()
-      }, 1000)
+      }, 500)
     } catch (error) {
       toast({
         title: "Error",
