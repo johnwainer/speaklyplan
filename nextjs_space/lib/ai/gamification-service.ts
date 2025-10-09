@@ -349,6 +349,37 @@ export async function getGamificationStats(userId: string) {
 
   const levelProgress = pointsProgressToNextLevel(user.points, user.level);
 
+  // Calculate total session time for today (in minutes)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const todaysSessions = await prisma.practiceSession.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: today,
+      },
+    },
+  });
+
+  const totalSessionTime = Math.floor(
+    todaysSessions.reduce((acc, session) => acc + session.duration, 0) / 60
+  );
+
+  // Calculate vocabulary learned today
+  const vocabularyProgress = await prisma.userVocabularyProgress.findMany({
+    where: {
+      userId,
+      lastReviewed: {
+        gte: today,
+      },
+    },
+  });
+
+  const vocabularyLearned = vocabularyProgress.filter(
+    (vp) => vp.attempts > 0
+  ).length;
+
   return {
     points: user.points,
     level: user.level,
@@ -358,5 +389,7 @@ export async function getGamificationStats(userId: string) {
     achievements: user.userAchievements,
     totalAchievements: ACHIEVEMENTS.length,
     unlockedAchievements: user.userAchievements.length,
+    totalSessionTime,
+    vocabularyLearned,
   };
 }

@@ -100,6 +100,77 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
     }
   }
 
+  // Calculate missions based on current progress
+  const calculateMissions = () => {
+    // Get today's completed activities
+    const today = new Date()
+    const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
+    const allActivities = currentWeek?.activities || []
+    
+    const completedToday = allActivities.filter(a => {
+      if (!a?.completedAt) return false
+      const completedDate = new Date(a.completedAt)
+      return completedDate.toDateString() === today.toDateString()
+    }).length
+
+    // Get tutor session time from gamification stats (in minutes)
+    const tutorSessionTime = gamificationStats?.totalSessionTime || 0
+
+    // Get vocabulary progress (assuming we track this)
+    const vocabularyProgress = gamificationStats?.vocabularyLearned || 0
+
+    // Get weekly progress
+    const weeklyProgress = allActivities.filter(a => a?.completed).length
+    const weeklyTarget = allActivities.length
+
+    return [
+      {
+        id: 'daily-practice',
+        title: 'Práctica Diaria',
+        description: 'Completa 3 actividades hoy',
+        icon: Zap,
+        progress: completedToday,
+        target: 3,
+        xpReward: 50,
+        completed: completedToday >= 3,
+        category: 'daily' as const
+      },
+      {
+        id: 'tutor-session',
+        title: 'Sesión con el Tutor',
+        description: 'Practica 10 minutos con el Tutor AI',
+        icon: MessageSquare,
+        progress: Math.min(tutorSessionTime, 10),
+        target: 10,
+        xpReward: 30,
+        completed: tutorSessionTime >= 10,
+        category: 'daily' as const
+      },
+      {
+        id: 'vocabulary',
+        title: 'Vocabulario',
+        description: 'Aprende 5 palabras nuevas',
+        icon: BookOpen,
+        progress: Math.min(vocabularyProgress, 5),
+        target: 5,
+        xpReward: 25,
+        completed: vocabularyProgress >= 5,
+        category: 'daily' as const
+      },
+      {
+        id: 'perfect-week',
+        title: 'Semana Perfecta',
+        description: 'Completa todas las actividades de esta semana',
+        icon: Trophy,
+        progress: weeklyProgress,
+        target: weeklyTarget,
+        xpReward: 200,
+        completed: weeklyProgress >= weeklyTarget && weeklyTarget > 0,
+        category: 'weekly' as const
+      }
+    ]
+  }
+
   const handleActivityComplete = async (activityId: string, completed: boolean) => {
     try {
       const response = await fetch('/api/progress', {
@@ -149,7 +220,34 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
       if (completed) {
         // Award points for completing activity
-        const xpEarned = 20 // Base XP for activity completion
+        let xpEarned = 20 // Base XP for activity completion
+        
+        // Check missions before and after to award XP for newly completed missions
+        const missionsBefore = calculateMissions()
+        
+        // Calculate missions after the activity completion
+        // We need to simulate the state after completion
+        const today = new Date()
+        const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
+        const allActivities = currentWeek?.activities || []
+        const completedTodayAfter = allActivities.filter(a => {
+          if (a?.id === activityId) return true // This activity will be completed
+          if (!a?.completedAt) return false
+          const completedDate = new Date(a.completedAt)
+          return completedDate.toDateString() === today.toDateString()
+        }).length
+
+        // Check if daily practice mission was just completed
+        if (completedTodayAfter >= 3 && !missionsBefore.find(m => m.id === 'daily-practice')?.completed) {
+          xpEarned += 50 // Add daily practice mission XP
+        }
+
+        // Check if weekly mission was just completed
+        const weeklyProgressAfter = allActivities.filter(a => a?.id === activityId || a?.completed).length
+        const weeklyTarget = allActivities.length
+        if (weeklyProgressAfter >= weeklyTarget && weeklyTarget > 0 && !missionsBefore.find(m => m.id === 'perfect-week')?.completed) {
+          xpEarned += 200 // Add perfect week mission XP
+        }
         
         // Show completion celebration
         setCompletionData({ activityTitle, xpEarned })
@@ -717,7 +815,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               )}
 
               {/* Daily Missions */}
-              <DailyMissions />
+              <DailyMissions missions={calculateMissions()} />
             </div>
           </div>
         </div>
