@@ -409,6 +409,14 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => router.push('/perfil')}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Mi Perfil
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => signOut({ callbackUrl: '/' })}
             >
               <LogOut className="h-4 w-4 mr-2" />

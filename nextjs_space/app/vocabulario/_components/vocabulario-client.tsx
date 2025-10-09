@@ -363,6 +363,15 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
             <Button
               variant="outline"
               size="sm"
+              onClick={() => router.push('/perfil')}
+              className="text-xs sm:text-sm"
+            >
+              <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Mi Perfil</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-xs sm:text-sm"
             >
