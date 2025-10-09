@@ -615,9 +615,9 @@ export default function GuiaClient({ user }: GuiaClientProps) {
             </div>
           </button>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+            <div className="hidden md:flex items-center space-x-3 text-sm text-gray-700">
               {currentUser?.image ? (
-                <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-blue-200">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
                   <Image
                     src={currentUser.image}
                     alt={currentUser.name || 'User'}
@@ -626,9 +626,11 @@ export default function GuiaClient({ user }: GuiaClientProps) {
                   />
                 </div>
               ) : (
-                <User className="h-4 w-4" />
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
               )}
-              <span>{currentUser?.name || currentUser?.email}</span>
+              <span className="font-medium">{currentUser?.name || currentUser?.email}</span>
             </div>
             <Button
               variant="outline"
