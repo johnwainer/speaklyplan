@@ -1,0 +1,259 @@
+{
+  "exportDate": "2025-10-09T21:33:40.603Z",
+  "users": [
+    {
+      "id": "cmgjn10ub0000rdxa6n01egm3",
+      "email": "john@doe.com",
+      "name": "Admin Usuario",
+      "image": null,
+      "role": "admin",
+      "createdAt": "2025-10-09T16:34:23.747Z"
+    },
+    {
+      "id": "cmgjnih3u0000ns08oxf3ge0y",
+      "email": "alejandrozapata.9806@gmail.com",
+      "name": "Alejandro Bedoya Zapata",
+      "image": "4924/profile-images/1760037336500-BOGOTÁ BG.png",
+      "role": "user",
+      "createdAt": "2025-10-09T16:47:57.979Z"
+    },
+    {
+      "id": "cmgjvtuh60000t8borfw9qw3w",
+      "email": "admin@speaklyplan.com",
+      "name": "Administrador",
+      "image": null,
+      "role": "admin",
+      "createdAt": "2025-10-09T20:40:45.450Z"
+    },
+    {
+      "id": "cmgjnf2xg0000rd2gv92812jl",
+      "email": "johnwainer@gmail.com",
+      "name": "john valencia",
+      "image": "4924/profile-images/1760045208566-Colin Galinski 2.jpg",
+      "role": "user",
+      "createdAt": "2025-10-09T16:45:19.636Z"
+    }
+  ],
+  "learningContexts": [
+    {
+      "id": "cmgjp6r0u0001pb08lw68d08j",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "currentLevel": "A1",
+      "weakAreas": [],
+      "strongAreas": [],
+      "preferredTopics": [],
+      "learningGoals": [
+        "improve English for professional settings"
+      ],
+      "totalConversations": 0,
+      "totalMessages": 0,
+      "updatedAt": "2025-10-09T17:34:50.190Z",
+      "createdAt": "2025-10-09T17:34:50.190Z"
+    }
+  ],
+  "conversations": [],
+  "vocabularyProgress": [],
+  "grammarMistakes": [],
+  "userProgress": [
+    {
+      "id": "cmgjotqwb0001mj08fc4crg8t",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10v50009rdxacgak8a6g",
+      "completed": true,
+      "completedAt": "2025-10-09T17:24:43.496Z",
+      "createdAt": "2025-10-09T17:24:43.497Z",
+      "updatedAt": "2025-10-09T17:24:43.497Z"
+    },
+    {
+      "id": "cmgjpbj7m0003pb08ce1woi02",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10v8000brdxalxmur09z",
+      "completed": true,
+      "completedAt": "2025-10-09T17:38:33.346Z",
+      "createdAt": "2025-10-09T17:38:33.346Z",
+      "updatedAt": "2025-10-09T17:38:33.346Z"
+    },
+    {
+      "id": "cmgjpbokz0005pb0873n09vjy",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10va000drdxauhfdilii",
+      "completed": true,
+      "completedAt": "2025-10-09T17:38:40.306Z",
+      "createdAt": "2025-10-09T17:38:40.307Z",
+      "updatedAt": "2025-10-09T17:38:40.307Z"
+    },
+    {
+      "id": "cmgjpciau000hpb086h6bik0h",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vc000frdxahg10510a",
+      "completed": true,
+      "completedAt": "2025-10-09T17:39:18.822Z",
+      "createdAt": "2025-10-09T17:39:18.823Z",
+      "updatedAt": "2025-10-09T17:39:18.823Z"
+    },
+    {
+      "id": "cmgjpcmpp000jpb08x3eor65a",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10ve000hrdxasuzvsk57",
+      "completed": true,
+      "completedAt": "2025-10-09T17:39:24.541Z",
+      "createdAt": "2025-10-09T17:39:24.542Z",
+      "updatedAt": "2025-10-09T17:39:24.542Z"
+    },
+    {
+      "id": "cmgjpcrp4000lpb08d8wirptj",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vg000jrdxar9ow6ac0",
+      "completed": true,
+      "completedAt": "2025-10-09T17:39:31.000Z",
+      "createdAt": "2025-10-09T17:39:31.001Z",
+      "updatedAt": "2025-10-09T17:39:31.001Z"
+    },
+    {
+      "id": "cmgjpcwlz000npb08bubv35ma",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vi000lrdxaimu791rn",
+      "completed": true,
+      "completedAt": "2025-10-09T17:39:37.366Z",
+      "createdAt": "2025-10-09T17:39:37.367Z",
+      "updatedAt": "2025-10-09T17:39:37.367Z"
+    },
+    {
+      "id": "cmgjpd8kt000ppb083z0a9r3k",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vn000prdxa2cwn33b5",
+      "completed": true,
+      "completedAt": "2025-10-09T17:39:52.877Z",
+      "createdAt": "2025-10-09T17:39:52.878Z",
+      "updatedAt": "2025-10-09T17:39:52.878Z"
+    },
+    {
+      "id": "cmgjpfgj4000tpb08vwzhjmx8",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vp000rrdxazj1hqjvr",
+      "completed": true,
+      "completedAt": "2025-10-09T17:41:36.495Z",
+      "createdAt": "2025-10-09T17:41:36.496Z",
+      "updatedAt": "2025-10-09T17:41:36.496Z"
+    },
+    {
+      "id": "cmgjpfkd9000vpb08cms3jos2",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vr000trdxafuxx53v8",
+      "completed": true,
+      "completedAt": "2025-10-09T17:41:41.469Z",
+      "createdAt": "2025-10-09T17:41:41.470Z",
+      "updatedAt": "2025-10-09T17:41:41.470Z"
+    },
+    {
+      "id": "cmgjplnrf0001o208qbkfb90c",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vt000vrdxa46b5sf72",
+      "completed": true,
+      "completedAt": "2025-10-09T17:46:25.803Z",
+      "createdAt": "2025-10-09T17:46:25.804Z",
+      "updatedAt": "2025-10-09T17:46:25.804Z"
+    },
+    {
+      "id": "cmgjplpj40003o208m97yb6lz",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vu000xrdxal9vl7vcc",
+      "completed": true,
+      "completedAt": "2025-10-09T17:46:28.096Z",
+      "createdAt": "2025-10-09T17:46:28.097Z",
+      "updatedAt": "2025-10-09T17:46:28.097Z"
+    },
+    {
+      "id": "cmgjplr7p0005o208njajxros",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vw000zrdxanoeo9o28",
+      "completed": true,
+      "completedAt": "2025-10-09T17:46:30.277Z",
+      "createdAt": "2025-10-09T17:46:30.278Z",
+      "updatedAt": "2025-10-09T17:46:30.278Z"
+    },
+    {
+      "id": "cmgjplt5e0007o208q3wag81h",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10vy0011rdxa0qmpcgs6",
+      "completed": true,
+      "completedAt": "2025-10-09T17:46:32.786Z",
+      "createdAt": "2025-10-09T17:46:32.787Z",
+      "updatedAt": "2025-10-09T17:46:32.787Z"
+    },
+    {
+      "id": "cmgjpm3wh0009o208x0bhb6pn",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10w30015rdxau2kvrf6s",
+      "completed": true,
+      "completedAt": "2025-10-09T17:46:46.721Z",
+      "createdAt": "2025-10-09T17:46:46.721Z",
+      "updatedAt": "2025-10-09T17:46:46.721Z"
+    },
+    {
+      "id": "cmgjpm5g2000bo208tgrnru1p",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10w50017rdxama0t36tx",
+      "completed": true,
+      "completedAt": "2025-10-09T17:46:48.721Z",
+      "createdAt": "2025-10-09T17:46:48.722Z",
+      "updatedAt": "2025-10-09T17:46:48.722Z"
+    },
+    {
+      "id": "cmgjpmiu3000do208ij3rztmc",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10w70019rdxag7b0ro8g",
+      "completed": true,
+      "completedAt": "2025-10-09T17:47:06.074Z",
+      "createdAt": "2025-10-09T17:47:06.075Z",
+      "updatedAt": "2025-10-09T17:47:06.075Z"
+    },
+    {
+      "id": "cmgjpmrst000fo208db66xze1",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10w9001brdxababqxx70",
+      "completed": true,
+      "completedAt": "2025-10-09T17:47:17.662Z",
+      "createdAt": "2025-10-09T17:47:17.686Z",
+      "updatedAt": "2025-10-09T17:47:17.686Z"
+    },
+    {
+      "id": "cmgjpmtcg000ho208ubrzsz90",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10wa001drdxaeans2yeg",
+      "completed": true,
+      "completedAt": "2025-10-09T17:47:19.695Z",
+      "createdAt": "2025-10-09T17:47:19.696Z",
+      "updatedAt": "2025-10-09T17:47:19.696Z"
+    },
+    {
+      "id": "cmgjpmv4u000jo208641h1njl",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10wc001frdxawjqwedki",
+      "completed": true,
+      "completedAt": "2025-10-09T17:47:22.012Z",
+      "createdAt": "2025-10-09T17:47:22.013Z",
+      "updatedAt": "2025-10-09T17:47:22.013Z"
+    },
+    {
+      "id": "cmgju1kgo0001ti08j0dt4ih6",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10we001hrdxadq0zr0av",
+      "completed": true,
+      "completedAt": "2025-10-09T19:50:46.488Z",
+      "createdAt": "2025-10-09T19:50:46.488Z",
+      "updatedAt": "2025-10-09T19:50:46.488Z"
+    },
+    {
+      "id": "cmgjvjjo10001nq08gkt5ao1h",
+      "userId": "cmgjnf2xg0000rd2gv92812jl",
+      "activityId": "cmgjn10wj001lrdxayf1yvw3l",
+      "completed": true,
+      "completedAt": "2025-10-09T20:32:44.879Z",
+      "createdAt": "2025-10-09T20:32:44.880Z",
+      "updatedAt": "2025-10-09T20:32:44.880Z"
+    }
+  ],
+  "achievements": [],
+  "notes": []
+}
