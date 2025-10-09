@@ -417,6 +417,14 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
             <Button
               variant="outline"
               size="sm"
+              onClick={() => router.push('/perfil')}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Mi Perfil
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => signOut({ callbackUrl: '/' })}
             >
               <LogOut className="h-4 w-4 mr-2" />
@@ -523,14 +531,27 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 </div>
 
                 <div className="border-t pt-4 mt-auto">
-                  <Button
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Cerrar Sesión
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        router.push('/perfil')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Mi Perfil
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Cerrar Sesión
+                    </Button>
+                  </div>
                 </div>
               </div>
             </SheetContent>
