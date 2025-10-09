@@ -17,6 +17,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Sesiones JWT con estrategia de credentials
 - Protección de rutas en servidor y cliente
 - Hash de contraseñas con bcrypt
+- **Sistema de restablecimiento de contraseña** 🆕
+  - Flujo completo de recuperación de contraseña
+  - Tokens seguros con expiración de 1 hora
+  - Validación y seguridad robusta
+  - Emails HTML profesionales
+  - UI intuitiva para solicitar y restablecer
+  - Servicio de email configurado (desarrollo y producción)
+  - Integración lista con SendGrid/Resend/SMTP
 
 #### Dashboard
 - Vista general de progreso del usuario
@@ -118,6 +126,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `DATOS_SEMILLA.md` - Estructura de datos y seeds
 - `.internal/NOTAS_DESARROLLO.md` - Notas internas de desarrollo
 - `CHANGELOG.md` - Este archivo
+- **`SISTEMA_RESTABLECER_CONTRASEÑA.md`** - Documentación completa del sistema de restablecimiento 🆕
+- **`GUIA_RAPIDA_RESTABLECER.md`** - Guía práctica rápida de uso 🆕
+- **`INDICE_DOCUMENTACION.md`** - Actualizado con nueva documentación 🆕
 
 ---
 

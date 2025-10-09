@@ -156,6 +156,59 @@ Este es el punto de entrada para toda la documentación técnica de SpeaklyPlan.
 
 ---
 
+### 7. SISTEMA_RESTABLECER_CONTRASEÑA.md 🆕
+**📄 Propósito:** Documentación completa del sistema de restablecimiento de contraseña  
+**👥 Audiencia:** Desarrolladores, administradores, equipo de seguridad  
+**⏱️ Tiempo de lectura:** 45 minutos  
+**🔍 Cuándo leer:**
+- Necesitas entender el sistema de recuperación de contraseñas
+- Vas a configurar el servicio de email en producción
+- Estás debuggeando problemas de restablecimiento
+- Quieres implementar mejoras de seguridad
+- Necesitas documentación para auditoría de seguridad
+
+**Contenido:**
+- Características principales del sistema
+- Arquitectura técnica completa
+- Archivos y servicios creados
+- APIs de restablecimiento (forgot-password, reset-password)
+- Servicio de email (desarrollo y producción)
+- Páginas de UI (solicitar y restablecer)
+- Flujo completo del usuario (paso a paso)
+- Consideraciones de seguridad
+- Configuración de proveedores de email (SendGrid, Resend, SMTP)
+- Testing manual y automatizado
+- Base de datos y modelos
+- Recomendaciones de mejoras futuras
+- FAQ para usuarios
+
+---
+
+### 8. GUIA_RAPIDA_RESTABLECER.md 🆕
+**📄 Propósito:** Guía práctica y rápida del sistema de restablecimiento  
+**👥 Audiencia:** Todos (usuarios finales y desarrolladores)  
+**⏱️ Tiempo de lectura:** 10 minutos  
+**🔍 Cuándo leer:**
+- Un usuario necesita restablecer su contraseña
+- Necesitas instrucciones rápidas de uso
+- Quieres probar el sistema rápidamente
+- Necesitas configurar email en producción (resumen)
+- Buscas solución a problemas comunes
+
+**Contenido:**
+- Instrucciones para usuarios (paso a paso)
+- Guía rápida para desarrolladores
+- APIs disponibles (ejemplos de uso)
+- Testing rápido con curl
+- Configuración de email (resumen)
+- Checklist de seguridad
+- Troubleshooting común
+- Páginas disponibles
+- Flujo visual del proceso
+- Enlaces a documentación completa
+
+---
+
 ## 🗺️ Guía de Uso Según Escenario
 
 ### 📍 Escenario 1: Soy nuevo en el proyecto
@@ -194,6 +247,24 @@ Este es el punto de entrada para toda la documentación técnica de SpeaklyPlan.
 2. `CHANGELOG.md` - Para mostrar progreso
 3. `ARQUITECTURA_TECNICA.md` - Para detalles específicos
 
+### 📍 Escenario 7: Usuario olvidó su contraseña 🆕
+**Ruta recomendada:**
+1. `GUIA_RAPIDA_RESTABLECER.md` - Sección "Para Usuarios"
+2. Seguir los pasos indicados
+3. Si hay problemas: Sección "Troubleshooting"
+
+### 📍 Escenario 8: Configurar email en producción 🆕
+**Ruta recomendada:**
+1. `SISTEMA_RESTABLECER_CONTRASEÑA.md` - Sección "Servicio de Email"
+2. `GUIA_RAPIDA_RESTABLECER.md` - Sección "Configuración de Email"
+3. Elegir proveedor y configurar variables de entorno
+
+### 📍 Escenario 9: Auditar seguridad del sistema 🆕
+**Ruta recomendada:**
+1. `SISTEMA_RESTABLECER_CONTRASEÑA.md` - Sección "Consideraciones de Seguridad"
+2. `ARQUITECTURA_TECNICA.md` - Sección "Sistema de Autenticación"
+3. Revisar código de APIs en `/app/api/auth/`
+
 ---
 
 ## 📂 Ubicación de Archivos
@@ -201,17 +272,19 @@ Este es el punto de entrada para toda la documentación técnica de SpeaklyPlan.
 ```
 /home/ubuntu/speaklyplan/
 │
-├── README_TECNICO.md              # ✅ Público
-├── ARQUITECTURA_TECNICA.md        # ✅ Público
-├── DESARROLLO_RAPIDO.md           # ✅ Público
-├── DATOS_SEMILLA.md               # ✅ Público
-├── CHANGELOG.md                   # ✅ Público
-├── INDICE_DOCUMENTACION.md        # ✅ Público (este archivo)
+├── README_TECNICO.md                    # ✅ Público
+├── ARQUITECTURA_TECNICA.md              # ✅ Público
+├── DESARROLLO_RAPIDO.md                 # ✅ Público
+├── DATOS_SEMILLA.md                     # ✅ Público
+├── CHANGELOG.md                         # ✅ Público
+├── SISTEMA_RESTABLECER_CONTRASEÑA.md    # ✅ Público 🆕
+├── GUIA_RAPIDA_RESTABLECER.md           # ✅ Público 🆕
+├── INDICE_DOCUMENTACION.md              # ✅ Público (este archivo)
 │
-├── .internal/                     # ⚠️ PRIVADO - NO COMPARTIR
-│   └── NOTAS_DESARROLLO.md        # ⚠️ Uso interno solamente
+├── .internal/                           # ⚠️ PRIVADO - NO COMPARTIR
+│   └── NOTAS_DESARROLLO.md              # ⚠️ Uso interno solamente
 │
-└── nextjs_space/                  # Código fuente
+└── nextjs_space/                        # Código fuente
     └── ...
 ```
 
@@ -350,9 +423,9 @@ Luego, lee `README_TECNICO.md` mientras se carga el proyecto.
 
 ## 📊 Estadísticas de Documentación
 
-**Total de documentos:** 7 (6 públicos + 1 privado)  
-**Páginas totales:** ~250 páginas  
-**Tiempo de lectura total:** ~180 minutos (3 horas)  
+**Total de documentos:** 9 (8 públicos + 1 privado)  
+**Páginas totales:** ~320 páginas  
+**Tiempo de lectura total:** ~235 minutos (4 horas)  
 **Última actualización:** 09 de Octubre de 2025
 
 **Cobertura:**
