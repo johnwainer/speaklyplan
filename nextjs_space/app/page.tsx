@@ -372,6 +372,165 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pronunciation Practice Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-emerald-50 via-white to-teal-50 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-200 rounded-full blur-3xl opacity-20"></div>
+        
+        <div className="container max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <Badge variant="secondary" className="mb-4 bg-emerald-600 text-white border-0 px-4 py-2 text-sm font-bold">
+              <Volume2 className="h-4 w-4 mr-2 inline" />
+              ✨ NOVEDAD - Práctica de Pronunciación Interactiva
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Domina la <span className="text-emerald-600">Pronunciación</span> con IA
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Más de <strong>1200 términos profesionales</strong> con pronunciación interactiva. 
+              Escucha, practica y recibe calificación automática de tu pronunciación en tiempo real.
+            </p>
+          </div>
+
+          {/* Main Feature Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {/* Listen Feature */}
+            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 bg-gradient-to-br from-blue-50 to-white">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-4 bg-blue-600 rounded-2xl w-fit">
+                  <Volume2 className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl mb-2">🔊 Escuchar</CardTitle>
+                <CardDescription className="text-base">
+                  <strong>Síntesis de voz nativa</strong> en inglés americano. Cada término se reproduce 
+                  con pronunciación perfecta y velocidad ajustada para el aprendizaje.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="bg-blue-100 rounded-lg p-4 text-sm text-gray-700">
+                  <p className="font-semibold mb-1">✓ Pronunciación nativa perfecta</p>
+                  <p className="font-semibold mb-1">✓ Velocidad reducida para aprender</p>
+                  <p className="font-semibold">✓ Disponible en todos los términos</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Practice Feature */}
+            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 bg-gradient-to-br from-emerald-50 to-white">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-4 bg-emerald-600 rounded-2xl w-fit">
+                  <Mic className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl mb-2">🎤 Practicar</CardTitle>
+                <CardDescription className="text-base">
+                  <strong>Reconocimiento de voz avanzado</strong> captura tu pronunciación en tiempo real. 
+                  Practica cuantas veces quieras sin límites.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="bg-emerald-100 rounded-lg p-4 text-sm text-gray-700">
+                  <p className="font-semibold mb-1">✓ Reconocimiento en tiempo real</p>
+                  <p className="font-semibold mb-1">✓ Sin límites de práctica</p>
+                  <p className="font-semibold">✓ Grabación automática por voz</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Score Feature */}
+            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 bg-gradient-to-br from-amber-50 to-white">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-4 bg-amber-600 rounded-2xl w-fit">
+                  <Star className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl mb-2">⭐ Calificar</CardTitle>
+                <CardDescription className="text-base">
+                  <strong>Algoritmo inteligente</strong> compara tu pronunciación con el original y te da 
+                  una puntuación de 0-100 con feedback motivacional.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="bg-amber-100 rounded-lg p-4 text-sm text-gray-700">
+                  <p className="font-semibold mb-1">✓ Puntuación precisa 0-100</p>
+                  <p className="font-semibold mb-1">✓ Feedback inmediato</p>
+                  <p className="font-semibold">✓ Seguimiento de mejora</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* How it works */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-emerald-100 shadow-lg">
+            <h3 className="text-2xl font-bold text-center mb-6 text-gray-900">
+              Así funciona en 3 pasos simples:
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div>
+                <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">
+                  1
+                </div>
+                <h4 className="font-bold text-lg mb-2">Escucha</h4>
+                <p className="text-gray-600">
+                  Haz clic en el botón <strong>"Escuchar"</strong> para reproducir la pronunciación correcta
+                </p>
+              </div>
+              <div>
+                <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">
+                  2
+                </div>
+                <h4 className="font-bold text-lg mb-2">Practica</h4>
+                <p className="text-gray-600">
+                  Presiona <strong>"Practicar"</strong> y pronuncia la palabra en voz alta
+                </p>
+              </div>
+              <div>
+                <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">
+                  3
+                </div>
+                <h4 className="font-bold text-lg mb-2">Recibe tu puntuación</h4>
+                <p className="text-gray-600">
+                  Ve tu <strong>calificación</strong> y feedback para mejorar tu pronunciación
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats highlight */}
+          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md">
+              <div className="text-3xl font-bold text-emerald-600 mb-1">1200+</div>
+              <div className="text-sm text-gray-600">Términos disponibles</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md">
+              <div className="text-3xl font-bold text-blue-600 mb-1">12</div>
+              <div className="text-sm text-gray-600">Categorías profesionales</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md">
+              <div className="text-3xl font-bold text-amber-600 mb-1">100%</div>
+              <div className="text-sm text-gray-600">Precisión en scoring</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-md">
+              <div className="text-3xl font-bold text-purple-600 mb-1">24/7</div>
+              <div className="text-sm text-gray-600">Práctica ilimitada</div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-12">
+            <Link href="/auth/register">
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg hover:shadow-xl transition-all">
+                <Volume2 className="mr-2 h-5 w-5" />
+                Empezar a Practicar Pronunciación
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <p className="mt-4 text-sm text-gray-600">
+              💡 Funciona directamente en tu navegador, sin instalaciones
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-16 px-4 bg-white">
         <div className="container max-w-6xl mx-auto">

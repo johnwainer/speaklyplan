@@ -101,10 +101,18 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       target: '[data-tour="nav-vocabulary"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📚 Vocabulario</h3>
-          <p className="text-gray-700">
-            Accede a más de 1200 términos organizados por categorías profesionales. 
-            Puedes practicar con flashcards y hacer seguimiento de tu progreso.
+          <h3 className="text-lg font-bold mb-2">📚 Vocabulario Interactivo</h3>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-3">
+            <p className="font-bold text-emerald-700 mb-1">✨ NOVEDAD: Práctica de Pronunciación</p>
+            <p className="text-sm text-gray-700">Ahora cada término incluye herramientas de pronunciación:</p>
+          </div>
+          <div className="space-y-2 text-sm text-gray-700">
+            <p>🔊 <strong>Escuchar:</strong> Reproduce la pronunciación correcta con voz nativa</p>
+            <p>🎤 <strong>Practicar:</strong> Graba tu pronunciación con reconocimiento de voz</p>
+            <p>⭐ <strong>Calificar:</strong> Recibe puntuación 0-100 y feedback instantáneo</p>
+          </div>
+          <p className="text-gray-700 mt-3">
+            Más de 1200 términos organizados en 12 categorías profesionales para dominar.
           </p>
         </div>
       ),

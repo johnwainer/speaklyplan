@@ -374,6 +374,71 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
         </div>
       </nav>
 
+      {/* How to Use - Pronunciation Features */}
+      <section className="py-6 px-4 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="container max-w-7xl mx-auto">
+          <Card className="border-0 shadow-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Volume2 className="h-6 w-6" />
+                </div>
+                <CardTitle className="text-2xl">✨ Nueva Funcionalidad: Práctica de Pronunciación</CardTitle>
+              </div>
+              <CardDescription className="text-emerald-50">
+                Ahora cada término incluye herramientas interactivas para mejorar tu pronunciación
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Volume2 className="h-5 w-5" />
+                    <h4 className="font-bold">1. Escuchar</h4>
+                  </div>
+                  <p className="text-sm text-emerald-50">
+                    Haz clic en el botón <strong>"Escuchar"</strong> para reproducir la pronunciación 
+                    correcta con voz nativa en inglés americano.
+                  </p>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mic className="h-5 w-5" />
+                    <h4 className="font-bold">2. Practicar</h4>
+                  </div>
+                  <p className="text-sm text-emerald-50">
+                    Presiona <strong>"Practicar"</strong> y pronuncia la palabra en voz alta. 
+                    El sistema capturará automáticamente tu pronunciación.
+                  </p>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="h-5 w-5" />
+                    <h4 className="font-bold">3. Recibe tu puntuación</h4>
+                  </div>
+                  <p className="text-sm text-emerald-50">
+                    Obtén una calificación de <strong>0-100</strong> con feedback instantáneo 
+                    sobre tu pronunciación. ¡Sigue practicando hasta lograr 80+!
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-4 bg-yellow-400 text-gray-900 rounded-lg p-3 text-sm">
+                <p className="font-semibold mb-1">💡 Consejos para mejor resultado:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Usa audífonos para escuchar mejor la pronunciación</li>
+                  <li>Habla cerca del micrófono con claridad</li>
+                  <li>Practica varias veces cada término hasta lograr 80+ puntos</li>
+                  <li>Funciona mejor en navegadores Chrome o Edge</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Progress Section */}
       <section className="py-6 px-4 bg-white border-b">
         <div className="container max-w-7xl mx-auto">

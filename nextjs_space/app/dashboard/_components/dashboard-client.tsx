@@ -582,10 +582,11 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 variant="outline"
                 size="sm"
                 onClick={() => router.push('/vocabulario')}
-                className="my-2"
+                className="my-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Vocabulario
+                <Badge variant="secondary" className="ml-2 bg-emerald-600 text-white">NUEVO</Badge>
               </Button>
               <Button
                 data-tour="nav-resources"
