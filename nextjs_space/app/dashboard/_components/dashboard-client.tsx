@@ -485,7 +485,6 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     >
                       <MessageSquare className="h-4 w-4 mr-2 text-blue-600" />
                       <span className="font-medium">AI Tutor</span>
-                      <Badge variant="secondary" className="ml-auto">NUEVO</Badge>
                     </Button>
                     <Button
                       variant="outline"
@@ -575,7 +574,6 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 AI Tutor
-                <Badge variant="secondary" className="ml-2">NUEVO</Badge>
               </Button>
               <Button
                 data-tour="nav-vocabulary"
@@ -586,7 +584,6 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Vocabulario
-                <Badge variant="secondary" className="ml-2 bg-emerald-600 text-white">NUEVO</Badge>
               </Button>
               <Button
                 data-tour="nav-resources"

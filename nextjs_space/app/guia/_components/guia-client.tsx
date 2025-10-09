@@ -868,7 +868,6 @@ export default function GuiaClient({ user }: GuiaClientProps) {
                       <p className="text-sm text-gray-700 mb-4">
                         Practica conversación 24/7. Recibe correcciones y feedback instantáneo.
                       </p>
-                      <Badge variant="secondary" className="bg-purple-600 text-white">Nuevo</Badge>
                     </div>
                     
                     <div
