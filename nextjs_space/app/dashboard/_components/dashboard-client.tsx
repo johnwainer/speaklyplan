@@ -35,6 +35,7 @@ import {
 import { PlanWeekData, UserProgressData } from '@/lib/types'
 import WeekView from './week-view'
 import ProgressOverview from './progress-overview'
+import DashboardTour from './dashboard-tour'
 import { useToast } from '@/hooks/use-toast'
 import { 
   LevelBadge, 
@@ -111,10 +112,15 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
   const [showCompletionCelebration, setShowCompletionCelebration] = useState(false)
   const [completionData, setCompletionData] = useState({ activityTitle: '', xpEarned: 0 })
   
+  // Tour states
+  const [runTour, setRunTour] = useState(false)
+  const [hasSeenTour, setHasSeenTour] = useState(true) // Default to true, will be updated
+  
   // Handle mounting for hydration safety
   useEffect(() => {
     setMounted(true)
     loadGamificationStats()
+    checkTourStatus()
   }, [])
   
   const { data: session, status } = useSession() || {};
@@ -134,6 +140,45 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
     } catch (error) {
       console.error('Error loading gamification stats:', error)
     }
+  }
+  
+  const checkTourStatus = async () => {
+    try {
+      const response = await fetch('/api/tour')
+      if (response.ok) {
+        const data = await response.json()
+        setHasSeenTour(data.hasSeenTour)
+        
+        // Si el usuario no ha visto el tour, iniciarlo automáticamente después de un delay
+        if (!data.hasSeenTour) {
+          setTimeout(() => {
+            setRunTour(true)
+          }, 1000)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking tour status:', error)
+    }
+  }
+  
+  const handleTourEnd = async () => {
+    setRunTour(false)
+    
+    // Actualizar en el servidor que el usuario ya vio el tour
+    try {
+      await fetch('/api/tour', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasSeenTour: true })
+      })
+      setHasSeenTour(true)
+    } catch (error) {
+      console.error('Error updating tour status:', error)
+    }
+  }
+  
+  const startTour = () => {
+    setRunTour(true)
   }
 
   // Calculate missions based on current progress
@@ -523,6 +568,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
             </div>
             <div className="flex items-center gap-2">
               <Button
+                data-tour="nav-tutor"
                 size="sm"
                 onClick={() => router.push('/tutor')}
                 className="my-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
@@ -532,6 +578,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 <Badge variant="secondary" className="ml-2">NUEVO</Badge>
               </Button>
               <Button
+                data-tour="nav-vocabulary"
                 variant="outline"
                 size="sm"
                 onClick={() => router.push('/vocabulario')}
@@ -541,6 +588,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 Vocabulario
               </Button>
               <Button
+                data-tour="nav-resources"
                 variant="outline"
                 size="sm"
                 onClick={() => router.push('/recursos')}
@@ -550,6 +598,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 Recursos
               </Button>
               <Button
+                data-tour="nav-guide"
                 variant="outline"
                 size="sm"
                 onClick={() => router.push('/guia')}
@@ -640,7 +689,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
         <div className="container max-w-7xl mx-auto">
           {/* Priority Section - Where to Start */}
           {currentView === 'overview' && (
-            <Card className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <Card data-tour="pending-activities" className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -775,7 +824,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">
             {/* Main content area */}
-            <div>
+            <div data-tour="weekly-plan">
               {currentView === 'overview' ? (
                 <ProgressOverview
                   planWeeks={planData}
@@ -798,7 +847,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
             </div>
 
             {/* Compact Gamification sidebar */}
-            <div className="space-y-4">
+            <div data-tour="progress-sidebar" className="space-y-4">
               {/* Combined Level, XP & Stats Card */}
               {gamificationStats && (
                 <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
@@ -852,7 +901,9 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               )}
 
               {/* Daily Missions */}
-              <DailyMissions missions={calculateMissions()} />
+              <div data-tour="daily-missions">
+                <DailyMissions missions={calculateMissions()} />
+              </div>
             </div>
           </div>
         </div>
@@ -878,6 +929,20 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
         xpEarned={completionData.xpEarned}
         onComplete={() => setShowCompletionCelebration(false)}
       />
+      
+      {/* Tour Guide */}
+      <DashboardTour runTour={runTour} onTourEnd={handleTourEnd} />
+      
+      {/* Floating Button to Restart Tour */}
+      {mounted && (
+        <Button
+          onClick={startTour}
+          className="fixed bottom-6 left-6 rounded-full w-14 h-14 shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 z-50"
+          title="Ver guía interactiva"
+        >
+          <HelpCircle className="h-6 w-6" />
+        </Button>
+      )}
     </div>
   )
 }
