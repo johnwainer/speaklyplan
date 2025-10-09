@@ -792,6 +792,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   onWeekChange={setSelectedWeek}
                   totalWeeks={planData?.length || 0}
                   currentWeek={selectedWeek}
+                  allWeeks={planData || []}
                 />
               )}
             </div>

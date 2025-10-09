@@ -31,7 +31,8 @@ import {
   Pencil,
   Trash2,
   Save,
-  X
+  X,
+  Lock
 } from 'lucide-react'
 import { PlanWeekData } from '@/lib/types'
 import { useToast } from '@/hooks/use-toast'
@@ -42,6 +43,7 @@ interface WeekViewProps {
   onWeekChange: (weekNumber: number) => void
   totalWeeks: number
   currentWeek: number
+  allWeeks: PlanWeekData[] // All weeks to check sequential order
 }
 
 interface Note {
@@ -181,7 +183,8 @@ export default function WeekView({
   onActivityComplete, 
   onWeekChange, 
   totalWeeks, 
-  currentWeek 
+  currentWeek,
+  allWeeks
 }: WeekViewProps) {
   const [notes, setNotes] = useState<Note[]>([])
   const [newNoteContent, setNewNoteContent] = useState('')
@@ -192,6 +195,47 @@ export default function WeekView({
   const [isLoading, setIsLoading] = useState(false)
   const [expandedActivities, setExpandedActivities] = useState<Set<string>>(new Set())
   const { toast } = useToast()
+
+  // Function to check if an activity can be completed (sequential order)
+  const canCompleteActivity = (activityId: string): { canComplete: boolean; reason?: string } => {
+    if (!weekData || !allWeeks) return { canComplete: true }
+
+    // Get all activities from all weeks sorted by week number and then by dayNumber
+    const allActivities: Array<{ activity: any; weekNumber: number }> = []
+    
+    allWeeks
+      .sort((a, b) => a.number - b.number)
+      .forEach(week => {
+        const sortedActivities = [...(week.activities || [])]
+          .sort((a, b) => a.dayNumber - b.dayNumber)
+        
+        sortedActivities.forEach(activity => {
+          allActivities.push({ activity, weekNumber: week.number })
+        })
+      })
+
+    // Find the index of the current activity
+    const currentIndex = allActivities.findIndex(item => item.activity.id === activityId)
+    if (currentIndex === -1) return { canComplete: true }
+
+    // Check if this activity is already completed
+    const currentActivity = allActivities[currentIndex].activity
+    if (currentActivity.completed) return { canComplete: true } // Can always unmark completed activities
+
+    // Check if all previous activities are completed
+    for (let i = 0; i < currentIndex; i++) {
+      const prevActivity = allActivities[i].activity
+      if (!prevActivity.completed) {
+        const prevWeek = allActivities[i].weekNumber
+        return {
+          canComplete: false,
+          reason: `Debes completar primero: "${prevActivity.title}" (Semana ${prevWeek})`
+        }
+      }
+    }
+
+    return { canComplete: true }
+  }
 
   // Cargar notas cuando cambia la semana
   useEffect(() => {
@@ -454,6 +498,8 @@ export default function WeekView({
                     const icon = categoryIcons[categoryKey as keyof typeof categoryIcons] || <Circle className="h-4 w-4" />
                     const colorClass = categoryColors[categoryKey as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
                     const isExpanded = expandedActivities.has(activity.id)
+                    const validation = canCompleteActivity(activity.id)
+                    const isBlocked = !validation.canComplete
                     
                     return (
                       <motion.div 
@@ -461,11 +507,13 @@ export default function WeekView({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.1 }}
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: isBlocked && !activity.completed ? 1 : 1.02 }}
                         className={`p-3 sm:p-4 rounded-lg border transition-all ${
                           activity.completed 
                             ? 'bg-green-50 border-green-200' 
-                            : 'bg-white border-gray-200 hover:border-gray-300'
+                            : isBlocked
+                              ? 'bg-gray-50 border-gray-300 opacity-60'
+                              : 'bg-white border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         <div className="space-y-3">
@@ -482,7 +530,12 @@ export default function WeekView({
                           </div>
                           
                           {/* Título */}
-                          <h3 className="font-semibold text-base sm:text-lg leading-tight">{activity.title}</h3>
+                          <h3 className="font-semibold text-base sm:text-lg leading-tight flex items-center gap-2">
+                            {isBlocked && !activity.completed && (
+                              <Lock className="h-4 w-4 text-orange-600 flex-shrink-0" />
+                            )}
+                            <span>{activity.title}</span>
+                          </h3>
                           
                           {/* Descripción colapsable */}
                           <div className="space-y-2">
@@ -521,24 +574,53 @@ export default function WeekView({
                           </div>
                           
                           {/* Botón de completar - full width en mobile */}
-                          <Button
-                            variant={activity.completed ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => onActivityComplete(activity.id, !activity.completed)}
-                            className={`w-full sm:w-auto ${activity.completed ? "bg-green-600 hover:bg-green-700" : ""}`}
-                          >
-                            {activity.completed ? (
-                              <>
-                                <CheckCircle2 className="h-4 w-4 mr-2" />
-                                Completada
-                              </>
-                            ) : (
-                              <>
-                                <Circle className="h-4 w-4 mr-2" />
-                                Marcar como completada
-                              </>
+                          <div className="w-full sm:w-auto space-y-2">
+                            <Button
+                              variant={activity.completed ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => {
+                                if (isBlocked && !activity.completed) {
+                                  toast({
+                                    title: "⚠️ Actividad bloqueada",
+                                    description: validation.reason || "Debes completar las actividades anteriores primero",
+                                    variant: "destructive"
+                                  })
+                                  return
+                                }
+                                onActivityComplete(activity.id, !activity.completed)
+                              }}
+                              disabled={isBlocked && !activity.completed}
+                              className={`w-full ${
+                                activity.completed 
+                                  ? "bg-green-600 hover:bg-green-700" 
+                                  : isBlocked 
+                                    ? "opacity-50 cursor-not-allowed" 
+                                    : ""
+                              }`}
+                            >
+                              {activity.completed ? (
+                                <>
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  Completada
+                                </>
+                              ) : isBlocked ? (
+                                <>
+                                  <Lock className="h-4 w-4 mr-2" />
+                                  Bloqueada
+                                </>
+                              ) : (
+                                <>
+                                  <Circle className="h-4 w-4 mr-2" />
+                                  Marcar como completada
+                                </>
+                              )}
+                            </Button>
+                            {isBlocked && !activity.completed && (
+                              <p className="text-xs text-orange-600 font-medium">
+                                ⚠️ {validation.reason}
+                              </p>
                             )}
-                          </Button>
+                          </div>
                           
                           {/* Fecha de completado */}
                           {activity.completed && activity.completedAt && (
