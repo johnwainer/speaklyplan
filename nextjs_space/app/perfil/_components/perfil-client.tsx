@@ -30,7 +30,8 @@ import {
   Upload,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
@@ -204,10 +205,6 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' })
-  }
-
   const getImageUrl = (imagePath: string | null) => {
     if (!imagePath) return null
     if (imagePath.startsWith('http')) return imagePath
@@ -220,28 +217,54 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
-        <div className="container flex h-16 max-w-6xl mx-auto items-center justify-between px-4">
+        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
           <button 
             onClick={() => router.push('/dashboard')}
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">SpeaklyPlan</span>
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <div className="text-left">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Mi Perfil</p>
+            </div>
           </button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSignOut}
-            className="gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Cerrar Sesión
-          </Button>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+              <User className="h-4 w-4" />
+              <span>{user?.name || user?.email}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="text-xs sm:text-sm"
+            >
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </div>
         </div>
       </header>
 
+      {/* Navigation */}
+      <nav className="border-b bg-white">
+        <div className="container max-w-7xl mx-auto px-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/dashboard')}
+              className="my-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al Dashboard
+            </Button>
+          </div>
+        </div>
+      </nav>
+
       {/* Main Content */}
-      <main className="container max-w-6xl mx-auto px-4 py-8">
+      <main className="container max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Perfil</h1>
           <p className="text-gray-600">Gestiona tu información personal y configuración</p>
