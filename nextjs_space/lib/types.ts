@@ -1,28 +1,44 @@
 
-import { User } from '@prisma/client'
+import { User, PlanWeek, PlanActivity, UserProgress, VocabularyCategory, VocabularyTerm, Resource, Achievement, PlanPhase } from '@prisma/client'
 
-declare module 'next-auth' {
+export type { User, PlanWeek, PlanActivity, UserProgress, VocabularyCategory, VocabularyTerm, Resource, Achievement, PlanPhase }
+
+export interface SessionUser {
+  id: string
+  email: string
+  name?: string | null
+  role: string
+}
+
+declare module "next-auth" {
+  interface Session {
+    user: SessionUser
+  }
+
   interface User {
     role?: string
   }
-  
-  interface Session {
-    user: {
-      id: string
-      name?: string | null
-      email?: string | null
-      image?: string | null
-      role?: string
-    }
-  }
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
     role?: string
   }
 }
 
+export interface WeekWithActivities extends PlanWeek {
+  activities: PlanActivity[]
+}
+
+export interface ProgressWithActivity extends UserProgress {
+  activity: PlanActivity
+}
+
+export interface CategoryWithTerms extends VocabularyCategory {
+  terms: VocabularyTerm[]
+}
+
+// Dashboard types
 export interface PlanWeekData {
   id: string
   number: number
@@ -40,8 +56,8 @@ export interface PlanActivityData {
   description: string
   duration: number
   category: string
-  completed?: boolean
-  completedAt?: Date | null
+  completed: boolean
+  completedAt: Date | null
 }
 
 export interface UserProgressData {
@@ -51,23 +67,4 @@ export interface UserProgressData {
   currentStreak: number
   bestStreak: number
   percentageCompleted: number
-}
-
-export interface VocabularyWordData {
-  id: string
-  english: string
-  spanish: string
-  example: string | null
-  category: string
-  mastered?: boolean
-}
-
-export interface ResourceData {
-  id: string
-  name: string
-  description: string
-  url?: string | null
-  platform?: string | null
-  rating?: number | null
-  category: string
 }
