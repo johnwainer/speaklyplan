@@ -26,6 +26,7 @@ import {
   Star
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { getProfileImageUrl } from '@/lib/utils'
 
 interface VocabularyTerm {
   id: string
@@ -346,7 +347,7 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
               {user?.image ? (
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
                   <Image
-                    src={user.image}
+                    src={getProfileImageUrl(user.image) || ''}
                     alt={user.name || 'User'}
                     fill
                     className="object-cover"

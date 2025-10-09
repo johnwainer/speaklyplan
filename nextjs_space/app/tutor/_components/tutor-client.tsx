@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { getProfileImageUrl } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -392,7 +393,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               {session?.user?.image ? (
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
                   <Image
-                    src={session.user.image}
+                    src={getProfileImageUrl(session.user.image) || ''}
                     alt={session.user.name || 'User'}
                     fill
                     className="object-cover"

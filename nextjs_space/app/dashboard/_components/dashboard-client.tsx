@@ -46,6 +46,7 @@ import {
   LevelUpModal,
   ActivityCompletionCelebration
 } from '@/components/gamification'
+import { getProfileImageUrl } from '@/lib/utils'
 
 // Helper function to format Markdown text
 function formatMarkdownText(text: string | null | undefined): React.ReactNode {
@@ -416,7 +417,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               {user?.image ? (
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
                   <Image
-                    src={user.image}
+                    src={getProfileImageUrl(user.image) || ''}
                     alt={user.name || 'User'}
                     fill
                     className="object-cover"
@@ -466,7 +467,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   {user?.image ? (
                     <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-200 flex-shrink-0">
                       <Image
-                        src={user.image}
+                        src={getProfileImageUrl(user.image) || ''}
                         alt={user.name || 'User'}
                         fill
                         className="object-cover"

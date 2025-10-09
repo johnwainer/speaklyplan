@@ -263,7 +263,7 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
   const getImageUrl = (imagePath: string | null) => {
     if (!imagePath) return null
     if (imagePath.startsWith('http')) return imagePath
-    return `/api/profile/photo/${encodeURIComponent(imagePath)}`
+    return `/api/profile/image/${encodeURIComponent(imagePath)}`
   }
 
   const levelProgress = getLevelProgress()
