@@ -3,12 +3,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw } from 'lucide-react';
+import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -60,6 +61,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const recognitionRef = useRef<any>(null);
   const router = useRouter();
   const shouldAutoScroll = useRef(true);
+  const { data: session, status } = useSession() || {};
   
   // Auto-scroll al último mensaje solo cuando se envía un nuevo mensaje
   useEffect(() => {
@@ -390,20 +392,20 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             </div>
           </div>
           
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-3">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm">
-                <Home className="h-4 w-4 mr-2" />
-                Dashboard
-              </Button>
-            </Link>
-            <Link href="/vocabulario">
-              <Button variant="ghost" size="sm">
-                <Languages className="h-4 w-4 mr-2" />
-                Vocabulario
-              </Button>
-            </Link>
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <User className="h-4 w-4" />
+              <span>{session?.user?.name || session?.user?.email}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/' })}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Salir
+            </Button>
           </div>
           
           {/* Mobile Menu */}
@@ -483,6 +485,16 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 <div>
                   <h4 className="text-sm font-semibold mb-3 text-muted-foreground">ACCIONES</h4>
                   <div className="space-y-2">
+                    <Link href="/dashboard" className="block">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                      >
+                        <Home className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
                     <Button
                       variant="outline"
                       size="sm"
