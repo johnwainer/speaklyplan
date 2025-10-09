@@ -13,6 +13,24 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
   BookOpen,
   LogOut,
   User,
@@ -31,7 +49,9 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  Trash2,
+  Eye
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
@@ -61,6 +81,9 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [showImageDialog, setShowImageDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeletingPhoto, setIsDeletingPhoto] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
@@ -205,6 +228,38 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
     }
   }
 
+  const handleDeletePhoto = async () => {
+    setIsDeletingPhoto(true)
+    try {
+      const response = await fetch('/api/profile/delete-photo', {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar la foto')
+      }
+
+      const updatedUser = await response.json()
+      setUser(updatedUser)
+      setShowDeleteDialog(false)
+
+      toast({
+        title: "¡Foto eliminada!",
+        description: "Tu foto de perfil se ha eliminado correctamente.",
+      })
+
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar la foto. Intenta de nuevo.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsDeletingPhoto(false)
+    }
+  }
+
   const getImageUrl = (imagePath: string | null) => {
     if (!imagePath) return null
     if (imagePath.startsWith('http')) return imagePath
@@ -279,15 +334,27 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
                 <div className="flex flex-col items-center">
                   {/* Profile Photo */}
                   <div className="relative group">
-                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500 shadow-lg">
+                    <button
+                      onClick={() => user.image && setShowImageDialog(true)}
+                      disabled={!user.image}
+                      className={`relative w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500 shadow-lg ${
+                        user.image ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''
+                      }`}
+                    >
                       {user.image ? (
-                        <Image
-                          src={getImageUrl(user.image) || '/placeholder-avatar.png'}
-                          alt={user.name || 'Usuario'}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
+                        <>
+                          <Image
+                            src={getImageUrl(user.image) || '/placeholder-avatar.png'}
+                            alt={user.name || 'Usuario'}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                          {/* Hover overlay to indicate clickability */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                           <User className="h-16 w-16 text-white" />
@@ -298,13 +365,14 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
                           <Loader2 className="h-8 w-8 text-white animate-spin" />
                         </div>
                       )}
-                    </div>
+                    </button>
                     
                     {/* Camera Button Overlay */}
                     <button
                       onClick={handlePhotoClick}
                       disabled={isUploadingPhoto}
                       className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white shadow-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Cambiar foto"
                     >
                       {isUploadingPhoto ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
@@ -312,6 +380,17 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
                         <Camera className="h-5 w-5" />
                       )}
                     </button>
+
+                    {/* Delete Button - Only show if user has a photo */}
+                    {user.image && !isUploadingPhoto && (
+                      <button
+                        onClick={() => setShowDeleteDialog(true)}
+                        className="absolute bottom-0 left-0 p-2 bg-red-600 rounded-full text-white shadow-lg hover:bg-red-700 transition-colors"
+                        title="Eliminar foto"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    )}
 
                     <input
                       ref={fileInputRef}
@@ -564,6 +643,63 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
           </div>
         </div>
       </main>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Foto de Perfil</DialogTitle>
+            <DialogDescription>
+              {user.name || 'Usuario'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
+            {user.image && (
+              <Image
+                src={getImageUrl(user.image) || '/placeholder-avatar.png'}
+                alt={user.name || 'Usuario'}
+                fill
+                className="object-contain"
+                unoptimized
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar foto de perfil?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Tu foto de perfil será eliminada permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingPhoto}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeletePhoto}
+              disabled={isDeletingPhoto}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeletingPhoto ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Eliminando...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
