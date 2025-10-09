@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { uploadFile, deleteFile } from '@/lib/s3'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,6 +70,14 @@ export async function POST(req: NextRequest) {
         // Continue even if deletion fails
       }
     }
+
+    // Revalidate all pages that might display the user image
+    revalidatePath('/dashboard')
+    revalidatePath('/perfil')
+    revalidatePath('/tutor')
+    revalidatePath('/vocabulario')
+    revalidatePath('/guia')
+    revalidatePath('/recursos')
 
     return NextResponse.json({ 
       success: true, 

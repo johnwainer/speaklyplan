@@ -202,6 +202,8 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
       }
 
       const data = await response.json()
+      
+      // Actualizar el estado local con la nueva imagen
       setUser(prev => ({ ...prev, image: data.cloud_storage_path }))
 
       toast({
@@ -209,9 +211,9 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
         description: "Tu foto de perfil se ha actualizado correctamente.",
       })
 
-      // Refresh the page to update the image
+      // Forzar recarga completa para actualizar en todos los componentes
       setTimeout(() => {
-        router.refresh()
+        window.location.reload()
       }, 1000)
     } catch (error: any) {
       toast({
@@ -240,6 +242,8 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
       }
 
       const updatedUser = await response.json()
+      
+      // Actualizar el estado local
       setUser(updatedUser)
       setShowDeleteDialog(false)
 
@@ -248,7 +252,10 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
         description: "Tu foto de perfil se ha eliminado correctamente.",
       })
 
-      router.refresh()
+      // Forzar recarga completa para actualizar en todos los componentes
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     } catch (error) {
       toast({
         title: "Error",
