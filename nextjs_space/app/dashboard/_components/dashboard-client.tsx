@@ -506,32 +506,33 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
         <div className="container max-w-7xl mx-auto">
           {/* Priority Section - Where to Start */}
           {currentView === 'overview' && (
-            <Card className="mb-6 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
-              <CardHeader>
+            <Card className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
-                      <Target className="h-6 w-6 text-white" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                      <Target className="h-4 w-4 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-2xl">¡Empieza aquí!</CardTitle>
-                      <CardDescription className="text-base mt-1">
+                      <CardTitle className="text-lg">¡Empieza aquí!</CardTitle>
+                      <CardDescription className="text-xs">
                         Tus actividades de esta semana
                       </CardDescription>
                     </div>
                   </div>
                   <Button
+                    size="sm"
                     onClick={() => {
                       setSelectedWeek(progressData.currentWeek)
                       setCurrentView('week')
                     }}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    Ver todas las actividades
+                    Ver todas
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-2">
                 {(() => {
                   const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
                   const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
@@ -544,15 +545,16 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
                   if (pendingActivities.length === 0) {
                     return (
-                      <div className="text-center py-8">
-                        <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      <div className="text-center py-4">
+                        <CheckCircle2 className="h-10 w-10 text-green-600 mx-auto mb-2" />
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">
                           ¡Felicitaciones! Semana completada 🎉
                         </h3>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-sm text-gray-600 mb-3">
                           Has completado todas las actividades de esta semana
                         </p>
                         <Button
+                          size="sm"
                           onClick={() => {
                             setSelectedWeek(progressData.currentWeek + 1)
                             setCurrentView('week')
@@ -567,65 +569,66 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   }
 
                   return (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {completedToday.length > 0 && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
                           <div className="flex items-center gap-2 text-green-700">
-                            <CheckCircle2 className="h-5 w-5" />
-                            <span className="font-medium">
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span className="text-xs font-medium">
                               ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
                             </span>
                           </div>
                         </div>
                       )}
 
-                      <div className="grid gap-3">
-                        {pendingActivities.slice(0, 3).map((activity) => (
+                      <div className="grid gap-2">
+                        {pendingActivities.slice(0, 2).map((activity) => (
                           <div
                             key={activity?.id}
-                            className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+                            className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
                             onClick={() => {
                               setSelectedWeek(progressData.currentWeek)
                               setCurrentView('week')
                             }}
                           >
-                            <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start justify-between gap-3">
                               <div className="flex-1">
-                                <h4 className="font-semibold text-gray-900 mb-1">
+                                <h4 className="font-semibold text-sm text-gray-900 mb-1">
                                   {activity?.title}
                                 </h4>
-                                <p className="text-sm text-gray-600 line-clamp-2">
+                                <p className="text-xs text-gray-600 line-clamp-1">
                                   {activity?.description}
                                 </p>
-                                <div className="flex items-center gap-3 mt-2">
-                                  <Badge variant="secondary" className="text-xs">
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="secondary" className="text-xs py-0 px-2">
                                     <Clock className="h-3 w-3 mr-1" />
                                     {activity?.duration} min
                                   </Badge>
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="outline" className="text-xs py-0 px-2">
                                     {activity?.category}
                                   </Badge>
                                 </div>
                               </div>
-                              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
-                                <Zap className="h-6 w-6" />
+                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                <Zap className="h-5 w-5" />
                               </div>
                             </div>
                           </div>
                         ))}
                       </div>
 
-                      {pendingActivities.length > 3 && (
-                        <div className="text-center pt-2">
+                      {pendingActivities.length > 2 && (
+                        <div className="text-center pt-1">
                           <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => {
                               setSelectedWeek(progressData.currentWeek)
                               setCurrentView('week')
                             }}
-                            className="w-full border-blue-300 text-blue-600 hover:bg-blue-50"
+                            className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs"
                           >
-                            Ver {pendingActivities.length - 3} actividades más
+                            Ver {pendingActivities.length - 2} actividades más
                           </Button>
                         </div>
                       )}
