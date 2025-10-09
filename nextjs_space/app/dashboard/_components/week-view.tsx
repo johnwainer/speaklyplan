@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,9 +26,15 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  Sparkles,
+  Plus,
+  Pencil,
+  Trash2,
+  Save,
+  X
 } from 'lucide-react'
 import { PlanWeekData } from '@/lib/types'
+import { useToast } from '@/hooks/use-toast'
 
 interface WeekViewProps {
   weekData?: PlanWeekData
@@ -36,6 +42,15 @@ interface WeekViewProps {
   onWeekChange: (weekNumber: number) => void
   totalWeeks: number
   currentWeek: number
+}
+
+interface Note {
+  id: string
+  weekNumber: number
+  content: string
+  reflection: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 const dayNames = {
@@ -168,8 +183,156 @@ export default function WeekView({
   totalWeeks, 
   currentWeek 
 }: WeekViewProps) {
-  const [notes, setNotes] = useState('')
+  const [notes, setNotes] = useState<Note[]>([])
+  const [newNoteContent, setNewNoteContent] = useState('')
+  const [newNoteReflection, setNewNoteReflection] = useState('')
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState('')
+  const [editReflection, setEditReflection] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [expandedActivities, setExpandedActivities] = useState<Set<string>>(new Set())
+  const { toast } = useToast()
+
+  // Cargar notas cuando cambia la semana
+  useEffect(() => {
+    if (weekData?.number) {
+      loadNotes()
+    }
+  }, [weekData?.number])
+
+  const loadNotes = async () => {
+    if (!weekData?.number) return
+    
+    try {
+      const response = await fetch(`/api/notes?weekNumber=${weekData.number}`)
+      if (response.ok) {
+        const data = await response.json()
+        setNotes(data)
+      }
+    } catch (error) {
+      console.error('Error al cargar notas:', error)
+    }
+  }
+
+  const handleCreateNote = async () => {
+    if (!newNoteContent.trim() || !weekData?.number) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weekNumber: weekData.number,
+          content: newNoteContent,
+          reflection: newNoteReflection || null
+        })
+      })
+
+      if (response.ok) {
+        const newNote = await response.json()
+        setNotes([newNote, ...notes])
+        setNewNoteContent('')
+        setNewNoteReflection('')
+        toast({
+          title: '✅ Nota guardada',
+          description: 'Tu nota ha sido guardada exitosamente',
+        })
+      } else {
+        throw new Error('Error al crear nota')
+      }
+    } catch (error) {
+      console.error('Error al crear nota:', error)
+      toast({
+        title: '❌ Error',
+        description: 'No se pudo guardar la nota',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleUpdateNote = async (noteId: string) => {
+    if (!editContent.trim()) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: editContent,
+          reflection: editReflection || null
+        })
+      })
+
+      if (response.ok) {
+        const updatedNote = await response.json()
+        setNotes(notes.map(note => note.id === noteId ? updatedNote : note))
+        setEditingNoteId(null)
+        setEditContent('')
+        setEditReflection('')
+        toast({
+          title: '✅ Nota actualizada',
+          description: 'Los cambios han sido guardados',
+        })
+      } else {
+        throw new Error('Error al actualizar nota')
+      }
+    } catch (error) {
+      console.error('Error al actualizar nota:', error)
+      toast({
+        title: '❌ Error',
+        description: 'No se pudo actualizar la nota',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteNote = async (noteId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta nota?')) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/notes?id=${noteId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        setNotes(notes.filter(note => note.id !== noteId))
+        toast({
+          title: '✅ Nota eliminada',
+          description: 'La nota ha sido eliminada',
+        })
+      } else {
+        throw new Error('Error al eliminar nota')
+      }
+    } catch (error) {
+      console.error('Error al eliminar nota:', error)
+      toast({
+        title: '❌ Error',
+        description: 'No se pudo eliminar la nota',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const startEditing = (note: Note) => {
+    setEditingNoteId(note.id)
+    setEditContent(note.content)
+    setEditReflection(note.reflection || '')
+  }
+
+  const cancelEditing = () => {
+    setEditingNoteId(null)
+    setEditContent('')
+    setEditReflection('')
+  }
 
   const toggleActivityExpanded = (activityId: string) => {
     setExpandedActivities(prev => {
@@ -402,27 +565,178 @@ export default function WeekView({
       {/* Notes Section */}
       <Card className="border-0 shadow-lg">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base sm:text-lg">Notas y Reflexiones</CardTitle>
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <FileText className="h-5 w-5 text-blue-600" />
+            Notas y Reflexiones
+          </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
-            Guarda tus reflexiones, dudas o logros de esta semana
+            Puedes agregar múltiples notas para documentar tu progreso y reflexiones
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3 sm:space-y-4">
-            <div>
-              <Label htmlFor="notes" className="text-sm">Notas de la semana</Label>
-              <Textarea
-                id="notes"
-                placeholder="¿Cómo te fue esta semana? ¿Qué aprendiste? ¿Qué te resultó más difícil?"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                className="text-sm resize-none"
-              />
+          <div className="space-y-6">
+            {/* Formulario para nueva nota */}
+            <div className="space-y-4 p-4 bg-blue-50/50 rounded-lg border border-blue-200">
+              <div>
+                <Label htmlFor="new-note" className="text-sm font-semibold flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nueva Nota
+                </Label>
+                <Textarea
+                  id="new-note"
+                  placeholder="¿Qué aprendiste esta semana? ¿Qué logros alcanzaste?"
+                  value={newNoteContent}
+                  onChange={(e) => setNewNoteContent(e.target.value)}
+                  rows={3}
+                  className="text-sm resize-none mt-2"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="new-reflection" className="text-sm font-semibold flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Reflexión (opcional)
+                </Label>
+                <Textarea
+                  id="new-reflection"
+                  placeholder="¿Qué te resultó difícil? ¿Qué podrías mejorar?"
+                  value={newNoteReflection}
+                  onChange={(e) => setNewNoteReflection(e.target.value)}
+                  rows={2}
+                  className="text-sm resize-none mt-2"
+                />
+              </div>
+              
+              <Button 
+                onClick={handleCreateNote}
+                disabled={!newNoteContent.trim() || isLoading}
+                className="w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Nota
+              </Button>
             </div>
-            <Button className="w-full sm:w-auto">
-              Guardar Notas
-            </Button>
+
+            {/* Lista de notas existentes */}
+            {notes.length > 0 ? (
+              <div className="space-y-4">
+                <h3 className="font-semibold text-sm text-gray-700">
+                  Tus notas ({notes.length})
+                </h3>
+                {notes.map((note) => (
+                  <motion.div
+                    key={note.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+                  >
+                    {editingNoteId === note.id ? (
+                      // Modo edición
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs text-gray-600">Nota</Label>
+                          <Textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            rows={3}
+                            className="text-sm resize-none mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-gray-600">Reflexión</Label>
+                          <Textarea
+                            value={editReflection}
+                            onChange={(e) => setEditReflection(e.target.value)}
+                            rows={2}
+                            className="text-sm resize-none mt-1"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleUpdateNote(note.id)}
+                            disabled={isLoading}
+                          >
+                            <Save className="h-3 w-3 mr-1" />
+                            Guardar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={cancelEditing}
+                            disabled={isLoading}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Modo vista
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                            {note.content}
+                          </p>
+                        </div>
+                        
+                        {note.reflection && (
+                          <div className="p-3 bg-purple-50 rounded-md border border-purple-200">
+                            <p className="text-xs font-semibold text-purple-700 mb-1 flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              Reflexión
+                            </p>
+                            <p className="text-sm text-purple-900 whitespace-pre-wrap leading-relaxed">
+                              {note.reflection}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                          <p className="text-xs text-gray-500">
+                            {new Date(note.createdAt).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => startEditing(note)}
+                              disabled={isLoading}
+                              className="h-8 px-2"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteNote(note.id)}
+                              disabled={isLoading}
+                              className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <FileText className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <p className="text-sm">Aún no tienes notas para esta semana</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Comienza agregando tu primera nota arriba
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
