@@ -118,3 +118,15 @@
 .activity-description-content h3 {
   @apply text-base mt-3 mb-2;
 }
+/* Flip Cards Styles */
+.perspective {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
