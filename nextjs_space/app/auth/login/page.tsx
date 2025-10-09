@@ -37,11 +37,20 @@ export default function LoginPage() {
           variant: "destructive"
         })
       } else {
+        // Obtener la sesión actualizada para verificar el rol
+        const session = await getSession()
+        
         toast({
           title: "¡Bienvenido!",
           description: "Has iniciado sesión correctamente.",
         })
-        router.push('/dashboard')
+        
+        // Redirigir según el rol del usuario
+        if (session?.user?.role === 'admin') {
+          router.push('/admin')
+        } else {
+          router.push('/dashboard')
+        }
       }
     } catch (error) {
       toast({
