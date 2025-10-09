@@ -455,49 +455,48 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
         </div>
       </nav>
 
-      {/* Progress Stats */}
-      <section className="py-6 px-4 bg-white border-b">
+      {/* Compact Progress Stats */}
+      <section className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
         <div className="container max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="border-0 bg-blue-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-5 w-5 text-blue-600" />
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-6 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-blue-600">{progressData.percentageCompleted}%</div>
-                <div className="text-sm text-gray-600">Completado</div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="text-xl font-bold text-blue-600">{progressData.percentageCompleted}%</div>
+                  <div className="text-xs text-gray-600">Completado</div>
+                </div>
+              </div>
 
-            <Card className="border-0 bg-green-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Flame className="h-5 w-5 text-green-600" />
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                  <Flame className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-green-600">{progressData.currentStreak}</div>
-                <div className="text-sm text-gray-600">Racha actual</div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="text-xl font-bold text-green-600">{progressData.currentStreak} días</div>
+                  <div className="text-xs text-gray-600">Racha actual</div>
+                </div>
+              </div>
 
-            <Card className="border-0 bg-purple-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Calendar className="h-5 w-5 text-purple-600" />
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-purple-600">{progressData.currentWeek}</div>
-                <div className="text-sm text-gray-600">Semana actual</div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="text-xl font-bold text-purple-600">Semana {progressData.currentWeek}</div>
+                  <div className="text-xs text-gray-600">de 24 semanas</div>
+                </div>
+              </div>
+            </div>
 
-            <Card className="border-0 bg-orange-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Award className="h-5 w-5 text-orange-600" />
-                </div>
-                <div className="text-2xl font-bold text-orange-600">{progressData.bestStreak}</div>
-                <div className="text-sm text-gray-600">Mejor racha</div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-2 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-gray-500" />
+              <span className="font-medium text-gray-700">
+                {progressData.completedActivities} de {progressData.totalActivities} actividades
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -505,9 +504,141 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Main Content */}
       <main className="py-8 px-4">
         <div className="container max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-3 gap-6">
+          {/* Priority Section - Where to Start */}
+          {currentView === 'overview' && (
+            <Card className="mb-6 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
+                      <Target className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">¡Empieza aquí!</CardTitle>
+                      <CardDescription className="text-base mt-1">
+                        Tus actividades de esta semana
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setSelectedWeek(progressData.currentWeek)
+                      setCurrentView('week')
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Ver todas las actividades
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
+                  const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
+                  const completedToday = currentWeek?.activities?.filter(a => {
+                    if (!a?.completedAt) return false
+                    const completedDate = new Date(a.completedAt)
+                    const today = new Date()
+                    return completedDate.toDateString() === today.toDateString()
+                  }) || []
+
+                  if (pendingActivities.length === 0) {
+                    return (
+                      <div className="text-center py-8">
+                        <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          ¡Felicitaciones! Semana completada 🎉
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                          Has completado todas las actividades de esta semana
+                        </p>
+                        <Button
+                          onClick={() => {
+                            setSelectedWeek(progressData.currentWeek + 1)
+                            setCurrentView('week')
+                          }}
+                          className="bg-purple-600 hover:bg-purple-700"
+                          disabled={progressData.currentWeek >= (planData?.length || 0)}
+                        >
+                          Ir a la siguiente semana
+                        </Button>
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div className="space-y-4">
+                      {completedToday.length > 0 && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                          <div className="flex items-center gap-2 text-green-700">
+                            <CheckCircle2 className="h-5 w-5" />
+                            <span className="font-medium">
+                              ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid gap-3">
+                        {pendingActivities.slice(0, 3).map((activity) => (
+                          <div
+                            key={activity?.id}
+                            className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => {
+                              setSelectedWeek(progressData.currentWeek)
+                              setCurrentView('week')
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900 mb-1">
+                                  {activity?.title}
+                                </h4>
+                                <p className="text-sm text-gray-600 line-clamp-2">
+                                  {activity?.description}
+                                </p>
+                                <div className="flex items-center gap-3 mt-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    {activity?.duration} min
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {activity?.category}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                <Zap className="h-6 w-6" />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {pendingActivities.length > 3 && (
+                        <div className="text-center pt-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedWeek(progressData.currentWeek)
+                              setCurrentView('week')
+                            }}
+                            className="w-full border-blue-300 text-blue-600 hover:bg-blue-50"
+                          >
+                            Ver {pendingActivities.length - 3} actividades más
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid lg:grid-cols-[1fr_320px] gap-6">
             {/* Main content area */}
-            <div className="lg:col-span-2">
+            <div>
               {currentView === 'overview' ? (
                 <ProgressOverview
                   planWeeks={planData}
@@ -528,76 +659,62 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               )}
             </div>
 
-            {/* Gamification sidebar */}
-            <div className="space-y-6">
-              {/* Level and XP */}
+            {/* Compact Gamification sidebar */}
+            <div className="space-y-4">
+              {/* Combined Level, XP & Stats Card */}
               {gamificationStats && (
                 <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Trophy className="w-5 h-5 text-purple-600" />
-                      Tu Nivel
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-purple-600" />
+                      Progreso y Nivel
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-4">
                     <LevelBadge
                       level={gamificationStats.level}
                       points={gamificationStats.points}
-                      size="md"
+                      size="sm"
                       showProgress={true}
                       levelProgress={gamificationStats.levelProgress}
                     />
+                    
+                    {/* Compact Stats */}
+                    <div className="space-y-2 pt-2 border-t">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Flame className="w-4 h-4 text-orange-500" />
+                          <span>Racha</span>
+                        </div>
+                        <span className="font-bold text-orange-600">
+                          {gamificationStats.currentStreak} días
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Award className="w-4 h-4 text-yellow-500" />
+                          <span>Mejor racha</span>
+                        </div>
+                        <span className="font-bold text-yellow-600">
+                          {gamificationStats.bestStreak} días
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-blue-500" />
+                          <span>Actividades</span>
+                        </div>
+                        <span className="font-bold text-blue-600">
+                          {progressData.completedActivities}/{progressData.totalActivities}
+                        </span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               )}
 
-              {/* Streaks */}
-              {gamificationStats && (
-                <StreakDisplay
-                  currentStreak={gamificationStats.currentStreak}
-                  bestStreak={gamificationStats.bestStreak}
-                  size="sm"
-                />
-              )}
-
               {/* Daily Missions */}
               <DailyMissions />
-
-              {/* Quick Stats */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Estadísticas Rápidas</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                      <span className="text-sm font-medium">Actividades</span>
-                    </div>
-                    <span className="text-lg font-bold text-blue-600">
-                      {progressData.completedActivities}/{progressData.totalActivities}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-green-600" />
-                      <span className="text-sm font-medium">Progreso</span>
-                    </div>
-                    <span className="text-lg font-bold text-green-600">
-                      {progressData.percentageCompleted}%
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-purple-600" />
-                      <span className="text-sm font-medium">Semana Actual</span>
-                    </div>
-                    <span className="text-lg font-bold text-purple-600">
-                      {progressData.currentWeek}/24
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
