@@ -16,6 +16,7 @@ import {
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { getProfileImageUrl } from '@/lib/utils'
 import { 
   BookOpen, Target, Calendar, Library, TrendingUp, 
   Users, Clock, Lightbulb, CheckCircle2, XCircle, 
@@ -619,7 +620,7 @@ export default function GuiaClient({ user }: GuiaClientProps) {
               {currentUser?.image ? (
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
                   <Image
-                    src={currentUser.image}
+                    src={getProfileImageUrl(currentUser.image) || ''}
                     alt={currentUser.name || 'User'}
                     fill
                     className="object-cover"

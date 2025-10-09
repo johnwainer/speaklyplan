@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { getProfileImageUrl } from '@/lib/utils'
 import { 
   BookOpen, ArrowLeft, LogOut, User, 
   Smartphone, Globe, Youtube, Headphones, 
@@ -172,7 +173,7 @@ export default function RecursosClient({ user }: RecursosClientProps) {
               {currentUser?.image ? (
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
                   <Image
-                    src={currentUser.image}
+                    src={getProfileImageUrl(currentUser.image) || ''}
                     alt={currentUser.name || 'User'}
                     fill
                     className="object-cover"
