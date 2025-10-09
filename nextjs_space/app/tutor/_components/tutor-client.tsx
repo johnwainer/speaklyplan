@@ -63,14 +63,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const shouldAutoScroll = useRef(true);
   const { data: session, status } = useSession() || {};
   
-  // Auto-scroll al último mensaje solo cuando se envía un nuevo mensaje
-  useEffect(() => {
-    if (shouldAutoScroll.current && messages.length > 0) {
-      setTimeout(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  }, [messages]);
+  // Auto-scroll removed - users can scroll manually
   
   // Load gamification stats on mount
   useEffect(() => {
