@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BookOpen, Mail, Lock, User, UserPlus } from 'lucide-react'
+import { BookOpen, Mail, Lock, User, UserPlus, Shield } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 export default function RegisterPage() {
@@ -20,14 +20,59 @@ export default function RegisterPage() {
     confirmPassword: ''
   })
   const [loading, setLoading] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState(0)
   const router = useRouter()
   const { toast } = useToast()
 
+  // Función para calcular la fortaleza de la contraseña
+  const calculatePasswordStrength = (password: string): number => {
+    let strength = 0
+    
+    // Longitud
+    if (password.length >= 8) strength += 25
+    if (password.length >= 12) strength += 10
+    
+    // Mayúsculas
+    if (/[A-Z]/.test(password)) strength += 20
+    
+    // Minúsculas
+    if (/[a-z]/.test(password)) strength += 20
+    
+    // Números
+    if (/[0-9]/.test(password)) strength += 15
+    
+    // Caracteres especiales
+    if (/[^A-Za-z0-9]/.test(password)) strength += 20
+    
+    return Math.min(strength, 100)
+  }
+
+  const getStrengthColor = () => {
+    if (passwordStrength < 30) return 'bg-red-500'
+    if (passwordStrength < 60) return 'bg-yellow-500'
+    if (passwordStrength < 80) return 'bg-blue-500'
+    return 'bg-green-500'
+  }
+
+  const getStrengthText = () => {
+    if (passwordStrength < 30) return 'Débil'
+    if (passwordStrength < 60) return 'Regular'
+    if (passwordStrength < 80) return 'Buena'
+    return 'Excelente'
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }))
+
+    // Calcular fortaleza si es el campo de contraseña
+    if (name === 'password') {
+      setPasswordStrength(calculatePasswordStrength(value))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,6 +218,56 @@ export default function RegisterPage() {
                     required
                   />
                 </div>
+                
+                {/* Indicador de fortaleza */}
+                {formData.password && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-600">Fortaleza:</span>
+                      </div>
+                      <span className={`font-medium ${
+                        passwordStrength < 30 ? 'text-red-600' :
+                        passwordStrength < 60 ? 'text-yellow-600' :
+                        passwordStrength < 80 ? 'text-blue-600' :
+                        'text-green-600'
+                      }`}>
+                        {getStrengthText()}
+                      </span>
+                    </div>
+                    
+                    {/* Barra de progreso */}
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${getStrengthColor()}`}
+                        style={{ width: `${passwordStrength}%` }}
+                      />
+                    </div>
+                    
+                    {/* Consejos de seguridad */}
+                    <div className="text-xs text-gray-500 space-y-1 mt-2">
+                      <p className="font-medium">Para una contraseña segura, incluye:</p>
+                      <ul className="list-disc list-inside space-y-0.5 ml-2">
+                        <li className={formData.password.length >= 8 ? 'text-green-600' : ''}>
+                          Al menos 8 caracteres
+                        </li>
+                        <li className={/[A-Z]/.test(formData.password) ? 'text-green-600' : ''}>
+                          Letras mayúsculas
+                        </li>
+                        <li className={/[a-z]/.test(formData.password) ? 'text-green-600' : ''}>
+                          Letras minúsculas
+                        </li>
+                        <li className={/[0-9]/.test(formData.password) ? 'text-green-600' : ''}>
+                          Números
+                        </li>
+                        <li className={/[^A-Za-z0-9]/.test(formData.password) ? 'text-green-600' : ''}>
+                          Caracteres especiales (!@#$%^&*)
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
