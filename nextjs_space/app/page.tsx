@@ -839,16 +839,6 @@ export default function HomePage() {
 
       {/* Plan Overview Section */}
       <section id="plan" className="py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
-        {/* Animated timeline */}
-        <motion.div 
-          className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 via-green-400 to-purple-400 opacity-30 hidden md:block"
-          initial={{ scaleY: 0 }}
-          whileInView={{ scaleY: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.5 }}
-          style={{ originY: 0 }}
-        />
-
         <div className="container max-w-6xl mx-auto relative z-10">
           <motion.div 
             className="text-center mb-12"
