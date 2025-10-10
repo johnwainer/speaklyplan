@@ -552,16 +552,16 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
         <div className="container max-w-7xl mx-auto">
           {/* Priority Section - Where to Start */}
           {currentView === 'overview' && (
-            <Card data-tour="pending-activities" className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <Card data-tour="pending-activities" className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                <div className="flex items-center justify-between gap-2 sm:gap-4">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
                       <Target className="h-4 w-4 text-white" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">¡Empieza aquí!</CardTitle>
-                      <CardDescription className="text-xs">
+                    <div className="min-w-0 overflow-hidden">
+                      <CardTitle className="text-base sm:text-lg truncate">¡Empieza aquí!</CardTitle>
+                      <CardDescription className="text-xs truncate">
                         Tus actividades de esta semana
                       </CardDescription>
                     </div>
@@ -572,13 +572,13 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                       setSelectedWeek(progressData.currentWeek)
                       setCurrentView('week')
                     }}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs sm:text-sm px-2 sm:px-4"
                   >
                     Ver todas
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="pt-2">
+              <CardContent className="pt-2 overflow-hidden">
                 {(() => {
                   const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
                   const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
@@ -627,36 +627,36 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         </div>
                       )}
 
-                      <div className="grid gap-2">
+                      <div className="grid gap-2 w-full overflow-hidden">
                         {pendingActivities.slice(0, 2).map((activity) => (
                           <div
                             key={activity?.id}
-                            className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+                            className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
                             onClick={() => {
                               setSelectedWeek(progressData.currentWeek)
                               setCurrentView('week')
                             }}
                           >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-sm text-gray-900 mb-1">
+                            <div className="flex items-start justify-between gap-2 sm:gap-3 max-w-full overflow-hidden">
+                              <div className="flex-1 min-w-0 overflow-hidden">
+                                <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
                                   {activity?.title}
                                 </h4>
-                                <p className="text-xs text-gray-600 line-clamp-1">
+                                <p className="text-xs text-gray-600 line-clamp-1 break-words">
                                   {formatMarkdownText(activity?.description)}
                                 </p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge variant="secondary" className="text-xs py-0 px-2">
+                                <div className="flex items-center gap-1 sm:gap-2 mt-1 flex-wrap">
+                                  <Badge variant="secondary" className="text-xs py-0 px-2 whitespace-nowrap">
                                     <Clock className="h-3 w-3 mr-1" />
                                     {activity?.duration} min
                                   </Badge>
-                                  <Badge variant="outline" className="text-xs py-0 px-2">
+                                  <Badge variant="outline" className="text-xs py-0 px-2 truncate max-w-[120px]">
                                     {activity?.category}
                                   </Badge>
                                 </div>
                               </div>
-                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
-                                <Zap className="h-5 w-5" />
+                              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
                               </div>
                             </div>
                           </div>
