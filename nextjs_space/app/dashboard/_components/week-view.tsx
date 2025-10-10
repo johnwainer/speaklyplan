@@ -122,20 +122,20 @@ function markdownToHtml(text: string): string {
     // Check for unordered list items (-, *, •)
     if (line.match(/^[-*•]\s+(.+)$/)) {
       if (!inUnorderedList) {
-        processedLines.push('<ul class="list-none space-y-2 my-3 pl-0">')
+        processedLines.push('<ul class="list-none space-y-2 my-3 pl-0 overflow-hidden">')
         inUnorderedList = true
       }
       const content = line.replace(/^[-*•]\s+/, '')
-      processedLines.push(`<li class="flex items-start gap-2 text-gray-700"><span class="text-blue-600 font-bold flex-shrink-0 mt-0.5">•</span><span class="flex-1">${content}</span></li>`)
+      processedLines.push(`<li class="flex items-start gap-2 text-gray-700 break-words"><span class="text-blue-600 font-bold flex-shrink-0 mt-0.5">•</span><span class="flex-1 break-words overflow-hidden">${content}</span></li>`)
     } 
     // Check for ordered list items (1. 2. etc)
     else if (line.match(/^\d+\.\s+(.+)$/)) {
       if (!inOrderedList) {
-        processedLines.push('<ol class="list-decimal list-inside space-y-2 my-3 pl-4 marker:text-blue-600 marker:font-semibold">')
+        processedLines.push('<ol class="list-decimal list-inside space-y-2 my-3 pl-4 marker:text-blue-600 marker:font-semibold overflow-hidden">')
         inOrderedList = true
       }
       const content = line.replace(/^\d+\.\s+/, '')
-      processedLines.push(`<li class="text-gray-700 pl-2">${content}</li>`)
+      processedLines.push(`<li class="text-gray-700 pl-2 break-words overflow-hidden">${content}</li>`)
     } 
     // Regular line
     else {
@@ -508,7 +508,7 @@ export default function WeekView({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         whileHover={{ scale: isBlocked && !activity.completed ? 1 : 1.02 }}
-                        className={`p-3 sm:p-4 rounded-lg border transition-all overflow-hidden ${
+                        className={`p-3 sm:p-4 rounded-lg border transition-all overflow-hidden min-w-0 ${
                           activity.completed 
                             ? 'bg-green-50 border-green-200' 
                             : isBlocked
@@ -516,7 +516,7 @@ export default function WeekView({
                               : 'bg-white border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className="space-y-3">
+                        <div className="space-y-3 min-w-0 overflow-hidden">
                           {/* Header - Categoría y duración */}
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge className={`${colorClass} text-xs`}>
@@ -538,17 +538,18 @@ export default function WeekView({
                           </h3>
                           
                           {/* Descripción colapsable */}
-                          <div className="space-y-2 w-full">
+                          <div className="space-y-2 w-full min-w-0">
                             {isExpanded ? (
-                              <div className="activity-description-content w-full">
+                              <div className="activity-description-content w-full min-w-0 overflow-hidden">
                                 <div 
-                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words shadow-sm w-full max-w-full"
+                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words shadow-sm w-full max-w-full min-w-0"
+                                  style={{ wordWrap: 'break-word', wordBreak: 'break-word', overflowWrap: 'break-word' }}
                                   dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
                                 />
                               </div>
                             ) : (
                               <div 
-                                className="text-sm leading-relaxed text-gray-600 line-clamp-2 overflow-hidden break-words w-full"
+                                className="text-sm leading-relaxed text-gray-600 line-clamp-2 overflow-hidden break-words w-full min-w-0"
                                 dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description.split('\n')[0]) }}
                               />
                             )}
