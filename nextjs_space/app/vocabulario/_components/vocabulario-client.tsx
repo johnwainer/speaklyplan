@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { getProfileImageUrl } from '@/lib/utils'
+import { AppHeader } from '@/components/app-header'
 
 interface VocabularyTerm {
   id: string
@@ -330,57 +331,7 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
-        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-            <div className="text-left">
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
-              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Vocabulario Profesional</p>
-            </div>
-          </button>
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="hidden md:flex items-center space-x-3 text-sm text-gray-700">
-              {user?.image ? (
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
-                  <Image
-                    src={getProfileImageUrl(user.image) || ''}
-                    alt={user.name || 'User'}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <User className="h-5 w-5 text-blue-600" />
-                </div>
-              )}
-              <span className="font-medium">{user?.name || user?.email}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/perfil')}
-              className="text-xs sm:text-sm"
-            >
-              <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Mi Perfil</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-xs sm:text-sm"
-            >
-              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Salir</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader currentSection="vocabulario" />
 
       {/* Navigation */}
       <nav className="border-b bg-white">

@@ -948,14 +948,9 @@ export default function HomePage() {
                       />
                     </motion.div>
                     
-                    <motion.div 
-                      className="mt-2 text-xs text-gray-700 text-center font-semibold"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: index * 0.2 + 1.5 }}
-                    >
+                    <div className="mt-2 text-xs text-black text-center font-bold">
                       8 semanas intensivas
-                    </motion.div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
