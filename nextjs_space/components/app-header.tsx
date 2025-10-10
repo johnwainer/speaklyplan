@@ -78,7 +78,10 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
         <div className="hidden md:flex items-center">
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group">
+              <button 
+                data-tour="user-menu"
+                className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+              >
                 {user?.image ? (
                   <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm group-hover:border-blue-400 transition-colors">
                     <Image

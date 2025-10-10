@@ -85,46 +85,33 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       placement: 'top',
     },
     {
-      target: '[data-tour="invite-friends"]',
+      target: '[data-tour="user-menu"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">👥 Invita a tus Amigos</h3>
+          <h3 className="text-lg font-bold mb-2">👤 Menú de Usuario</h3>
           <p className="text-gray-700 mb-3">
-            ¿Conoces a alguien que también quiere aprender inglés? ¡Comparte SpeaklyPlan con ellos!
+            Haz clic en tu nombre para abrir el menú desplegable con opciones importantes:
           </p>
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-            <p className="text-sm text-gray-700 mb-2">
-              🎯 <strong>Aprendan juntos:</strong> La motivación es clave
-            </p>
-            <p className="text-sm text-gray-700 mb-2">
-              ✉️ <strong>Fácil:</strong> Solo ingresa sus emails y enviamos la invitación
-            </p>
-            <p className="text-sm text-gray-700">
-              🎁 <strong>100% Gratis:</strong> Sin límites de invitaciones
-            </p>
-          </div>
-        </div>
-      ),
-      placement: 'bottom',
-    },
-    {
-      target: '[data-tour="profile-button"]',
-      content: (
-        <div>
-          <h3 className="text-lg font-bold mb-2">👤 Mi Perfil</h3>
-          <p className="text-gray-700 mb-3">
-            Personaliza tu perfil y gestiona tu información personal.
-          </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-gray-700 mb-2">
-              📸 <strong>Foto de perfil:</strong> Sube tu imagen personal
-            </p>
-            <p className="text-sm text-gray-700 mb-2">
-              📝 <strong>Datos personales:</strong> Actualiza tu nombre e información
-            </p>
-            <p className="text-sm text-gray-700">
-              🔒 <strong>Seguridad:</strong> Cambia tu contraseña cuando quieras
-            </p>
+          <div className="space-y-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="font-semibold text-blue-900 mb-1">📝 Mi Perfil</p>
+              <p className="text-sm text-gray-700">
+                Personaliza tu foto de perfil, actualiza tus datos personales y cambia tu contraseña.
+              </p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <p className="font-semibold text-purple-900 mb-1">👥 Invitar Amigos</p>
+              <p className="text-sm text-gray-700">
+                ¿Conoces a alguien que también quiere aprender inglés? Comparte SpeaklyPlan con ellos. 
+                ¡Aprender juntos es más motivador!
+              </p>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="font-semibold text-red-900 mb-1">🚪 Cerrar Sesión</p>
+              <p className="text-sm text-gray-700">
+                Sal de tu cuenta de forma segura cuando termines.
+              </p>
+            </div>
           </div>
         </div>
       ),
