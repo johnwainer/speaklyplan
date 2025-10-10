@@ -901,25 +901,6 @@ export default function HomePage() {
                 style={{ perspective: 1000 }}
                 className="relative"
               >
-                {/* Phase connector */}
-                {index < phases.length - 1 && (
-                  <motion.div
-                    className="hidden md:block absolute top-1/2 -right-3 z-20"
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.2 + 0.5 }}
-                  >
-                    <motion.div
-                      animate={{ x: [0, 10, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white"
-                    >
-                      <ArrowRight className="w-3 h-3" />
-                    </motion.div>
-                  </motion.div>
-                )}
-
                 <Card className="border-0 shadow-lg hover:shadow-2xl transition-all cursor-pointer h-full relative overflow-hidden group">
                   {/* Background animation */}
                   <motion.div
@@ -977,7 +958,7 @@ export default function HomePage() {
                     </motion.div>
                     
                     <motion.div 
-                      className="mt-2 text-xs text-gray-600 text-center font-medium"
+                      className="mt-2 text-xs text-gray-700 text-center font-semibold"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: index * 0.2 + 1.5 }}
