@@ -85,6 +85,52 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       placement: 'top',
     },
     {
+      target: '[data-tour="invite-friends"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">👥 Invita a tus Amigos</h3>
+          <p className="text-gray-700 mb-3">
+            ¿Conoces a alguien que también quiere aprender inglés? ¡Comparte SpeaklyPlan con ellos!
+          </p>
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+            <p className="text-sm text-gray-700 mb-2">
+              🎯 <strong>Aprendan juntos:</strong> La motivación es clave
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              ✉️ <strong>Fácil:</strong> Solo ingresa sus emails y enviamos la invitación
+            </p>
+            <p className="text-sm text-gray-700">
+              🎁 <strong>100% Gratis:</strong> Sin límites de invitaciones
+            </p>
+          </div>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+    {
+      target: '[data-tour="profile-button"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">👤 Mi Perfil</h3>
+          <p className="text-gray-700 mb-3">
+            Personaliza tu perfil y gestiona tu información personal.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-gray-700 mb-2">
+              📸 <strong>Foto de perfil:</strong> Sube tu imagen personal
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              📝 <strong>Datos personales:</strong> Actualiza tu nombre e información
+            </p>
+            <p className="text-sm text-gray-700">
+              🔒 <strong>Seguridad:</strong> Cambia tu contraseña cuando quieras
+            </p>
+          </div>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+    {
       target: '[data-tour="nav-tutor"]',
       content: (
         <div>

@@ -85,22 +85,25 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
           </div>
           
           {/* Invite Friends Button - Desktop */}
-          <InviteFriendsModal
-            senderEmail={user?.email || undefined}
-            senderName={user?.name || undefined}
-            trigger={
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100"
-              >
-                <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="font-medium text-blue-700">Invitar</span>
-              </Button>
-            }
-          />
+          <div data-tour="invite-friends">
+            <InviteFriendsModal
+              senderEmail={user?.email || undefined}
+              senderName={user?.name || undefined}
+              trigger={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100"
+                >
+                  <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
+                  <span className="font-medium text-blue-700">Invitar</span>
+                </Button>
+              }
+            />
+          </div>
           
           <Button
+            data-tour="profile-button"
             variant="outline"
             size="sm"
             onClick={() => router.push('/perfil')}
