@@ -366,8 +366,8 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
           >
             <Card className="border-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-2xl overflow-hidden">
               <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-              <CardContent className="p-4 sm:p-6 relative z-10">
-                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+              <CardContent className="p-3 sm:p-6 relative z-10 overflow-hidden">
+                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 max-w-full">
                   <motion.div 
                     className="p-2 sm:p-3 bg-white/20 rounded-xl shrink-0"
                     animate={{ 
@@ -378,40 +378,40 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                   >
                     <Volume2 className="h-5 w-5 sm:h-7 sm:w-7" />
                   </motion.div>
-                  <div className="flex-1 w-full">
-                    <h4 className="font-bold text-base sm:text-xl mb-2 sm:mb-3 flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-                      Práctica de Pronunciación con IA
+                  <div className="flex-1 w-full min-w-0 overflow-hidden">
+                    <h4 className="font-bold text-sm sm:text-xl mb-2 sm:mb-3 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                      <span className="truncate">Práctica de Pronunciación con IA</span>
                     </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 w-full">
                       <motion.div 
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3"
+                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3 min-w-0"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                       >
                         <Volume2 className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
-                        <div>
-                          <strong className="block text-sm sm:text-base">Escuchar</strong>
-                          <span className="text-xs text-blue-100">Pronunciación nativa</span>
+                        <div className="min-w-0 overflow-hidden">
+                          <strong className="block text-xs sm:text-base truncate">Escuchar</strong>
+                          <span className="text-xs text-blue-100 truncate block">Pronunciación nativa</span>
                         </div>
                       </motion.div>
                       <motion.div 
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3"
+                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3 min-w-0"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                       >
                         <Mic className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
-                        <div>
-                          <strong className="block text-sm sm:text-base">Practicar</strong>
-                          <span className="text-xs text-blue-100">Graba tu voz</span>
+                        <div className="min-w-0 overflow-hidden">
+                          <strong className="block text-xs sm:text-base truncate">Practicar</strong>
+                          <span className="text-xs text-blue-100 truncate block">Graba tu voz</span>
                         </div>
                       </motion.div>
                       <motion.div 
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3"
+                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3 min-w-0"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                       >
                         <Star className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
-                        <div>
-                          <strong className="block text-sm sm:text-base">Calificación</strong>
-                          <span className="text-xs text-blue-100">Feedback 0-100</span>
+                        <div className="min-w-0 overflow-hidden">
+                          <strong className="block text-xs sm:text-base truncate">Calificación</strong>
+                          <span className="text-xs text-blue-100 truncate block">Feedback 0-100</span>
                         </div>
                       </motion.div>
                     </div>
