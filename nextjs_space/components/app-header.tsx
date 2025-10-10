@@ -42,6 +42,8 @@ interface AppHeaderProps {
 
 export function AppHeader({ currentSection, showBackButton = false }: AppHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [inviteModalOpen, setInviteModalOpen] = useState(false)
   const { data: session } = useSession() || {}
   const router = useRouter()
   const user = session?.user
@@ -74,7 +76,7 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
         
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center">
-          <DropdownMenu>
+          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group">
                 {user?.image ? (
@@ -105,7 +107,10 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 data-tour="profile-button"
-                onClick={() => router.push('/perfil')}
+                onClick={() => {
+                  setDropdownOpen(false)
+                  router.push('/perfil')
+                }}
                 className="cursor-pointer"
               >
                 <User className="h-4 w-4 mr-2" />
@@ -113,25 +118,22 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
               </DropdownMenuItem>
               <DropdownMenuItem
                 data-tour="invite-friends"
-                asChild
+                onClick={(e) => {
+                  e.preventDefault()
+                  setDropdownOpen(false)
+                  setInviteModalOpen(true)
+                }}
                 className="cursor-pointer"
               >
-                <div className="w-full">
-                  <InviteFriendsModal
-                    senderEmail={user?.email || undefined}
-                    senderName={user?.name || undefined}
-                    trigger={
-                      <div className="flex items-center w-full">
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        <span>Invitar Amigos</span>
-                      </div>
-                    }
-                  />
-                </div>
+                <UserPlus className="h-4 w-4 mr-2" />
+                <span>Invitar Amigos</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={() => {
+                  setDropdownOpen(false)
+                  signOut({ callbackUrl: '/' })
+                }}
                 className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
               >
                 <LogOut className="h-4 w-4 mr-2" />
@@ -139,6 +141,15 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Invite Modal - Outside Dropdown */}
+          <InviteFriendsModal
+            senderEmail={user?.email || undefined}
+            senderName={user?.name || undefined}
+            open={inviteModalOpen}
+            onOpenChange={setInviteModalOpen}
+            trigger={<div style={{ display: 'none' }} />}
+          />
         </div>
 
         {/* Mobile Menu */}
@@ -236,20 +247,18 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
               <div className="border-t pt-4 mt-auto">
                 <div className="flex flex-col gap-2">
                   {/* Invite Friends Button - Mobile */}
-                  <InviteFriendsModal
-                    senderEmail={user?.email || undefined}
-                    senderName={user?.name || undefined}
-                    trigger={
-                      <Button
-                        variant="outline"
-                        className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
-                        <span className="font-medium text-blue-700">Invitar Amigos</span>
-                      </Button>
-                    }
-                  />
+                  <Button
+                    variant="outline"
+                    className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      // Wait for sheet animation to complete before opening modal
+                      setTimeout(() => setInviteModalOpen(true), 200)
+                    }}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
+                    <span className="font-medium text-blue-700">Invitar Amigos</span>
+                  </Button>
                   
                   <Button
                     variant="outline"

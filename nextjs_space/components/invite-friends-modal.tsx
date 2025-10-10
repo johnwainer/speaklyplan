@@ -15,10 +15,16 @@ interface InviteFriendsModalProps {
   senderEmail?: string
   senderName?: string
   variant?: 'default' | 'floating' | 'inline'
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function InviteFriendsModal({ trigger, senderEmail, senderName, variant = 'default' }: InviteFriendsModalProps) {
-  const [open, setOpen] = useState(false)
+export function InviteFriendsModal({ trigger, senderEmail, senderName, variant = 'default', open: externalOpen, onOpenChange }: InviteFriendsModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  
+  // Use external state if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen
+  const setOpen = onOpenChange || setInternalOpen
   const [emails, setEmails] = useState<string[]>([''])
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
