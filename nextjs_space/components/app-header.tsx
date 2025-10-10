@@ -15,7 +15,8 @@ import {
   Library,
   HelpCircle,
   UserPlus,
-  LayoutDashboard
+  LayoutDashboard,
+  ChevronDown
 } from 'lucide-react'
 import {
   Sheet,
@@ -24,6 +25,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { getProfileImageUrl } from '@/lib/utils'
 import { InviteFriendsModal } from '@/components/invite-friends-modal'
 
@@ -65,60 +73,72 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
         </button>
         
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center space-x-4">
-          <div className="flex items-center space-x-3 text-sm text-gray-700">
-            {user?.image ? (
-              <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
-                <Image
-                  src={getProfileImageUrl(user.image) || ''}
-                  alt={user.name || 'User'}
-                  fill
-                  className="object-cover"
-                />
+        <div className="hidden md:flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group">
+                {user?.image ? (
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm group-hover:border-blue-400 transition-colors">
+                    <Image
+                      src={getProfileImageUrl(user.image) || ''}
+                      alt={user.name || 'User'}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <User className="h-5 w-5 text-blue-600" />
+                  </div>
+                )}
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium text-sm text-gray-700 group-hover:text-gray-900">{user?.name || user?.email}</span>
+                  <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-transform group-data-[state=open]:rotate-180" />
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 mt-2">
+              <div className="px-2 py-1.5 text-sm">
+                <p className="font-medium text-gray-900">{user?.name}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <User className="h-5 w-5 text-blue-600" />
-              </div>
-            )}
-            <span className="font-medium">{user?.name || user?.email}</span>
-          </div>
-          
-          {/* Invite Friends Button - Desktop */}
-          <div data-tour="invite-friends">
-            <InviteFriendsModal
-              senderEmail={user?.email || undefined}
-              senderName={user?.name || undefined}
-              trigger={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100"
-                >
-                  <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
-                  <span className="font-medium text-blue-700">Invitar</span>
-                </Button>
-              }
-            />
-          </div>
-          
-          <Button
-            data-tour="profile-button"
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/perfil')}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Mi Perfil
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => signOut({ callbackUrl: '/' })}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Salir
-          </Button>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                data-tour="profile-button"
+                onClick={() => router.push('/perfil')}
+                className="cursor-pointer"
+              >
+                <User className="h-4 w-4 mr-2" />
+                <span>Mi Perfil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                data-tour="invite-friends"
+                asChild
+                className="cursor-pointer"
+              >
+                <div className="w-full">
+                  <InviteFriendsModal
+                    senderEmail={user?.email || undefined}
+                    senderName={user?.name || undefined}
+                    trigger={
+                      <div className="flex items-center w-full">
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        <span>Invitar Amigos</span>
+                      </div>
+                    }
+                  />
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                <span>Cerrar Sesión</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Mobile Menu */}
