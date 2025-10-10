@@ -23,18 +23,18 @@ async function exportDatabase() {
     // Export learning contexts
     const learningContexts = await prisma.learningContext.findMany()
 
-    // Export conversations
-    const conversations = await prisma.conversation.findMany({
+    // Export chat conversations
+    const chatConversations = await prisma.chatConversation.findMany({
       include: {
         messages: true,
       }
     })
 
-    // Export vocabulary progress
-    const vocabularyProgress = await prisma.vocabularyProgress.findMany()
+    // Export user vocabulary progress
+    const userVocabularyProgress = await prisma.userVocabularyProgress.findMany()
 
-    // Export grammar mistakes
-    const grammarMistakes = await prisma.grammarMistake.findMany()
+    // Export common mistakes
+    const commonMistakes = await prisma.commonMistake.findMany()
 
     // Export user progress
     const userProgress = await prisma.userProgress.findMany()
@@ -42,19 +42,19 @@ async function exportDatabase() {
     // Export achievements
     const achievements = await prisma.achievement.findMany()
 
-    // Export notes
-    const notes = await prisma.note.findMany()
+    // Export user notes
+    const userNotes = await prisma.userNote.findMany()
 
     const exportData = {
       exportDate: new Date().toISOString(),
       users,
       learningContexts,
-      conversations,
-      vocabularyProgress,
-      grammarMistakes,
+      chatConversations,
+      userVocabularyProgress,
+      commonMistakes,
       userProgress,
       achievements,
-      notes,
+      userNotes,
     }
 
     const exportPath = path.join(process.cwd(), 'database_export.json')
@@ -63,11 +63,11 @@ async function exportDatabase() {
     console.log('✅ Base de datos exportada exitosamente a:', exportPath)
     console.log(`📊 Estadísticas:`)
     console.log(`   - Usuarios: ${users.length}`)
-    console.log(`   - Conversaciones: ${conversations.length}`)
-    console.log(`   - Progreso de vocabulario: ${vocabularyProgress.length}`)
-    console.log(`   - Errores de gramática: ${grammarMistakes.length}`)
+    console.log(`   - Conversaciones: ${chatConversations.length}`)
+    console.log(`   - Progreso de vocabulario: ${userVocabularyProgress.length}`)
+    console.log(`   - Errores comunes: ${commonMistakes.length}`)
     console.log(`   - Logros: ${achievements.length}`)
-    console.log(`   - Notas: ${notes.length}`)
+    console.log(`   - Notas: ${userNotes.length}`)
   } catch (error) {
     console.error('❌ Error exportando base de datos:', error)
   } finally {

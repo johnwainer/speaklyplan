@@ -28,7 +28,7 @@ async function importDatabase() {
     }
 
     console.log('📥 Importando contextos de aprendizaje...')
-    for (const context of data.learningContexts) {
+    for (const context of data.learningContexts || []) {
       await prisma.learningContext.upsert({
         where: { userId: context.userId },
         update: context,
@@ -37,16 +37,16 @@ async function importDatabase() {
     }
 
     console.log('📥 Importando conversaciones...')
-    for (const conversation of data.conversations) {
+    for (const conversation of data.chatConversations || []) {
       const { messages, ...conversationData } = conversation
-      await prisma.conversation.upsert({
+      await prisma.chatConversation.upsert({
         where: { id: conversation.id },
         update: conversationData,
         create: conversationData,
       })
 
-      for (const message of messages) {
-        await prisma.message.upsert({
+      for (const message of messages || []) {
+        await prisma.chatMessage.upsert({
           where: { id: message.id },
           update: message,
           create: message,
@@ -55,17 +55,17 @@ async function importDatabase() {
     }
 
     console.log('📥 Importando progreso de vocabulario...')
-    for (const progress of data.vocabularyProgress) {
-      await prisma.vocabularyProgress.upsert({
+    for (const progress of data.userVocabularyProgress || []) {
+      await prisma.userVocabularyProgress.upsert({
         where: { id: progress.id },
         update: progress,
         create: progress,
       })
     }
 
-    console.log('📥 Importando errores de gramática...')
-    for (const mistake of data.grammarMistakes) {
-      await prisma.grammarMistake.upsert({
+    console.log('📥 Importando errores comunes...')
+    for (const mistake of data.commonMistakes || []) {
+      await prisma.commonMistake.upsert({
         where: { id: mistake.id },
         update: mistake,
         create: mistake,
@@ -73,7 +73,7 @@ async function importDatabase() {
     }
 
     console.log('📥 Importando progreso de usuarios...')
-    for (const progress of data.userProgress) {
+    for (const progress of data.userProgress || []) {
       await prisma.userProgress.upsert({
         where: { id: progress.id },
         update: progress,
@@ -82,7 +82,7 @@ async function importDatabase() {
     }
 
     console.log('📥 Importando logros...')
-    for (const achievement of data.achievements) {
+    for (const achievement of data.achievements || []) {
       await prisma.achievement.upsert({
         where: { id: achievement.id },
         update: achievement,
@@ -91,8 +91,8 @@ async function importDatabase() {
     }
 
     console.log('📥 Importando notas...')
-    for (const note of data.notes) {
-      await prisma.note.upsert({
+    for (const note of data.userNotes || []) {
+      await prisma.userNote.upsert({
         where: { id: note.id },
         update: note,
         create: note,
