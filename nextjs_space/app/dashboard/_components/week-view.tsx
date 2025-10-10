@@ -542,7 +542,7 @@ export default function WeekView({
                             {isExpanded ? (
                               <div className="activity-description-content">
                                 <div 
-                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden overflow-y-auto break-words shadow-sm max-h-[60vh] sm:max-h-[500px]"
+                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words shadow-sm"
                                   dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
                                 />
                               </div>
