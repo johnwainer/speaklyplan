@@ -508,7 +508,7 @@ export default function WeekView({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         whileHover={{ scale: isBlocked && !activity.completed ? 1 : 1.02 }}
-                        className={`p-3 sm:p-4 rounded-lg border transition-all ${
+                        className={`p-3 sm:p-4 rounded-lg border transition-all overflow-hidden ${
                           activity.completed 
                             ? 'bg-green-50 border-green-200' 
                             : isBlocked
@@ -538,17 +538,17 @@ export default function WeekView({
                           </h3>
                           
                           {/* Descripción colapsable */}
-                          <div className="space-y-2">
+                          <div className="space-y-2 w-full">
                             {isExpanded ? (
-                              <div className="activity-description-content">
+                              <div className="activity-description-content w-full">
                                 <div 
-                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words shadow-sm"
+                                  className="text-sm leading-relaxed text-gray-700 bg-gradient-to-br from-gray-50 to-blue-50/30 p-3 sm:p-4 rounded-lg border border-gray-200 overflow-x-hidden break-words shadow-sm w-full max-w-full"
                                   dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description) }}
                                 />
                               </div>
                             ) : (
                               <div 
-                                className="text-sm leading-relaxed text-gray-600 line-clamp-2 overflow-hidden break-words"
+                                className="text-sm leading-relaxed text-gray-600 line-clamp-2 overflow-hidden break-words w-full"
                                 dangerouslySetInnerHTML={{ __html: markdownToHtml(activity.description.split('\n')[0]) }}
                               />
                             )}
