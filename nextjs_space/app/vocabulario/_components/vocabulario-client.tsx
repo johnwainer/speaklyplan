@@ -573,25 +573,29 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                 </CardDescription>
               </CardHeader>
               <CardContent className="relative z-10">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="space-y-4">
+                  {/* Search Bar - Full Width */}
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
                     <Input
                       placeholder="Escribe aquí para buscar..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 h-12 text-base border-2 focus:border-blue-500 transition-all"
+                      className="w-full pl-14 pr-4 h-14 text-lg border-2 focus:border-blue-500 transition-all rounded-xl shadow-lg"
                     />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-5 w-5 text-gray-500" />
+
+                  {/* Filters - Separate Row */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Filter className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <span className="text-sm font-medium text-gray-600">Categorías:</span>
                     <div className="flex flex-wrap gap-2">
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button
                           variant={selectedCategory === null ? 'default' : 'outline'}
-                          size="sm"
+                          size="default"
                           onClick={() => setSelectedCategory(null)}
-                          className={selectedCategory === null ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' : ''}
+                          className={selectedCategory === null ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 h-10' : 'h-10'}
                         >
                           Todas
                         </Button>
@@ -600,9 +604,9 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                         <motion.div key={cat.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                           <Button
                             variant={selectedCategory === cat.id ? 'default' : 'outline'}
-                            size="sm"
+                            size="default"
                             onClick={() => setSelectedCategory(cat.id)}
-                            className={selectedCategory === cat.id ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' : ''}
+                            className={selectedCategory === cat.id ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 h-10' : 'h-10'}
                           >
                             {cat.name}
                           </Button>
