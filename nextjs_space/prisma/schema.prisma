@@ -410,3 +410,22 @@ model SessionAnalytics {
   @@index([userId, createdAt])
   @@index([userId, sessionType])
 }
+
+// Invitations System
+model Invitation {
+  id            String   @id @default(cuid())
+  senderEmail   String?  // Email of who sent the invitation (can be null for landing page invites)
+  senderName    String?  // Name of who sent the invitation
+  recipientEmail String
+  recipientName String?
+  status        String   @default("pending") // "pending", "registered", "expired"
+  inviteCode    String   @unique
+  message       String?  @db.Text
+  sentAt        DateTime @default(now())
+  registeredAt  DateTime?
+  expiresAt     DateTime
+  
+  @@index([recipientEmail])
+  @@index([inviteCode])
+  @@index([status])
+}

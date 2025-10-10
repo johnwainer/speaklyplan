@@ -16,6 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { InviteFriendsModal } from '@/components/invite-friends-modal'
 
 // Animated Counter Component
 function AnimatedCounter({ end, duration = 2, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
@@ -1213,6 +1214,104 @@ export default function HomePage() {
             <Flame className="h-5 w-5" />
             <span>¡Empieza hoy y alcanza tus metas en 6 meses!</span>
             <Flame className="h-5 w-5" />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Invite Friends Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+        {/* Animated particles */}
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%']
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          style={{
+            backgroundImage: 'radial-gradient(circle, white 2px, transparent 2px)',
+            backgroundSize: '60px 60px'
+          }}
+        />
+
+        <div className="container max-w-4xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.div
+              className="inline-block mb-6"
+              animate={{
+                scale: [1, 1.05, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            >
+              <Users className="h-16 w-16 mx-auto mb-4" />
+            </motion.div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              ¡Invita a tus Amigos! 🎉
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+              SpeaklyPlan es <span className="font-bold underline decoration-yellow-300">100% gratuito</span>. 
+              Compártelo con tus amigos y aprendan inglés juntos.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              <motion.div
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20"
+                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                transition={{ duration: 0.2 }}
+              >
+                <Trophy className="h-8 w-8 mx-auto mb-3 text-yellow-300" />
+                <h3 className="font-semibold mb-2">Aprendan Juntos</h3>
+                <p className="text-sm text-white/80">Compartan su progreso y logros</p>
+              </motion.div>
+
+              <motion.div
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20"
+                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                transition={{ duration: 0.2 }}
+              >
+                <Flame className="h-8 w-8 mx-auto mb-3 text-orange-300" />
+                <h3 className="font-semibold mb-2">Manténganse Motivados</h3>
+                <p className="text-sm text-white/80">Apoyo mutuo en el camino</p>
+              </motion.div>
+
+              <motion.div
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20"
+                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                transition={{ duration: 0.2 }}
+              >
+                <Star className="h-8 w-8 mx-auto mb-3 text-yellow-200" />
+                <h3 className="font-semibold mb-2">Siempre Gratis</h3>
+                <p className="text-sm text-white/80">Sin costos ocultos ni límites</p>
+              </motion.div>
+            </div>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <InviteFriendsModal
+                trigger={
+                  <Button
+                    size="lg"
+                    className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-6 h-auto font-bold shadow-2xl"
+                  >
+                    <Users className="h-6 w-6 mr-2" />
+                    Invitar Amigos Ahora
+                  </Button>
+                }
+              />
+            </motion.div>
+
+            <p className="text-sm text-white/70 mt-6">
+              ✨ Es fácil, rápido y completamente gratis ✨
+            </p>
           </motion.div>
         </div>
       </section>

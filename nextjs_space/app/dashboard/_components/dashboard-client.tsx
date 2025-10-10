@@ -24,7 +24,8 @@ import {
   Menu,
   MessageSquare,
   Trophy,
-  Zap
+  Zap,
+  UserPlus
 } from 'lucide-react'
 import {
   Sheet,
@@ -47,6 +48,7 @@ import {
   ActivityCompletionCelebration
 } from '@/components/gamification'
 import { getProfileImageUrl } from '@/lib/utils'
+import { InviteFriendsModal } from '@/components/invite-friends-modal'
 
 // Helper function to format Markdown text
 function formatMarkdownText(text: string | null | undefined): React.ReactNode {
@@ -430,6 +432,23 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               )}
               <span className="font-medium">{user?.name || user?.email}</span>
             </div>
+            
+            {/* Invite Friends Button - Desktop */}
+            <InviteFriendsModal
+              senderEmail={user?.email || undefined}
+              senderName={user?.name || undefined}
+              trigger={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100"
+                >
+                  <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
+                  <span className="font-medium text-blue-700">Invitar</span>
+                </Button>
+              }
+            />
+            
             <Button
               variant="outline"
               size="sm"
@@ -559,6 +578,22 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
                 <div className="border-t pt-4 mt-auto">
                   <div className="flex flex-col gap-2">
+                    {/* Invite Friends Button - Mobile */}
+                    <InviteFriendsModal
+                      senderEmail={user?.email || undefined}
+                      senderName={user?.name || undefined}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
+                          <span className="font-medium text-blue-700">Invitar Amigos</span>
+                        </Button>
+                      }
+                    />
+                    
                     <Button
                       variant="outline"
                       className="w-full"
