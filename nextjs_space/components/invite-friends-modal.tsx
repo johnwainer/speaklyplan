@@ -130,11 +130,21 @@ export function InviteFriendsModal({ trigger, senderEmail, senderName, variant =
   )
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal={true}>
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent 
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+        onInteractOutside={(e) => {
+          // Prevenir cierre en dispositivos móviles al tocar elementos dentro del modal
+          e.preventDefault()
+        }}
+        onEscapeKeyDown={(e) => {
+          // Permitir cerrar con ESC en desktop
+          setOpen(false)
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <UserPlus className="h-6 w-6 text-blue-600" />
@@ -145,7 +155,7 @@ export function InviteFriendsModal({ trigger, senderEmail, senderName, variant =
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" onClick={(e) => e.stopPropagation()}>
           <div className="space-y-4">
             <Label>Correos electrónicos de tus amigos</Label>
             {emails.map((email, index) => (
