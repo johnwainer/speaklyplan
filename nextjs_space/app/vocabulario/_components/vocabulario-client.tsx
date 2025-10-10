@@ -356,7 +356,7 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       </nav>
 
       {/* How to Use - Pronunciation Features */}
-      <section className="py-4 px-4 relative overflow-hidden">
+      <section className="py-3 sm:py-4 px-3 sm:px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"></div>
         <div className="container max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -366,51 +366,51 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
           >
             <Card className="border-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-2xl overflow-hidden">
               <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-              <CardContent className="p-6 relative z-10">
-                <div className="flex items-start gap-4">
+              <CardContent className="p-4 sm:p-6 relative z-10">
+                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                   <motion.div 
-                    className="p-3 bg-white/20 rounded-xl shrink-0"
+                    className="p-2 sm:p-3 bg-white/20 rounded-xl shrink-0"
                     animate={{ 
                       scale: [1, 1.1, 1],
                       rotate: [0, 5, -5, 0]
                     }}
                     transition={{ duration: 3, repeat: Infinity }}
                   >
-                    <Volume2 className="h-7 w-7" />
+                    <Volume2 className="h-5 w-5 sm:h-7 sm:w-7" />
                   </motion.div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-xl mb-3 flex items-center gap-2">
-                      <Sparkles className="h-5 w-5" />
+                  <div className="flex-1 w-full">
+                    <h4 className="font-bold text-base sm:text-xl mb-2 sm:mb-3 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
                       Práctica de Pronunciación con IA
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                       <motion.div 
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3"
+                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                       >
-                        <Volume2 className="h-5 w-5 shrink-0" />
+                        <Volume2 className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                         <div>
-                          <strong className="block">Escuchar</strong>
+                          <strong className="block text-sm sm:text-base">Escuchar</strong>
                           <span className="text-xs text-blue-100">Pronunciación nativa</span>
                         </div>
                       </motion.div>
                       <motion.div 
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3"
+                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                       >
-                        <Mic className="h-5 w-5 shrink-0" />
+                        <Mic className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                         <div>
-                          <strong className="block">Practicar</strong>
+                          <strong className="block text-sm sm:text-base">Practicar</strong>
                           <span className="text-xs text-blue-100">Graba tu voz</span>
                         </div>
                       </motion.div>
                       <motion.div 
-                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3"
+                        className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 sm:p-3"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                       >
-                        <Star className="h-5 w-5 shrink-0" />
+                        <Star className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
                         <div>
-                          <strong className="block">Calificación</strong>
+                          <strong className="block text-sm sm:text-base">Calificación</strong>
                           <span className="text-xs text-blue-100">Feedback 0-100</span>
                         </div>
                       </motion.div>
@@ -424,13 +424,13 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       </section>
 
       {/* Progress Section */}
-      <section className="py-8 px-4 relative overflow-hidden">
+      <section className="py-4 sm:py-8 px-3 sm:px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-60"></div>
         <div className="absolute inset-0 backdrop-blur-sm"></div>
         
         <div className="container max-w-7xl mx-auto relative z-10">
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -441,18 +441,18 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
             >
               <Card className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-lg"></div>
-                <CardContent className="p-6 text-center relative z-10">
+                <CardContent className="p-4 sm:p-6 text-center relative z-10">
                   <motion.div 
-                    className="flex items-center justify-center mb-3"
+                    className="flex items-center justify-center mb-2 sm:mb-3"
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                   >
-                    <div className="p-3 bg-white/20 rounded-full">
-                      <TrendingUp className="h-7 w-7" />
+                    <div className="p-2 sm:p-3 bg-white/20 rounded-full">
+                      <TrendingUp className="h-5 w-5 sm:h-7 sm:w-7" />
                     </div>
                   </motion.div>
                   <motion.div 
-                    className="text-4xl font-bold"
+                    className="text-3xl sm:text-4xl font-bold"
                     key={progress.percentage}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -460,8 +460,8 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                   >
                     {progress.percentage}%
                   </motion.div>
-                  <div className="text-sm font-medium mt-2 text-blue-100">Tu Progreso</div>
-                  <Sparkles className="h-4 w-4 absolute top-3 right-3 opacity-50" />
+                  <div className="text-xs sm:text-sm font-medium mt-1 sm:mt-2 text-blue-100">Tu Progreso</div>
+                  <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 absolute top-2 sm:top-3 right-2 sm:right-3 opacity-50" />
                 </CardContent>
               </Card>
             </motion.div>
@@ -472,18 +472,18 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
             >
               <Card className="border-0 bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-lg"></div>
-                <CardContent className="p-6 text-center relative z-10">
+                <CardContent className="p-4 sm:p-6 text-center relative z-10">
                   <motion.div 
-                    className="flex items-center justify-center mb-3"
+                    className="flex items-center justify-center mb-2 sm:mb-3"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <div className="p-3 bg-white/20 rounded-full">
-                      <CheckCircle2 className="h-7 w-7" />
+                    <div className="p-2 sm:p-3 bg-white/20 rounded-full">
+                      <CheckCircle2 className="h-5 w-5 sm:h-7 sm:w-7" />
                     </div>
                   </motion.div>
                   <motion.div 
-                    className="text-4xl font-bold"
+                    className="text-3xl sm:text-4xl font-bold"
                     key={progress.learned}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -491,8 +491,8 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                   >
                     {progress.learned}
                   </motion.div>
-                  <div className="text-sm font-medium mt-2 text-green-100">Dominadas</div>
-                  <Award className="h-4 w-4 absolute top-3 right-3 opacity-50" />
+                  <div className="text-xs sm:text-sm font-medium mt-1 sm:mt-2 text-green-100">Dominadas</div>
+                  <Award className="h-3 w-3 sm:h-4 sm:w-4 absolute top-2 sm:top-3 right-2 sm:right-3 opacity-50" />
                 </CardContent>
               </Card>
             </motion.div>
@@ -503,45 +503,45 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
             >
               <Card className="border-0 bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-lg"></div>
-                <CardContent className="p-6 text-center relative z-10">
+                <CardContent className="p-4 sm:p-6 text-center relative z-10">
                   <motion.div 
-                    className="flex items-center justify-center mb-3"
+                    className="flex items-center justify-center mb-2 sm:mb-3"
                     animate={{ y: [0, -10, 0] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <div className="p-3 bg-white/20 rounded-full">
-                      <Brain className="h-7 w-7" />
+                    <div className="p-2 sm:p-3 bg-white/20 rounded-full">
+                      <Brain className="h-5 w-5 sm:h-7 sm:w-7" />
                     </div>
                   </motion.div>
-                  <div className="text-4xl font-bold">{progress.total}</div>
-                  <div className="text-sm font-medium mt-2 text-purple-100">Total Términos</div>
-                  <Zap className="h-4 w-4 absolute top-3 right-3 opacity-50" />
+                  <div className="text-3xl sm:text-4xl font-bold">{progress.total}</div>
+                  <div className="text-xs sm:text-sm font-medium mt-1 sm:mt-2 text-purple-100">Total Términos</div>
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 absolute top-2 sm:top-3 right-2 sm:right-3 opacity-50" />
                 </CardContent>
               </Card>
             </motion.div>
           </motion.div>
 
           <motion.div 
-            className="mt-8 bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-xl"
+            className="mt-4 sm:mt-8 bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-6 shadow-xl"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-gray-700">Progreso General</span>
-              <span className="text-sm font-bold text-blue-600">{progress.learned}/{progress.total}</span>
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <span className="text-xs sm:text-sm font-semibold text-gray-700">Progreso General</span>
+              <span className="text-xs sm:text-sm font-bold text-blue-600">{progress.learned}/{progress.total}</span>
             </div>
             <div className="relative">
-              <Progress value={progress.percentage} className="h-4" />
+              <Progress value={progress.percentage} className="h-3 sm:h-4" />
               <motion.div
-                className="absolute top-0 left-0 h-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"
+                className="absolute top-0 left-0 h-3 sm:h-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress.percentage}%` }}
                 transition={{ duration: 1, ease: "easeOut" }}
                 style={{ boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" }}
               />
             </div>
-            <p className="text-xs text-gray-600 mt-3 text-center">
+            <p className="text-xs text-gray-600 mt-2 sm:mt-3 text-center">
               ¡Sigue así! Has dominado <span className="font-bold text-green-600">{progress.percentage}%</span> del vocabulario 🎉
             </p>
           </motion.div>
@@ -549,7 +549,7 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       </section>
 
       {/* Search and Filter */}
-      <section className="py-6 px-4">
+      <section className="py-3 sm:py-6 px-3 sm:px-4">
         <div className="container max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -558,44 +558,46 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
           >
             <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-md overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
-              <CardHeader className="relative z-10">
-                <CardTitle className="flex items-center text-2xl">
+              <CardHeader className="relative z-10 p-4 sm:p-6">
+                <CardTitle className="flex items-center text-lg sm:text-2xl">
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   >
-                    <Search className="h-6 w-6 mr-3 text-blue-600" />
+                    <Search className="h-4 w-4 sm:h-6 sm:w-6 mr-2 sm:mr-3 text-blue-600" />
                   </motion.div>
                   Buscar Vocabulario
                 </CardTitle>
-                <CardDescription className="text-base">
+                <CardDescription className="text-sm sm:text-base">
                   Encuentra términos por palabra en inglés, traducción o contexto de uso
                 </CardDescription>
               </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="space-y-4">
+              <CardContent className="relative z-10 p-4 sm:p-6">
+                <div className="space-y-3 sm:space-y-4">
                   {/* Search Bar - Full Width */}
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+                    <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-6 sm:w-6 text-gray-400" />
                     <Input
                       placeholder="Escribe aquí para buscar..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-14 pr-4 h-14 text-lg border-2 focus:border-blue-500 transition-all rounded-xl shadow-lg"
+                      className="w-full pl-10 sm:pl-14 pr-3 sm:pr-4 h-11 sm:h-14 text-base sm:text-lg border-2 focus:border-blue-500 transition-all rounded-xl shadow-lg"
                     />
                   </div>
 
                   {/* Filters - Separate Row */}
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <Filter className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                    <span className="text-sm font-medium text-gray-600">Categorías:</span>
-                    <div className="flex flex-wrap gap-2">
+                  <div className="flex items-start gap-2 sm:gap-3 flex-wrap">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-600">Categorías:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button
                           variant={selectedCategory === null ? 'default' : 'outline'}
-                          size="default"
+                          size="sm"
                           onClick={() => setSelectedCategory(null)}
-                          className={selectedCategory === null ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 h-10' : 'h-10'}
+                          className={`h-8 sm:h-10 text-xs sm:text-sm px-3 sm:px-4 ${selectedCategory === null ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' : ''}`}
                         >
                           Todas
                         </Button>
@@ -604,9 +606,9 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                         <motion.div key={cat.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                           <Button
                             variant={selectedCategory === cat.id ? 'default' : 'outline'}
-                            size="default"
+                            size="sm"
                             onClick={() => setSelectedCategory(cat.id)}
-                            className={selectedCategory === cat.id ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 h-10' : 'h-10'}
+                            className={`h-8 sm:h-10 text-xs sm:text-sm px-3 sm:px-4 ${selectedCategory === cat.id ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' : ''}`}
                           >
                             {cat.name}
                           </Button>
@@ -622,8 +624,8 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       </section>
 
       {/* Vocabulary Content */}
-      <main className="py-8 px-4">
-        <div className="container max-w-7xl mx-auto space-y-8">
+      <main className="py-4 sm:py-8 px-3 sm:px-4">
+        <div className="container max-w-7xl mx-auto space-y-4 sm:space-y-8">
           <AnimatePresence>
             {filteredCategories.length === 0 ? (
               <motion.div
@@ -654,29 +656,30 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                 >
                   <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-md overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
-                    <CardHeader className="relative z-10 border-b bg-gradient-to-r from-blue-50 to-purple-50">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <CardHeader className="relative z-10 border-b bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                             {category.name}
                           </CardTitle>
-                          <CardDescription className="text-base mt-2 flex items-center gap-2">
-                            <Award className="h-4 w-4 text-green-600" />
-                            {category.terms.filter(w => w.mastered).length} de {category.terms.length} términos dominados
+                          <CardDescription className="text-xs sm:text-base mt-1 sm:mt-2 flex items-center gap-1 sm:gap-2">
+                            <Award className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                            <span className="truncate">{category.terms.filter(w => w.mastered).length} de {category.terms.length} términos dominados</span>
                           </CardDescription>
                         </div>
                         <motion.div
                           animate={{ rotate: [0, 360] }}
                           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                          className="flex-shrink-0"
                         >
-                          <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full">
-                            <BookOpen className="h-8 w-8 text-white" />
+                          <div className="p-2 sm:p-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full">
+                            <BookOpen className="h-5 w-5 sm:h-8 sm:w-8 text-white" />
                           </div>
                         </motion.div>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-6 relative z-10">
-                      <div className="space-y-4">
+                    <CardContent className="p-4 sm:p-6 relative z-10">
+                      <div className="space-y-3 sm:space-y-4">
                         {category.terms.map((term, index) => (
                           <motion.div
                             key={term.id}
@@ -686,7 +689,7 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                             whileHover={{ scale: 1.02, x: 10 }}
                           >
                             <div
-                              className={`p-6 rounded-2xl border-2 transition-all shadow-lg relative overflow-hidden ${
+                              className={`p-4 sm:p-6 rounded-2xl border-2 transition-all shadow-lg relative overflow-hidden ${
                                 term.mastered
                                   ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300 shadow-green-200'
                                   : 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:border-blue-300 hover:shadow-blue-200'
@@ -702,39 +705,39 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                                   }}
                                   transition={{ duration: 2, repeat: Infinity }}
                                 >
-                                  <Sparkles className="h-5 w-5 text-green-500" />
+                                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                                 </motion.div>
                               )}
 
-                              <div className="flex flex-col space-y-4">
-                                <div className="flex items-start justify-between gap-4">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-4 mb-3">
+                              <div className="flex flex-col space-y-3 sm:space-y-4">
+                                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                                  <div className="flex-1 w-full">
+                                    <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 mb-2 sm:mb-3">
                                       <Badge 
                                         variant="outline" 
-                                        className="text-lg font-bold px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0"
+                                        className="text-sm sm:text-lg font-bold px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 self-start"
                                       >
                                         #{index + 1}
                                       </Badge>
-                                      <div className="flex-1">
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-1">{term.term}</h3>
-                                        <div className="flex items-center gap-3 flex-wrap">
-                                          <p className="text-sm text-blue-600 font-mono bg-blue-50 px-2 py-1 rounded">
+                                      <div className="flex-1 w-full">
+                                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2 break-words">{term.term}</h3>
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-wrap">
+                                          <p className="text-xs sm:text-sm text-blue-600 font-mono bg-blue-50 px-2 py-1 rounded">
                                             {term.pronunciation}
                                           </p>
-                                          <p className="text-base text-gray-700 font-semibold">{term.translation}</p>
+                                          <p className="text-sm sm:text-base text-gray-700 font-semibold">{term.translation}</p>
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="mt-4 pl-2 border-l-4 border-purple-300">
-                                      <p className="text-sm text-gray-700 italic pl-4">
+                                    <div className="mt-3 sm:mt-4 pl-2 border-l-4 border-purple-300">
+                                      <p className="text-xs sm:text-sm text-gray-700 italic pl-3 sm:pl-4">
                                         <span className="font-bold text-purple-600">📝 Ejemplo:</span> {term.example}
                                       </p>
                                     </div>
-                                    <div className="mt-3 flex items-center gap-2">
+                                    <div className="mt-2 sm:mt-3 flex items-center gap-2">
                                       <Badge 
                                         variant="secondary" 
-                                        className={`font-semibold ${
+                                        className={`text-xs sm:text-sm font-semibold ${
                                           term.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
                                           term.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
                                           'bg-red-100 text-red-700'
@@ -749,12 +752,13 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                                   <motion.div
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
+                                    className="w-full sm:w-auto"
                                   >
                                     <Button
                                       variant={term.mastered ? 'default' : 'outline'}
-                                      size="lg"
+                                      size="default"
                                       onClick={() => handleToggleMastered(term.id, term.mastered)}
-                                      className={`flex-shrink-0 shadow-lg ${
+                                      className={`w-full sm:w-auto flex-shrink-0 shadow-lg h-9 sm:h-10 text-sm sm:text-base ${
                                         term.mastered 
                                           ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0' 
                                           : 'hover:bg-blue-50 hover:border-blue-400'
@@ -762,12 +766,12 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                                     >
                                       {term.mastered ? (
                                         <>
-                                          <CheckCircle2 className="h-5 w-5 mr-2" />
+                                          <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                                           Dominada
                                         </>
                                       ) : (
                                         <>
-                                          <Circle className="h-5 w-5 mr-2" />
+                                          <Circle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                                           Marcar
                                         </>
                                       )}
@@ -776,87 +780,91 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
                                 </div>
 
                                 {/* Pronunciation Practice Section */}
-                                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-200">
-                                  <div className="flex items-center gap-2 text-sm text-gray-600 font-semibold">
-                                    <Volume2 className="h-4 w-4" />
+                                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
+                                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 font-semibold w-full sm:w-auto">
+                                    <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                     Práctica:
                                   </div>
-                                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleSpeak(term.term, term.id)}
-                                      disabled={isPlaying === term.id}
-                                      className={`flex items-center gap-2 ${
-                                        isPlaying === term.id 
-                                          ? 'bg-blue-50 border-blue-400 text-blue-700' 
-                                          : 'hover:bg-blue-50 hover:border-blue-400'
-                                      }`}
-                                    >
-                                      <Volume2 className={`h-4 w-4 ${isPlaying === term.id ? 'animate-pulse' : ''}`} />
-                                      {isPlaying === term.id ? 'Reproduciendo...' : 'Escuchar'}
-                                    </Button>
-                                  </motion.div>
-
-                                  {isListening === term.id ? (
-                                    <motion.div
-                                      animate={{ scale: [1, 1.05, 1] }}
-                                      transition={{ duration: 0.5, repeat: Infinity }}
-                                    >
-                                      <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={handleStopListening}
-                                        className="flex items-center gap-2"
-                                      >
-                                        <MicOff className="h-4 w-4" />
-                                        Detener
-                                      </Button>
-                                    </motion.div>
-                                  ) : (
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-initial min-w-[120px]">
                                       <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => handleStartListening(term.term, term.id)}
-                                        className="flex items-center gap-2 hover:bg-purple-50 hover:border-purple-400"
-                                      >
-                                        <Mic className="h-4 w-4" />
-                                        Practicar
-                                      </Button>
-                                    </motion.div>
-                                  )}
-
-                                  {pronunciationScores[term.id] !== undefined && (
-                                    <motion.div
-                                      initial={{ scale: 0 }}
-                                      animate={{ scale: 1 }}
-                                      transition={{ type: "spring", stiffness: 200 }}
-                                    >
-                                      <Badge
-                                        variant={
-                                          pronunciationScores[term.id] >= 80
-                                            ? 'default'
-                                            : pronunciationScores[term.id] >= 60
-                                            ? 'secondary'
-                                            : 'destructive'
-                                        }
-                                        className={`flex items-center gap-1 px-4 py-2 text-sm font-bold ${
-                                          pronunciationScores[term.id] >= 80
-                                            ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0'
-                                            : pronunciationScores[term.id] >= 60
-                                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0'
-                                            : 'bg-gradient-to-r from-red-500 to-pink-600 text-white border-0'
+                                        onClick={() => handleSpeak(term.term, term.id)}
+                                        disabled={isPlaying === term.id}
+                                        className={`w-full sm:w-auto flex items-center justify-center gap-1 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm ${
+                                          isPlaying === term.id 
+                                            ? 'bg-blue-50 border-blue-400 text-blue-700' 
+                                            : 'hover:bg-blue-50 hover:border-blue-400'
                                         }`}
                                       >
-                                        <Star className="h-4 w-4" />
-                                        <span>
-                                          {pronunciationScores[term.id]}/100
-                                          {pronunciationScores[term.id] >= 80 && ' 🎉'}
-                                        </span>
-                                      </Badge>
+                                        <Volume2 className={`h-3 w-3 sm:h-4 sm:w-4 ${isPlaying === term.id ? 'animate-pulse' : ''}`} />
+                                        <span className="truncate">{isPlaying === term.id ? 'Reproduciendo...' : 'Escuchar'}</span>
+                                      </Button>
                                     </motion.div>
-                                  )}
+
+                                    {isListening === term.id ? (
+                                      <motion.div
+                                        animate={{ scale: [1, 1.05, 1] }}
+                                        transition={{ duration: 0.5, repeat: Infinity }}
+                                        className="flex-1 sm:flex-initial min-w-[120px]"
+                                      >
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={handleStopListening}
+                                          className="w-full sm:w-auto flex items-center justify-center gap-1 sm:gap-2 h-8 sm:h-9 text-xs sm:text-sm"
+                                        >
+                                          <MicOff className="h-3 w-3 sm:h-4 sm:w-4" />
+                                          <span className="truncate">Detener</span>
+                                        </Button>
+                                      </motion.div>
+                                    ) : (
+                                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-initial min-w-[120px]">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => handleStartListening(term.term, term.id)}
+                                          className="w-full sm:w-auto flex items-center justify-center gap-1 sm:gap-2 hover:bg-purple-50 hover:border-purple-400 h-8 sm:h-9 text-xs sm:text-sm"
+                                        >
+                                          <Mic className="h-3 w-3 sm:h-4 sm:w-4" />
+                                          <span className="truncate">Practicar</span>
+                                        </Button>
+                                      </motion.div>
+                                    )}
+
+                                    {pronunciationScores[term.id] !== undefined && (
+                                      <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", stiffness: 200 }}
+                                        className="flex-1 sm:flex-initial min-w-[100px]"
+                                      >
+                                        <Badge
+                                          variant={
+                                            pronunciationScores[term.id] >= 80
+                                              ? 'default'
+                                              : pronunciationScores[term.id] >= 60
+                                              ? 'secondary'
+                                              : 'destructive'
+                                          }
+                                          className={`flex items-center justify-center gap-1 px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-bold w-full ${
+                                            pronunciationScores[term.id] >= 80
+                                              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0'
+                                              : pronunciationScores[term.id] >= 60
+                                              ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0'
+                                              : 'bg-gradient-to-r from-red-500 to-pink-600 text-white border-0'
+                                          }`}
+                                        >
+                                          <Star className="h-3 w-3 sm:h-4 sm:w-4" />
+                                          <span className="truncate">
+                                            {pronunciationScores[term.id]}/100
+                                            {pronunciationScores[term.id] >= 80 && ' 🎉'}
+                                          </span>
+                                        </Badge>
+                                      </motion.div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
