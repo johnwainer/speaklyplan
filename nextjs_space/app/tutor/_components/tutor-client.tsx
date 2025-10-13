@@ -59,6 +59,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const [conversationHistory, setConversationHistory] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -384,8 +385,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       <div className="sticky top-16 z-40 w-full border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
         <div className="container max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="bg-white text-blue-600">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Badge variant="secondary" className="bg-white text-blue-600 text-xs sm:text-sm">
                 <MessageSquare className="h-3 w-3 mr-1" />
                 AI Tutor
               </Badge>
@@ -417,18 +418,19 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               
               {/* Gamification Stats - Mobile (compact) */}
               {gamificationStats && (
-                <div className="flex lg:hidden items-center gap-2">
-                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs">
-                    <Sparkles className="h-3 w-3 mr-1" />
+                <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs px-1.5 py-0.5">
+                    <Sparkles className="h-3 w-3 mr-0.5" />
                     {gamificationStats.points}
                   </Badge>
-                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs">
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs px-1.5 py-0.5">
                     🔥 {gamificationStats.currentStreak}
                   </Badge>
                 </div>
               )}
             </div>
             
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-2">
               <Button
                 variant="ghost"
@@ -450,6 +452,16 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 Análisis
               </Button>
             </nav>
+            
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden text-white hover:bg-white/20 px-2"
+              onClick={() => setShowMobileMenu(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>
@@ -528,26 +540,40 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
           
           {/* Panel Principal: Chat */}
-          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[600px] lg:h-[calc(100vh-12rem)]">
-            <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <MessageSquare className="h-6 w-6" />
-                English Tutor AI
-              </h2>
-              <p className="text-sm text-blue-100 mt-1">
-                {contextModes.find(m => m.value === context)?.description}
-              </p>
+          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[calc(100vh-16rem)] sm:h-[600px] lg:h-[calc(100vh-12rem)]">
+            <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
+                    <span className="hidden sm:inline">English Tutor AI</span>
+                    <span className="sm:hidden">Tutor AI</span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-blue-100 mt-1">
+                    {contextModes.find(m => m.value === context)?.description}
+                  </p>
+                </div>
+                {/* Quick mode change on mobile */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="lg:hidden text-white hover:bg-white/20 px-2"
+                  onClick={() => setShowMobileMenu(true)}
+                >
+                  <Target className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             
-            <ScrollArea className="flex-1 p-4 overflow-y-auto">
-              <div className="space-y-4 max-w-4xl mx-auto">
+            <ScrollArea className="flex-1 p-2 sm:p-4 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
                 {messages.length === 0 && (
-                  <div className="text-center py-16 text-muted-foreground">
+                  <div className="text-center py-8 sm:py-16 text-muted-foreground px-4">
                     <div className="mb-4">
-                      <MessageSquare className="h-16 w-16 mx-auto text-blue-200" />
+                      <MessageSquare className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-blue-200" />
                     </div>
-                    <p className="text-lg mb-2 font-medium">👋 Hello! I'm your AI tutor.</p>
-                    <p className="text-sm">Start a conversation in English, and I'll help you improve!</p>
+                    <p className="text-base sm:text-lg mb-2 font-medium">👋 Hello! I'm your AI tutor.</p>
+                    <p className="text-xs sm:text-sm">Start a conversation in English, and I'll help you improve!</p>
                     <p className="text-xs mt-2">Try saying: "Hello, how are you?"</p>
                   </div>
                 )}
@@ -558,28 +584,29 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${
+                      className={`max-w-[90%] sm:max-w-[85%] rounded-2xl p-3 sm:p-4 shadow-sm ${
                         message.role === 'user'
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-900 border border-gray-200'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className="text-sm leading-relaxed break-words">{message.content}</p>
                       
                       {message.role === 'assistant' && (
-                        <div className="mt-3 flex flex-wrap gap-2 items-center">
+                        <div className="mt-2 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2 items-center">
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 px-3 text-xs hover:bg-blue-50"
+                            className="h-7 px-2 sm:px-3 text-xs hover:bg-blue-50"
                             onClick={() => speakText(message.content)}
                           >
                             <Volume2 className="h-3 w-3 mr-1" />
-                            Escuchar
+                            <span className="hidden sm:inline">Escuchar</span>
+                            <span className="sm:hidden">🔊</span>
                           </Button>
                           
                           {message.translation && (
-                            <div className="text-xs text-muted-foreground bg-blue-50 px-3 py-1 rounded-full">
+                            <div className="text-xs text-muted-foreground bg-blue-50 px-2 sm:px-3 py-1 rounded-full">
                               📖 {message.translation}
                             </div>
                           )}
@@ -587,7 +614,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                       )}
                       
                       {message.grammarFeedback?.hasErrors && (
-                        <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <p className="text-xs font-medium text-yellow-900 mb-1">💡 Grammar Tip:</p>
                           <p className="text-xs text-yellow-800">{message.grammarFeedback.suggestion}</p>
                         </div>
@@ -612,13 +639,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               </div>
             </ScrollArea>
             
-            <div className="p-4 border-t bg-gray-50">
+            <div className="p-2 sm:p-4 border-t bg-gray-50">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   sendMessage();
                 }}
-                className="flex gap-2 max-w-4xl mx-auto"
+                className="flex gap-1.5 sm:gap-2 max-w-4xl mx-auto"
               >
                 <Button
                   type="button"
@@ -626,6 +653,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   size="icon"
                   onClick={toggleRecording}
                   disabled={isLoading}
+                  className="h-10 w-10 flex-shrink-0"
                 >
                   {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
@@ -633,20 +661,20 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "Type or speak your message in English..."}
+                  placeholder={isRecording ? "Listening..." : "Type or speak your message..."}
                   disabled={isLoading}
-                  className="flex-1 bg-white"
+                  className="flex-1 bg-white h-10 text-sm"
                 />
                 <Button 
                   type="submit" 
                   disabled={isLoading || !input.trim()}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 h-10 w-10 sm:w-auto sm:px-4 flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
-              <p className="text-xs text-center text-muted-foreground mt-2">
-                🎤 Habla o escribe • Enter para enviar
+              <p className="text-xs text-center text-muted-foreground mt-1.5 sm:mt-2">
+                🎤 <span className="hidden sm:inline">Habla o escribe • </span>Enter para enviar
               </p>
             </div>
           </Card>
@@ -883,6 +911,171 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           )}
         </DialogContent>
       </Dialog>
+      
+      {/* Mobile Menu Sheet */}
+      <Sheet open={showMobileMenu} onOpenChange={setShowMobileMenu}>
+        <SheetContent side="right" className="w-[90vw] sm:w-96 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Menu className="h-5 w-5" />
+              Menú del Tutor
+            </SheetTitle>
+          </SheetHeader>
+          
+          <div className="mt-6 space-y-6">
+            {/* Practice Modes */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <Target className="h-4 w-4" />
+                MODO DE PRÁCTICA
+              </h3>
+              <div className="space-y-2">
+                {contextModes.map(mode => (
+                  <Button
+                    key={mode.value}
+                    variant={context === mode.value ? 'default' : 'outline'}
+                    className="w-full justify-start text-left h-auto py-3"
+                    size="sm"
+                    onClick={() => {
+                      changeContext(mode.value);
+                      setShowMobileMenu(false);
+                    }}
+                  >
+                    <div className="w-full">
+                      <div className="font-medium text-sm">{mode.label}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {mode.description}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <Sparkles className="h-4 w-4" />
+                ACCIONES RÁPIDAS
+              </h3>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    loadConversationHistory();
+                    setShowMobileMenu(false);
+                  }}
+                >
+                  <History className="h-4 w-4 mr-2" />
+                  Ver Historial
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    endSessionAndAnalyze();
+                    setShowMobileMenu(false);
+                  }}
+                  disabled={!conversationId || messages.length < 2}
+                >
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Análisis de Sesión
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setShowAchievements(true);
+                    setShowMobileMenu(false);
+                  }}
+                >
+                  <Award className="h-4 w-4 mr-2" />
+                  Logros y Progreso
+                </Button>
+              </div>
+            </div>
+            
+            {/* Vocabulary of the Week */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <BookOpen className="h-4 w-4" />
+                VOCABULARIO DE LA SEMANA
+              </h3>
+              <div className="space-y-2 mb-3">
+                {initialData.currentWeekVocab?.slice(0, 5).map(term => (
+                  <div key={term.id} className="p-2.5 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="font-medium text-sm">{term.term}</p>
+                    <p className="text-xs text-muted-foreground">{term.translation}</p>
+                  </div>
+                ))}
+              </div>
+              <Link href="/tutor/vocabulary-review">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Sistema de Repaso Completo
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Progress Stats */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <BarChart3 className="h-4 w-4" />
+                TU PROGRESO
+              </h3>
+              <Card className="p-4">
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Nivel:</span>
+                    <Badge>{initialData.learningContext.currentLevel}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Conversaciones:</span>
+                    <span className="font-medium">{initialData.learningContext.totalConversations}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Mensajes:</span>
+                    <span className="font-medium">{initialData.learningContext.totalMessages}</span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+            
+            {/* Gamification Stats */}
+            {gamificationStats && (
+              <div>
+                <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Sparkles className="h-4 w-4" />
+                  GAMIFICACIÓN
+                </h3>
+                <div className="grid grid-cols-3 gap-2">
+                  <Card className="p-3 text-center">
+                    <Sparkles className="h-5 w-5 mx-auto mb-1 text-yellow-500" />
+                    <p className="text-xl font-bold">{gamificationStats.points}</p>
+                    <p className="text-xs text-muted-foreground">Puntos</p>
+                  </Card>
+                  <Card className="p-3 text-center">
+                    <p className="text-xl font-bold">🔥</p>
+                    <p className="text-xl font-bold">{gamificationStats.currentStreak}</p>
+                    <p className="text-xs text-muted-foreground">Racha</p>
+                  </Card>
+                  <Card className="p-3 text-center">
+                    <Award className="h-5 w-5 mx-auto mb-1 text-blue-500" />
+                    <p className="text-xl font-bold">{gamificationStats.unlockedAchievements}</p>
+                    <p className="text-xs text-muted-foreground">Logros</p>
+                  </Card>
+                </div>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
