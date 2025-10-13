@@ -239,18 +239,18 @@ async function main() {
     const phases = [
       {
         number: 1,
-        name: 'FASE 1: CATARSIS',
-        description: 'Fundamentos y vocabulario técnico básico'
+        name: 'FASE 1: FUNDACIÓN SÓLIDA',
+        description: 'Vocabulario esencial y gramática básica'
       },
       {
         number: 2,
-        name: 'FASE 2: SPEAKING MÍNIMO VIABLE',
-        description: 'Conversaciones técnicas y presentaciones'
+        name: 'FASE 2: CONSTRUCCIÓN ACTIVA',
+        description: 'Conversaciones prácticas y fluidez'
       },
       {
         number: 3,
-        name: 'FASE 3: PLAYBOOK FOR JTBD',
-        description: 'Dominio avanzado y simulaciones reales'
+        name: 'FASE 3: DOMINIO PROFESIONAL',
+        description: 'Inglés avanzado para el trabajo'
       }
     ]
 
@@ -267,7 +267,7 @@ async function main() {
     console.log('📅 Creando plan semanal completo con descripciones detalladas (24 semanas)...')
     
     const weeklyPlans = [
-      // ============ FASE 1: CATARSIS (Semanas 1-8) ============
+      // ============ FASE 1: FUNDACIÓN SÓLIDA (Semanas 1-8) ============
       {
         number: 1, month: 1, phase: 1,
         objective: "Primeros pasos: Presentación personal básica",
@@ -373,7 +373,7 @@ async function main() {
         ]
       },
 
-      // ============ FASE 2: SPEAKING MVP (Semanas 9-16) ============
+      // ============ FASE 2: CONSTRUCCIÓN ACTIVA (Semanas 9-16) ============
       {
         number: 9, month: 3, phase: 2,
         objective: "Explicar: Sistemas y procesos complejos",
@@ -479,7 +479,7 @@ async function main() {
         ]
       },
 
-      // ============ FASE 3: PLAYBOOK (Semanas 17-24) ============
+      // ============ FASE 3: DOMINIO PROFESIONAL (Semanas 17-24) ============
       {
         number: 17, month: 5, phase: 3,
         objective: "Reuniones importantes: Comunicar con stakeholders",
