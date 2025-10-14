@@ -16,7 +16,8 @@ import {
   HelpCircle,
   UserPlus,
   LayoutDashboard,
-  ChevronDown
+  ChevronDown,
+  Mic
 } from 'lucide-react'
 import {
   Sheet,
@@ -52,6 +53,7 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
     switch(currentSection) {
       case 'dashboard': return 'Dashboard'
       case 'tutor': return 'AI Tutor'
+      case 'conversacion': return 'Práctica de Conversación'
       case 'vocabulario': return 'Vocabulario'
       case 'recursos': return 'Recursos'
       case 'guia': return 'Guía de Uso'
@@ -210,6 +212,17 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
                   >
                     <MessageSquare className="h-4 w-4 mr-2 text-blue-600" />
                     <span className="font-medium">AI Tutor</span>
+                  </Button>
+                  <Button
+                    variant={currentSection === 'conversacion' ? 'default' : 'outline'}
+                    className="w-full justify-start bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200"
+                    onClick={() => {
+                      router.push('/conversacion')
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    <Mic className="h-4 w-4 mr-2 text-emerald-600" />
+                    <span className="font-medium">Práctica de Conversación</span>
                   </Button>
                   <Button
                     variant={currentSection === 'vocabulario' ? 'default' : 'outline'}

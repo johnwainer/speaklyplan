@@ -25,7 +25,8 @@ import {
   MessageSquare,
   Trophy,
   Zap,
-  UserPlus
+  UserPlus,
+  Mic
 } from 'lucide-react'
 import {
   Sheet,
@@ -681,6 +682,113 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     </div>
                   )
                 })()}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Nueva Funcionalidad - Práctica de Conversación Destacada */}
+          {currentView === 'overview' && (
+            <Card className="mb-4 border-2 border-emerald-500 shadow-xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative">
+              {/* Badge de "Nuevo" */}
+              <div className="absolute top-3 right-3">
+                <Badge className="bg-yellow-400 text-purple-900 border-0 px-3 py-1 text-xs font-bold shadow-md animate-pulse">
+                  ✨ NUEVO
+                </Badge>
+              </div>
+              
+              <CardHeader className="pb-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <Mic className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg sm:text-xl mb-1 text-gray-900">
+                      Práctica de Conversación con IA 🎤
+                    </CardTitle>
+                    <CardDescription className="text-sm">
+                      Conversaciones reales en tiempo real con análisis profundo de tu progreso
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <div className="grid md:grid-cols-3 gap-3 mb-4">
+                  {/* Feature 1 */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-emerald-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <MessageSquare className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <h4 className="font-semibold text-sm text-gray-900">5 Modos</h4>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Conversación, trabajo, entrevistas, emails y gramática
+                    </p>
+                  </div>
+                  
+                  {/* Feature 2 */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-emerald-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                        <Trophy className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <h4 className="font-semibold text-sm text-gray-900">Gamificación</h4>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Gana XP, sube de nivel y mantén tu racha
+                    </p>
+                  </div>
+                  
+                  {/* Feature 3 */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-emerald-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-orange-600" />
+                      </div>
+                      <h4 className="font-semibold text-sm text-gray-900">Análisis AI</h4>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Feedback detallado de cada sesión con métricas
+                    </p>
+                  </div>
+                </div>
+
+                {/* Benefits List */}
+                <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-3 mb-3 border border-emerald-200">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1 text-emerald-900">
+                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                      <span>Reconocimiento de voz</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-emerald-900">
+                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                      <span>Sistema de repetición</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-emerald-900">
+                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                      <span>Historial completo</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-emerald-900">
+                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                      <span>Análisis detallado</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <Button
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                  onClick={() => router.push('/conversacion')}
+                >
+                  <Mic className="h-5 w-5 mr-2" />
+                  Empezar a Practicar Ahora
+                </Button>
+                
+                <p className="text-center text-xs text-gray-500 mt-2">
+                  💡 Disponible 24/7 · Sin límites · Feedback instantáneo
+                </p>
               </CardContent>
             </Card>
           )}

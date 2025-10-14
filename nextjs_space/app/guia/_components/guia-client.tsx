@@ -51,9 +51,10 @@ export default function GuiaClient({ user }: GuiaClientProps) {
     { id: 1, text: 'Explorar el Dashboard y ver las actividades de la Semana 1', completed: false },
     { id: 2, text: 'Descargar Duolingo y completar la primera lección', completed: false },
     { id: 3, text: 'Probar el AI Tutor con una conversación simple', completed: false },
-    { id: 4, text: 'Revisar el vocabulario de la semana actual', completed: false },
-    { id: 5, text: 'Configurar tu horario diario de estudio (1 hora)', completed: false },
-    { id: 6, text: 'Unirte a una comunidad de intercambio (HelloTalk/Reddit)', completed: false },
+    { id: 4, text: 'Probar la Práctica de Conversación con reconocimiento de voz', completed: false },
+    { id: 5, text: 'Revisar el vocabulario de la semana actual', completed: false },
+    { id: 6, text: 'Configurar tu horario diario de estudio (1 hora)', completed: false },
+    { id: 7, text: 'Unirte a una comunidad de intercambio (HelloTalk/Reddit)', completed: false },
   ])
   
   // Estado para el quiz de nivel
@@ -102,6 +103,12 @@ export default function GuiaClient({ user }: GuiaClientProps) {
       title: 'AI Tutor: Tu Profesor Personal 🤖',
       description: 'Practica conversación en inglés 24/7. El tutor te corrige, te da feedback y se adapta a tu nivel.',
       icon: <MessageSquare className="h-12 w-12 text-purple-600" />,
+      action: 'Conversación'
+    },
+    {
+      title: 'Práctica de Conversación: Mejora tu Pronunciación 🎤',
+      description: 'Conversaciones interactivas en tiempo real con reconocimiento de voz, análisis detallado y gamificación. 5 modos diferentes para practicar.',
+      icon: <Phone className="h-12 w-12 text-emerald-600" />,
       action: 'Vocabulario'
     },
     {
