@@ -73,6 +73,7 @@ model User {
   userAchievements UserAchievement[]
   vocabularyCards  VocabularyCard[]
   sessionAnalytics SessionAnalytics[]
+  voiceSessions    VoiceSession[]
 }
 
 model VerificationToken {
@@ -238,6 +239,7 @@ model ChatConversation {
   lastMessageAt DateTime       @default(now())
   isActive     Boolean         @default(true)
   messages     ChatMessage[]
+  voiceSessions VoiceSession[]
   
   @@index([userId, isActive])
 }
@@ -428,4 +430,26 @@ model Invitation {
   @@index([recipientEmail])
   @@index([inviteCode])
   @@index([status])
+}
+
+// Voice Conversation System
+model VoiceSession {
+  id                  String            @id @default(cuid())
+  userId              String
+  conversationId      String?
+  transcript          String            @db.Text
+  pronunciationScore  Float             @default(0)
+  fluencyScore        Float             @default(0)
+  accentScore         Float             @default(0)
+  phonemeErrors       Json?
+  suggestions         String[]
+  createdAt           DateTime          @default(now())
+  
+  // Relations
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation        ChatConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([conversationId])
+  @@index([createdAt])
 }

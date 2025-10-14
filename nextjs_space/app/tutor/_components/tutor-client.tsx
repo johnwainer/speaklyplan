@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User } from 'lucide-react';
+import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User, Star, Radio } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -471,6 +471,31 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           
           {/* Panel Lateral - Solo Desktop */}
           <div className="hidden lg:block lg:col-span-1 space-y-4">
+            {/* NEW: Voice Practice Banner */}
+            <Link href="/tutor/voice">
+              <Card className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white hover:shadow-lg transition-all cursor-pointer border-0">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <Radio className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold bg-yellow-400 text-gray-900 px-2 py-0.5 rounded-full">
+                        NEW
+                      </span>
+                      <Star className="h-3 w-3" />
+                    </div>
+                    <h3 className="font-bold text-sm mb-1">Voice Practice AI</h3>
+                    <p className="text-xs text-blue-100">
+                      Real-time pronunciation analysis with instant feedback
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </Link>
+            
             <Card className="p-4">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-600" />
@@ -923,6 +948,31 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </SheetHeader>
           
           <div className="mt-6 space-y-6">
+            {/* NEW: Voice Practice Banner for Mobile */}
+            <Link href="/tutor/voice" onClick={() => setShowMobileMenu(false)}>
+              <Card className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white border-0">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <Radio className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold bg-yellow-400 text-gray-900 px-2 py-0.5 rounded-full">
+                        NEW
+                      </span>
+                      <Star className="h-3 w-3" />
+                    </div>
+                    <h3 className="font-bold text-sm mb-1">Voice Practice AI</h3>
+                    <p className="text-xs text-blue-100">
+                      Real-time pronunciation analysis
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </Link>
+            
             {/* Practice Modes */}
             <div>
               <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
