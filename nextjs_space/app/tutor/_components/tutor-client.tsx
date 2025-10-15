@@ -40,17 +40,9 @@ const contextModes = [
   { value: 'grammar', label: '📝 Ejercicios de Gramática', description: 'Refuerza la gramática', icon: BookOpen }
 ];
 
-const ACCENT_PROFILES = {
-  american: { accent: 'American', characteristics: ['Rhotic "R"', 'Flap "T"'] },
-  british: { accent: 'British', characteristics: ['Non-rhotic', 'Long vowels'] },
-  indian: { accent: 'Indian', characteristics: ['Retroflex sounds', 'Clear "T"'] },
-  australian: { accent: 'Australian', characteristics: ['Rising intonation', 'Vowel shifts'] }
-};
-
 export default function TutorClient({ initialData, userId }: TutorClientProps) {
   // States
   const [context, setContext] = useState('casual');
-  const [selectedAccent, setSelectedAccent] = useState<'american' | 'british' | 'indian' | 'australian'>('american');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -192,8 +184,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: transcriptText,
-          context,
-          targetAccent: selectedAccent
+          context
         })
       });
       
@@ -220,8 +211,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           analysisResult: analysisData.analysis,
           conversationContext: {
             mode: context,
-            history: conversationHistory,
-            targetAccent: selectedAccent
+            history: conversationHistory
           }
         })
       });
@@ -295,12 +285,9 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Configure voice based on target accent
+      // Configure voice for English
       const voices = synthRef.current.getVoices();
-      const targetVoice = voices.find(v => 
-        v.lang.startsWith('en') && 
-        (selectedAccent === 'british' ? v.name.includes('UK') : v.name.includes('US'))
-      ) || voices.find(v => v.lang.startsWith('en'));
+      const targetVoice = voices.find(v => v.lang.startsWith('en'));
       
       if (targetVoice) {
         utterance.voice = targetVoice;
@@ -412,7 +399,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
           
           {/* Mode Selector */}
-          <Card className="p-4 mb-4">
+          <Card className="p-4">
             <h3 className="font-semibold mb-3 text-sm">Selecciona el modo de práctica:</h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               {contextModes.map((mode) => {
@@ -429,26 +416,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   </Button>
                 );
               })}
-            </div>
-          </Card>
-          
-          {/* Accent Selector */}
-          <Card className="p-4">
-            <h3 className="font-semibold mb-3 text-sm">Acento objetivo:</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {Object.entries(ACCENT_PROFILES).map(([key, profile]) => (
-                <Button
-                  key={key}
-                  variant={selectedAccent === key ? 'default' : 'outline'}
-                  className="h-auto py-3 flex flex-col items-start text-left text-xs"
-                  onClick={() => setSelectedAccent(key as any)}
-                >
-                  <span className="font-medium capitalize">{profile.accent}</span>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {profile.characteristics[0]}
-                  </span>
-                </Button>
-              ))}
             </div>
           </Card>
         </div>
