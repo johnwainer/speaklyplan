@@ -551,246 +551,241 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Main Content */}
       <main className="py-8 px-4">
         <div className="container max-w-7xl mx-auto">
-          {/* Priority Section - Where to Start */}
+          {/* Top Section Grid - Empieza Aquí + CTA Conversación */}
           {currentView === 'overview' && (
-            <Card data-tour="pending-activities" className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between gap-2 sm:gap-4">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                      <Target className="h-4 w-4 text-white" />
+            <div className="grid lg:grid-cols-[1fr_320px] gap-6 mb-6">
+              {/* Empieza Aquí - Column 1 (Main) */}
+              <Card data-tour="pending-activities" className="border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between gap-2 sm:gap-4">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                        <Target className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="min-w-0 overflow-hidden">
+                        <CardTitle className="text-base sm:text-lg truncate">¡Empieza aquí!</CardTitle>
+                        <CardDescription className="text-xs truncate">
+                          Tus actividades de esta semana
+                        </CardDescription>
+                      </div>
                     </div>
-                    <div className="min-w-0 overflow-hidden">
-                      <CardTitle className="text-base sm:text-lg truncate">¡Empieza aquí!</CardTitle>
-                      <CardDescription className="text-xs truncate">
-                        Tus actividades de esta semana
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setSelectedWeek(progressData.currentWeek)
+                        setCurrentView('week')
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs sm:text-sm px-2 sm:px-4"
+                    >
+                      Ver todas
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-2 overflow-hidden">
+                  {(() => {
+                    const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
+                    const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
+                    const completedToday = currentWeek?.activities?.filter(a => {
+                      if (!a?.completedAt) return false
+                      const completedDate = new Date(a.completedAt)
+                      const today = new Date()
+                      return completedDate.toDateString() === today.toDateString()
+                    }) || []
+
+                    if (pendingActivities.length === 0) {
+                      return (
+                        <div className="text-center py-4">
+                          <CheckCircle2 className="h-10 w-10 text-green-600 mx-auto mb-2" />
+                          <h3 className="text-base font-semibold text-gray-900 mb-1">
+                            ¡Felicitaciones! Semana completada 🎉
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Has completado todas las actividades de esta semana
+                          </p>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setSelectedWeek(progressData.currentWeek + 1)
+                              setCurrentView('week')
+                            }}
+                            className="bg-purple-600 hover:bg-purple-700"
+                            disabled={progressData.currentWeek >= (planData?.length || 0)}
+                          >
+                            Ir a la siguiente semana
+                          </Button>
+                        </div>
+                      )
+                    }
+
+                    return (
+                      <div className="space-y-2">
+                        {completedToday.length > 0 && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
+                            <div className="flex items-center gap-2 text-green-700">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span className="text-xs font-medium">
+                                ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid gap-2 w-full overflow-hidden">
+                          {pendingActivities.slice(0, 2).map((activity) => (
+                            <div
+                              key={activity?.id}
+                              className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
+                              onClick={() => {
+                                setSelectedWeek(progressData.currentWeek)
+                                setCurrentView('week')
+                              }}
+                            >
+                              <div className="flex items-start justify-between gap-2 sm:gap-3 max-w-full overflow-hidden">
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
+                                    {activity?.title}
+                                  </h4>
+                                  <p className="text-xs text-gray-600 line-clamp-1 break-words">
+                                    {formatMarkdownText(activity?.description)}
+                                  </p>
+                                  <div className="flex items-center gap-1 sm:gap-2 mt-1 flex-wrap">
+                                    <Badge variant="secondary" className="text-xs py-0 px-2 whitespace-nowrap">
+                                      <Clock className="h-3 w-3 mr-1" />
+                                      {activity?.duration} min
+                                    </Badge>
+                                    <Badge variant="outline" className="text-xs py-0 px-2 truncate max-w-[120px]">
+                                      {activity?.category}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                  <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {pendingActivities.length > 2 && (
+                          <div className="text-center pt-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedWeek(progressData.currentWeek)
+                                setCurrentView('week')
+                              }}
+                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs"
+                            >
+                              Ver {pendingActivities.length - 2} actividades más
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+                </CardContent>
+              </Card>
+
+              {/* Práctica de Conversación - Column 2 (Sidebar width) */}
+              <Card className="border-2 border-emerald-500 shadow-xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative">
+                {/* Badge de "Nuevo" */}
+                <div className="absolute top-2 right-2">
+                  <Badge className="bg-yellow-400 text-purple-900 border-0 px-2 py-0.5 text-xs font-bold shadow-md animate-pulse">
+                    ✨ NUEVO
+                  </Badge>
+                </div>
+                
+                <CardHeader className="pb-2">
+                  <div className="flex items-start gap-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Mic className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-base mb-0.5 text-gray-900">
+                        Conversación con IA 🎤
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Practica en tiempo real
                       </CardDescription>
                     </div>
                   </div>
+                </CardHeader>
+                
+                <CardContent className="pt-2 space-y-3">
+                  {/* Compact Features */}
+                  <div className="space-y-2">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-xs text-gray-900">5 Modos</h4>
+                          <p className="text-xs text-gray-600">Trabajo, entrevistas, más</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                          <Trophy className="h-3.5 w-3.5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-xs text-gray-900">Gamificación</h4>
+                          <p className="text-xs text-gray-600">Gana XP y sube de nivel</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                          <TrendingUp className="h-3.5 w-3.5 text-orange-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-xs text-gray-900">Análisis AI</h4>
+                          <p className="text-xs text-gray-600">Feedback detallado</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Benefits List */}
+                  <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-2 border border-emerald-200">
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center gap-1 text-emerald-900">
+                        <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                        <span>Reconocimiento de voz</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-emerald-900">
+                        <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                        <span>Sistema de repetición</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-emerald-900">
+                        <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
+                        <span>Historial completo</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
                   <Button
                     size="sm"
-                    onClick={() => {
-                      setSelectedWeek(progressData.currentWeek)
-                      setCurrentView('week')
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs sm:text-sm px-2 sm:px-4"
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                    onClick={() => router.push('/conversacion')}
                   >
-                    Ver todas
+                    <Mic className="h-4 w-4 mr-2" />
+                    Empezar Ahora
                   </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-2 overflow-hidden">
-                {(() => {
-                  const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
-                  const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
-                  const completedToday = currentWeek?.activities?.filter(a => {
-                    if (!a?.completedAt) return false
-                    const completedDate = new Date(a.completedAt)
-                    const today = new Date()
-                    return completedDate.toDateString() === today.toDateString()
-                  }) || []
-
-                  if (pendingActivities.length === 0) {
-                    return (
-                      <div className="text-center py-4">
-                        <CheckCircle2 className="h-10 w-10 text-green-600 mx-auto mb-2" />
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">
-                          ¡Felicitaciones! Semana completada 🎉
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-3">
-                          Has completado todas las actividades de esta semana
-                        </p>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedWeek(progressData.currentWeek + 1)
-                            setCurrentView('week')
-                          }}
-                          className="bg-purple-600 hover:bg-purple-700"
-                          disabled={progressData.currentWeek >= (planData?.length || 0)}
-                        >
-                          Ir a la siguiente semana
-                        </Button>
-                      </div>
-                    )
-                  }
-
-                  return (
-                    <div className="space-y-2">
-                      {completedToday.length > 0 && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
-                          <div className="flex items-center gap-2 text-green-700">
-                            <CheckCircle2 className="h-4 w-4" />
-                            <span className="text-xs font-medium">
-                              ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid gap-2 w-full overflow-hidden">
-                        {pendingActivities.slice(0, 2).map((activity) => (
-                          <div
-                            key={activity?.id}
-                            className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
-                            onClick={() => {
-                              setSelectedWeek(progressData.currentWeek)
-                              setCurrentView('week')
-                            }}
-                          >
-                            <div className="flex items-start justify-between gap-2 sm:gap-3 max-w-full overflow-hidden">
-                              <div className="flex-1 min-w-0 overflow-hidden">
-                                <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
-                                  {activity?.title}
-                                </h4>
-                                <p className="text-xs text-gray-600 line-clamp-1 break-words">
-                                  {formatMarkdownText(activity?.description)}
-                                </p>
-                                <div className="flex items-center gap-1 sm:gap-2 mt-1 flex-wrap">
-                                  <Badge variant="secondary" className="text-xs py-0 px-2 whitespace-nowrap">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    {activity?.duration} min
-                                  </Badge>
-                                  <Badge variant="outline" className="text-xs py-0 px-2 truncate max-w-[120px]">
-                                    {activity?.category}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
-                                <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {pendingActivities.length > 2 && (
-                        <div className="text-center pt-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedWeek(progressData.currentWeek)
-                              setCurrentView('week')
-                            }}
-                            className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs"
-                          >
-                            Ver {pendingActivities.length - 2} actividades más
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })()}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Nueva Funcionalidad - Práctica de Conversación Destacada */}
-          {currentView === 'overview' && (
-            <Card className="mb-4 border-2 border-emerald-500 shadow-xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative">
-              {/* Badge de "Nuevo" */}
-              <div className="absolute top-3 right-3">
-                <Badge className="bg-yellow-400 text-purple-900 border-0 px-3 py-1 text-xs font-bold shadow-md animate-pulse">
-                  ✨ NUEVO
-                </Badge>
-              </div>
-              
-              <CardHeader className="pb-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <Mic className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-lg sm:text-xl mb-1 text-gray-900">
-                      Práctica de Conversación con IA 🎤
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      Conversaciones reales en tiempo real con análisis profundo de tu progreso
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="grid md:grid-cols-3 gap-3 mb-4">
-                  {/* Feature 1 */}
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-emerald-200">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <MessageSquare className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <h4 className="font-semibold text-sm text-gray-900">5 Modos</h4>
-                    </div>
-                    <p className="text-xs text-gray-600">
-                      Conversación, trabajo, entrevistas, emails y gramática
-                    </p>
-                  </div>
                   
-                  {/* Feature 2 */}
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-emerald-200">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <Trophy className="h-4 w-4 text-purple-600" />
-                      </div>
-                      <h4 className="font-semibold text-sm text-gray-900">Gamificación</h4>
-                    </div>
-                    <p className="text-xs text-gray-600">
-                      Gana XP, sube de nivel y mantén tu racha
-                    </p>
-                  </div>
-                  
-                  {/* Feature 3 */}
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-emerald-200">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                        <TrendingUp className="h-4 w-4 text-orange-600" />
-                      </div>
-                      <h4 className="font-semibold text-sm text-gray-900">Análisis AI</h4>
-                    </div>
-                    <p className="text-xs text-gray-600">
-                      Feedback detallado de cada sesión con métricas
-                    </p>
-                  </div>
-                </div>
-
-                {/* Benefits List */}
-                <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-3 mb-3 border border-emerald-200">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center gap-1 text-emerald-900">
-                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                      <span>Reconocimiento de voz</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-emerald-900">
-                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                      <span>Sistema de repetición</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-emerald-900">
-                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                      <span>Historial completo</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-emerald-900">
-                      <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                      <span>Análisis detallado</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-                  onClick={() => router.push('/conversacion')}
-                >
-                  <Mic className="h-5 w-5 mr-2" />
-                  Empezar a Practicar Ahora
-                </Button>
-                
-                <p className="text-center text-xs text-gray-500 mt-2">
-                  💡 Disponible 24/7 · Sin límites · Feedback instantáneo
-                </p>
-              </CardContent>
-            </Card>
+                  <p className="text-center text-xs text-gray-500">
+                    💡 24/7 · Sin límites
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">
