@@ -703,7 +703,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     </div>
                     <div className="flex-1">
                       <CardTitle className="text-base mb-0.5 text-gray-900">
-                        Conversación con IA 🎤
+                        Tutor de IA 🎤
                       </CardTitle>
                       <CardDescription className="text-xs">
                         Practica en tiempo real

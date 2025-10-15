@@ -52,7 +52,7 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
   const getSectionTitle = () => {
     switch(currentSection) {
       case 'dashboard': return 'Dashboard'
-      case 'tutor': return 'AI Tutor'
+      case 'tutor': return 'Tutor de IA'
       case 'vocabulario': return 'Vocabulario'
       case 'recursos': return 'Recursos'
       case 'guia': return 'Guía de Uso'
@@ -210,7 +210,7 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
                     }}
                   >
                     <Mic className="h-4 w-4 mr-2 text-blue-600" />
-                    <span className="font-medium">AI Tutor (Voz)</span>
+                    <span className="font-medium">Tutor de IA</span>
                   </Button>
                   <Button
                     variant={currentSection === 'vocabulario' ? 'default' : 'outline'}

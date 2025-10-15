@@ -90,7 +90,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       recognition.onstart = () => {
         setIsListening(true);
-        toast.success('🎤 Listening... Speak naturally!');
+        toast.success('🎤 Escuchando...');
       };
       
       recognition.onresult = async (event: any) => {
@@ -178,8 +178,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     // Mensaje de bienvenida del tutor
     const welcomeMessage: Message = {
       type: 'tutor',
-      text: "Hi! I'm your English tutor. Let's have a natural conversation. Tell me, what would you like to talk about today?",
-      translation: "¡Hola! Soy tu tutor de inglés. Tengamos una conversación natural. Dime, ¿de qué te gustaría hablar hoy?",
+      text: "Hi! I'm your English tutor. Tell me, what would you like to talk about today?",
+      translation: "¡Hola! Soy tu tutor de inglés. Dime, ¿de qué te gustaría hablar hoy?",
       timestamp: new Date()
     };
     
@@ -428,10 +428,10 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-                Conversación Natural con IA
+                Tutor de IA
               </h1>
               <p className="text-muted-foreground">
-                Habla naturalmente y recibe traducción simultánea al español
+                Habla en inglés y recibe traducción simultánea al español
               </p>
             </div>
             <Button
@@ -474,7 +474,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   </h3>
                   
                   <p className="text-sm text-muted-foreground">
-                    {isListening && 'Habla naturalmente en inglés'}
+                    {isListening && 'Habla en inglés'}
                     {isSpeaking && 'Escucha la respuesta del tutor'}
                     {!isListening && !isSpeaking && 'Haz clic en el botón para comenzar'}
                   </p>
@@ -524,7 +524,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 </Button>
                 
                 <p className="text-xs text-center text-muted-foreground">
-                  💡 Tip: Habla claramente y naturalmente. Recibirás traducción simultánea al español.
+                  💡 Tip: Habla claramente en inglés. Recibirás traducción simultánea al español.
                 </p>
               </div>
             </Card>
