@@ -3,29 +3,24 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User, Star, Radio } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, 
+  Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, 
+  RotateCcw, User, Star, Radio, Zap, CheckCircle, AlertCircle, Info 
+} from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { getProfileImageUrl } from '@/lib/utils';
 import { AppHeader } from '@/components/app-header';
-
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  translation?: string;
-  grammarFeedback?: any;
-  timestamp: Date;
-}
+import { cn } from '@/lib/utils';
 
 interface TutorClientProps {
   initialData: {
@@ -38,48 +33,118 @@ interface TutorClientProps {
 }
 
 const contextModes = [
-  { value: 'casual', label: '💬 Conversación Casual', description: 'Charla amigable sobre trabajo e intereses' },
-  { value: 'meeting', label: '🤝 Simulación de Reunión', description: 'Practica reuniones profesionales' },
-  { value: 'interview', label: '👔 Entrevista de Trabajo', description: 'Prepárate para entrevistas' },
-  { value: 'email', label: '📧 Práctica de Emails', description: 'Redacción profesional' },
-  { value: 'grammar', label: '📝 Ejercicios de Gramática', description: 'Refuerza la gramática' }
+  { value: 'casual', label: '💬 Conversación Casual', description: 'Charla amigable sobre trabajo e intereses', icon: MessageSquare },
+  { value: 'meeting', label: '🤝 Simulación de Reunión', description: 'Practica reuniones profesionales', icon: Target },
+  { value: 'interview', label: '👔 Entrevista de Trabajo', description: 'Prepárate para entrevistas', icon: User },
+  { value: 'email', label: '📧 Práctica de Emails', description: 'Redacción profesional', icon: Send },
+  { value: 'grammar', label: '📝 Ejercicios de Gramática', description: 'Refuerza la gramática', icon: BookOpen }
 ];
 
+const ACCENT_PROFILES = {
+  american: { accent: 'American', characteristics: ['Rhotic "R"', 'Flap "T"'] },
+  british: { accent: 'British', characteristics: ['Non-rhotic', 'Long vowels'] },
+  indian: { accent: 'Indian', characteristics: ['Retroflex sounds', 'Clear "T"'] },
+  australian: { accent: 'Australian', characteristics: ['Rising intonation', 'Vowel shifts'] }
+};
+
 export default function TutorClient({ initialData, userId }: TutorClientProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  // States
   const [context, setContext] = useState('casual');
-  const [isRecording, setIsRecording] = useState(false);
+  const [selectedAccent, setSelectedAccent] = useState<'american' | 'british' | 'indian' | 'australian'>('american');
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [tutorResponse, setTutorResponse] = useState('');
+  const [sessionStats, setSessionStats] = useState({
+    pronunciation: 0,
+    fluency: 0,
+    accent: 0
+  });
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
   const [gamificationStats, setGamificationStats] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  const [showAchievements, setShowAchievements] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   
-  const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
   const router = useRouter();
-  const shouldAutoScroll = useRef(true);
   const { data: session, status } = useSession() || {};
   
-  // Auto-scroll removed - users can scroll manually
-  
-  // Load gamification stats on mount
+  // Initialize on mount
   useEffect(() => {
+    initVoiceSystem();
     loadGamificationStats();
-    initSpeechRecognition();
     setSessionStartTime(new Date());
+    
+    return () => {
+      stopListening();
+      stopSpeaking();
+    };
   }, []);
   
-  // Update streak when component mounts
-  useEffect(() => {
-    updateStreakOnServer();
-  }, []);
+  const initVoiceSystem = () => {
+    // Initialize Speech Recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+      
+      recognition.onstart = () => {
+        setIsListening(true);
+        toast.success('🎤 Escuchando... ¡Habla naturalmente!');
+      };
+      
+      recognition.onresult = async (event: any) => {
+        const current = event.resultIndex;
+        const transcriptResult = event.results[current][0].transcript;
+        
+        setTranscript(transcriptResult);
+        
+        // Si el resultado es final, analizar
+        if (event.results[current].isFinal) {
+          await handleVoiceInput(transcriptResult);
+        }
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        
+        if (event.error === 'no-speech') {
+          toast.info('No se detectó voz. Intenta hablar de nuevo.');
+        } else {
+          toast.error('Error de reconocimiento de voz. Inténtalo de nuevo.');
+        }
+      };
+      
+      recognition.onend = () => {
+        // Si todavía debería estar escuchando, reiniciar
+        if (isListening) {
+          setTimeout(() => {
+            try {
+              recognition.start();
+            } catch (e) {
+              console.log('Recognition restart failed:', e);
+            }
+          }, 100);
+        }
+      };
+      
+      recognitionRef.current = recognition;
+    }
+    
+    // Initialize Speech Synthesis
+    if ('speechSynthesis' in window) {
+      synthRef.current = window.speechSynthesis;
+    }
+  };
   
   const loadGamificationStats = async () => {
     try {
@@ -93,292 +158,203 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
-  const updateStreakOnServer = async () => {
-    try {
-      await fetch('/api/tutor/gamification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update_streak' })
-      });
-    } catch (error) {
-      console.error('Error updating streak:', error);
-    }
-  };
-  
-  const initSpeechRecognition = () => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-      
-      recognition.onstart = () => {
-        setIsRecording(true);
-        toast.info('🎤 Listening...');
-      };
-      
-      recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result) => result.transcript)
-          .join('');
-          
-        setInput(transcript);
-        
-        if (event.results[0].isFinal) {
-          setIsRecording(false);
-        }
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsRecording(false);
-        toast.error('Error en reconocimiento de voz');
-      };
-      
-      recognition.onend = () => {
-        setIsRecording(false);
-      };
-      
-      recognitionRef.current = recognition;
-    }
-  };
-  
-  const toggleRecording = () => {
+  const startListening = () => {
     if (!recognitionRef.current) {
-      toast.error('Tu navegador no soporta reconocimiento de voz');
+      toast.error('Reconocimiento de voz no soportado en tu navegador');
       return;
     }
     
-    if (isRecording) {
-      recognitionRef.current.stop();
-    } else {
+    try {
       recognitionRef.current.start();
+      setIsListening(true);
+    } catch (e) {
+      console.error('Failed to start recognition:', e);
+      toast.error('Error al iniciar reconocimiento de voz');
     }
   };
   
-  const endSessionAndAnalyze = async () => {
-    if (!conversationId || messages.length < 2) return;
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+  
+  const handleVoiceInput = async (transcriptText: string) => {
+    if (!transcriptText.trim()) return;
+    
+    setIsAnalyzing(true);
     
     try {
-      toast.loading('Analizando sesión...');
-      
-      const response = await fetch('/api/tutor/analytics', {
+      // 1. Analizar la pronunciación
+      const analysisResponse = await fetch('/api/tutor/voice/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversationId,
-          sessionType: context
+          transcript: transcriptText,
+          context,
+          targetAccent: selectedAccent
         })
       });
       
-      if (response.ok) {
-        const analytics = await response.json();
-        setAnalytics(analytics);
-        setShowAnalytics(true);
-        
-        // Check for achievements
-        await checkAchievements(analytics);
-        
-        toast.success('¡Sesión analizada!');
+      if (!analysisResponse.ok) {
+        throw new Error('Analysis failed');
       }
-    } catch (error) {
-      console.error('Error analyzing session:', error);
-      toast.error('Error al analizar sesión');
-    }
-  };
-  
-  const checkAchievements = async (sessionAnalytics: any) => {
-    try {
-      const response = await fetch('/api/tutor/gamification', {
+      
+      const analysisData = await analysisResponse.json();
+      setAnalysis(analysisData.analysis);
+      
+      // Actualizar estadísticas de sesión
+      setSessionStats({
+        pronunciation: analysisData.analysis.pronunciationScore,
+        fluency: analysisData.analysis.fluencyScore,
+        accent: analysisData.analysis.accentScore.overall
+      });
+      
+      // 2. Generar respuesta del tutor con contexto
+      const responseData = await fetch('/api/tutor/voice/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'check_achievements',
-          metrics: {
-            streak: gamificationStats?.currentStreak,
-            totalMessages: gamificationStats?.points ? Math.floor(gamificationStats.points / 5) : 0,
-            totalSessions: sessionAnalytics ? 1 : 0,
-            perfectGrammarSessions: sessionAnalytics?.grammarAccuracy >= 95 ? 1 : 0,
-            vocabularyLearned: sessionAnalytics?.newWordsLearned?.length || 0
+          transcript: transcriptText,
+          analysisResult: analysisData.analysis,
+          conversationContext: {
+            mode: context,
+            history: conversationHistory,
+            targetAccent: selectedAccent
           }
         })
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        if (data.achievements && data.achievements.length > 0) {
-          data.achievements.forEach((achievement: any) => {
-            toast.success(`🏆 ¡Logro desbloqueado! ${achievement.achievement.name}`, {
-              duration: 5000
-            });
-          });
-          loadGamificationStats();
+      if (!responseData.ok) {
+        throw new Error('Response generation failed');
+      }
+      
+      const response = await responseData.json();
+      setTutorResponse(response.text);
+      
+      // 3. Hablar la respuesta
+      await speakText(response.text);
+      
+      // 4. Agregar a historial
+      setConversationHistory(prev => [
+        ...prev,
+        {
+          type: 'user',
+          text: transcriptText,
+          analysis: analysisData.analysis
+        },
+        {
+          type: 'tutor',
+          text: response.text
         }
-      }
-    } catch (error) {
-      console.error('Error checking achievements:', error);
-    }
-  };
-  
-  const loadConversationHistory = async () => {
-    try {
-      const response = await fetch('/api/tutor/history');
-      if (response.ok) {
-        const data = await response.json();
-        setConversationHistory(data);
-        setShowHistory(true);
-      }
-    } catch (error) {
-      console.error('Error loading history:', error);
-      toast.error('Error al cargar historial');
-    }
-  };
-  
-  const loadConversation = async (convId: string) => {
-    try {
-      shouldAutoScroll.current = false; // Desactivar auto-scroll al cargar conversación
-      const response = await fetch(`/api/tutor/history?conversationId=${convId}`);
-      if (response.ok) {
-        const conversation = await response.json();
-        
-        const loadedMessages: Message[] = conversation.messages.map((msg: any) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          translation: msg.translation,
-          grammarFeedback: msg.grammarErrors,
-          timestamp: new Date(msg.createdAt)
-        }));
-        
-        setMessages(loadedMessages);
-        setConversationId(conversation.id);
-        setContext(conversation.context || 'casual');
-        setShowHistory(false);
-        
-        toast.success('Conversación cargada');
-        
-        // Reactivar auto-scroll después de un delay
-        setTimeout(() => {
-          shouldAutoScroll.current = true;
-        }, 500);
-      }
-    } catch (error) {
-      console.error('Error loading conversation:', error);
-      toast.error('Error al cargar conversación');
-      shouldAutoScroll.current = true;
-    }
-  };
-  
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-    
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input,
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/tutor/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: input,
-          conversationId,
-          context,
-          userId
-        })
-      });
+      ]);
       
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-      
-      const data = await response.json();
-      
-      const assistantMessage: Message = {
-        id: data.messageId,
-        role: 'assistant',
-        content: data.content,
-        translation: data.translation,
-        grammarFeedback: data.grammarFeedback,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      setConversationId(data.conversationId);
-      
-      // Award points for sending message
+      // 5. Gamificación - Award points
       await fetch('/api/tutor/gamification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'award_points',
-          points: 5,
-          reason: 'Mensaje enviado'
+          points: 10,
+          reason: 'Práctica de conversación'
         })
       });
       
       loadGamificationStats();
       
-      // Mostrar feedback de gramática si hay
-      if (data.grammarFeedback?.hasErrors) {
-        toast.info(data.grammarFeedback.suggestion, {
-          duration: 5000
-        });
+      // 6. Mostrar feedback si hay errores críticos
+      if (analysisData.analysis.phonemeErrors.length > 0) {
+        const criticalErrors = analysisData.analysis.phonemeErrors.filter((e: any) => e.severity === 'high');
+        if (criticalErrors.length > 0) {
+          toast.info(`💡 Tip de pronunciación: ${criticalErrors[0].suggestion}`, {
+            duration: 5000
+          });
+        }
       }
       
+      // Limpiar transcript
+      setTranscript('');
+      
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Error al comunicarse con el tutor. Por favor, intenta de nuevo.');
+      console.error('Error processing voice input:', error);
+      toast.error('Error al procesar entrada de voz');
     } finally {
-      setIsLoading(false);
+      setIsAnalyzing(false);
     }
   };
   
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+  const speakText = async (text: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if (!synthRef.current) {
+        resolve();
+        return;
+      }
+      
+      synthRef.current.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Configure voice based on target accent
+      const voices = synthRef.current.getVoices();
+      const targetVoice = voices.find(v => 
+        v.lang.startsWith('en') && 
+        (selectedAccent === 'british' ? v.name.includes('UK') : v.name.includes('US'))
+      ) || voices.find(v => v.lang.startsWith('en'));
+      
+      if (targetVoice) {
+        utterance.voice = targetVoice;
+      }
+      
       utterance.lang = 'en-US';
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
-    } else {
-      toast.error('Tu navegador no soporta síntesis de voz');
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        resolve();
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        resolve();
+      };
+      
+      synthRef.current.speak(utterance);
+    });
+  };
+  
+  const stopSpeaking = () => {
+    if (synthRef.current) {
+      synthRef.current.cancel();
+      setIsSpeaking(false);
     }
   };
   
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  const toggleConversation = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
     }
   };
   
   const changeContext = (newContext: string) => {
-    shouldAutoScroll.current = false; // Desactivar auto-scroll al cambiar contexto
     setContext(newContext);
-    setMessages([]);
-    setConversationId(null);
+    setConversationHistory([]);
+    setAnalysis(null);
+    setSessionStats({ pronunciation: 0, fluency: 0, accent: 0 });
+    stopListening();
     toast.success(`Modo cambiado: ${contextModes.find(m => m.value === newContext)?.label}`);
-    
-    // Reactivar auto-scroll después de un delay
-    setTimeout(() => {
-      shouldAutoScroll.current = true;
-    }, 300);
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Main Header */}
       <AppHeader currentSection="tutor" />
       
       {/* Tutor-Specific Bar */}
@@ -387,8 +363,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-4">
               <Badge variant="secondary" className="bg-white text-blue-600 text-xs sm:text-sm">
-                <MessageSquare className="h-3 w-3 mr-1" />
-                AI Tutor
+                <Mic className="h-3 w-3 mr-1" />
+                AI Voice Tutor
               </Badge>
               
               {/* Gamification Stats - Desktop */}
@@ -398,734 +374,346 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                     <Sparkles className="h-4 w-4" />
                     <span className="font-bold">{gamificationStats.points}</span>
                   </div>
-                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white">
-                    Level {gamificationStats.level}
-                  </Badge>
-                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white">
-                    🔥 {gamificationStats.currentStreak}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/20"
-                    onClick={() => setShowAchievements(true)}
-                  >
-                    <Award className="h-4 w-4 mr-1" />
-                    {gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements}
-                  </Button>
-                </div>
-              )}
-              
-              {/* Gamification Stats - Mobile (compact) */}
-              {gamificationStats && (
-                <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
-                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs px-1.5 py-0.5">
-                    <Sparkles className="h-3 w-3 mr-0.5" />
-                    {gamificationStats.points}
-                  </Badge>
-                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs px-1.5 py-0.5">
-                    🔥 {gamificationStats.currentStreak}
-                  </Badge>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
+                    <Award className="h-4 w-4" />
+                    <span className="font-bold">Nivel {gamificationStats.level}</span>
+                  </div>
                 </div>
               )}
             </div>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => router.push('/dashboard')}
                 className="text-white hover:bg-white/20"
-                onClick={loadConversationHistory}
               >
-                <History className="h-4 w-4 mr-2" />
-                Historial
+                <Home className="h-4 w-4 mr-2" />
+                Dashboard
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20"
-                onClick={endSessionAndAnalyze}
-                disabled={!conversationId || messages.length < 2}
-              >
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Análisis
-              </Button>
-            </nav>
-            
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden text-white hover:bg-white/20 px-2"
-              onClick={() => setShowMobileMenu(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+            </div>
           </div>
         </div>
       </div>
       
-      <div className="container max-w-7xl mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="container max-w-6xl mx-auto py-8 px-4">
+        {/* Header with Mode Selector */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                Práctica de Conversación con IA
+              </h1>
+              <p className="text-muted-foreground">
+                Habla naturalmente y recibe análisis instantáneo de pronunciación
+              </p>
+            </div>
+          </div>
           
-          {/* Panel Lateral - Solo Desktop */}
-          <div className="hidden lg:block lg:col-span-1 space-y-4">
-            {/* NEW: Voice Practice Banner */}
-            <Link href="/tutor/voice">
-              <Card className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white hover:shadow-lg transition-all cursor-pointer border-0">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                      <Radio className="h-5 w-5" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold bg-yellow-400 text-gray-900 px-2 py-0.5 rounded-full">
-                        NEW
-                      </span>
-                      <Star className="h-3 w-3" />
-                    </div>
-                    <h3 className="font-bold text-sm mb-1">Voice Practice AI</h3>
-                    <p className="text-xs text-blue-100">
-                      Real-time pronunciation analysis with instant feedback
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-            
-            <Card className="p-4">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600" />
-                Modo de Práctica
-              </h3>
-              
-              <div className="space-y-2">
-                {contextModes.map(mode => (
+          {/* Mode Selector */}
+          <Card className="p-4 mb-4">
+            <h3 className="font-semibold mb-3 text-sm">Selecciona el modo de práctica:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              {contextModes.map((mode) => {
+                const Icon = mode.icon;
+                return (
                   <Button
                     key={mode.value}
                     variant={context === mode.value ? 'default' : 'outline'}
-                    className="w-full justify-start text-left h-auto py-3"
-                    size="sm"
+                    className="h-auto py-3 flex flex-col items-center text-center"
                     onClick={() => changeContext(mode.value)}
                   >
-                    <div>
-                      <div className="font-medium">{mode.label}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {mode.description}
-                      </div>
-                    </div>
+                    <Icon className="h-5 w-5 mb-1" />
+                    <span className="text-xs font-medium">{mode.label.slice(2)}</span>
                   </Button>
-                ))}
-              </div>
-            </Card>
-            
-            {/* Vocabulario de la semana */}
-            <Card className="p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-green-600" />
-                Vocabulario de la Semana
-              </h3>
-              <div className="space-y-2 mb-3">
-                {initialData.currentWeekVocab?.slice(0, 8).map(term => (
-                  <div key={term.id} className="p-2 bg-blue-50 rounded-lg">
-                    <p className="font-medium text-sm">{term.term}</p>
-                    <p className="text-xs text-muted-foreground">{term.translation}</p>
-                  </div>
-                ))}
-              </div>
-              <Link href="/tutor/vocabulary-review">
-                <Button variant="outline" size="sm" className="w-full">
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Sistema de Repaso
-                </Button>
-              </Link>
-            </Card>
-            
-            {/* Estadísticas */}
-            <Card className="p-4">
-              <h3 className="font-semibold mb-3">Tu Progreso</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Nivel:</span>
-                  <Badge>{initialData.learningContext.currentLevel}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Conversaciones:</span>
-                  <span className="font-medium">{initialData.learningContext.totalConversations}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Mensajes:</span>
-                  <span className="font-medium">{initialData.learningContext.totalMessages}</span>
-                </div>
-              </div>
-            </Card>
-          </div>
-          
-          {/* Panel Principal: Chat */}
-          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[calc(100vh-16rem)] sm:h-[600px] lg:h-[calc(100vh-12rem)]">
-            <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
-                    <span className="hidden sm:inline">English Tutor AI</span>
-                    <span className="sm:hidden">Tutor AI</span>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-blue-100 mt-1">
-                    {contextModes.find(m => m.value === context)?.description}
-                  </p>
-                </div>
-                {/* Quick mode change on mobile */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="lg:hidden text-white hover:bg-white/20 px-2"
-                  onClick={() => setShowMobileMenu(true)}
-                >
-                  <Target className="h-4 w-4" />
-                </Button>
-              </div>
+                );
+              })}
             </div>
-            
-            <ScrollArea className="flex-1 p-2 sm:p-4 overflow-y-auto">
-              <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
-                {messages.length === 0 && (
-                  <div className="text-center py-8 sm:py-16 text-muted-foreground px-4">
-                    <div className="mb-4">
-                      <MessageSquare className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-blue-200" />
-                    </div>
-                    <p className="text-base sm:text-lg mb-2 font-medium">👋 Hello! I'm your AI tutor.</p>
-                    <p className="text-xs sm:text-sm">Start a conversation in English, and I'll help you improve!</p>
-                    <p className="text-xs mt-2">Try saying: "Hello, how are you?"</p>
-                  </div>
-                )}
-                
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[90%] sm:max-w-[85%] rounded-2xl p-3 sm:p-4 shadow-sm ${
-                        message.role === 'user'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-900 border border-gray-200'
-                      }`}
-                    >
-                      <p className="text-sm leading-relaxed break-words">{message.content}</p>
-                      
-                      {message.role === 'assistant' && (
-                        <div className="mt-2 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2 items-center">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 px-2 sm:px-3 text-xs hover:bg-blue-50"
-                            onClick={() => speakText(message.content)}
-                          >
-                            <Volume2 className="h-3 w-3 mr-1" />
-                            <span className="hidden sm:inline">Escuchar</span>
-                            <span className="sm:hidden">🔊</span>
-                          </Button>
-                          
-                          {message.translation && (
-                            <div className="text-xs text-muted-foreground bg-blue-50 px-2 sm:px-3 py-1 rounded-full">
-                              📖 {message.translation}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      {message.grammarFeedback?.hasErrors && (
-                        <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                          <p className="text-xs font-medium text-yellow-900 mb-1">💡 Grammar Tip:</p>
-                          <p className="text-xs text-yellow-800">{message.grammarFeedback.suggestion}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                      <div className="flex space-x-2">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100"></div>
-                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div ref={scrollRef} />
-              </div>
-            </ScrollArea>
-            
-            <div className="p-2 sm:p-4 border-t bg-gray-50">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  sendMessage();
-                }}
-                className="flex gap-1.5 sm:gap-2 max-w-4xl mx-auto"
-              >
+          </Card>
+          
+          {/* Accent Selector */}
+          <Card className="p-4">
+            <h3 className="font-semibold mb-3 text-sm">Acento objetivo:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {Object.entries(ACCENT_PROFILES).map(([key, profile]) => (
                 <Button
-                  type="button"
-                  variant={isRecording ? "destructive" : "outline"}
-                  size="icon"
-                  onClick={toggleRecording}
-                  disabled={isLoading}
-                  className="h-10 w-10 flex-shrink-0"
+                  key={key}
+                  variant={selectedAccent === key ? 'default' : 'outline'}
+                  className="h-auto py-3 flex flex-col items-start text-left text-xs"
+                  onClick={() => setSelectedAccent(key as any)}
                 >
-                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  <span className="font-medium capitalize">{profile.accent}</span>
+                  <span className="text-xs text-muted-foreground mt-1">
+                    {profile.characteristics[0]}
+                  </span>
                 </Button>
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "Type or speak your message..."}
-                  disabled={isLoading}
-                  className="flex-1 bg-white h-10 text-sm"
-                />
-                <Button 
-                  type="submit" 
-                  disabled={isLoading || !input.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 h-10 w-10 sm:w-auto sm:px-4 flex-shrink-0"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
-              <p className="text-xs text-center text-muted-foreground mt-1.5 sm:mt-2">
-                🎤 <span className="hidden sm:inline">Habla o escribe • </span>Enter para enviar
-              </p>
+              ))}
             </div>
           </Card>
         </div>
-      </div>
-      
-      {/* Historial Dialog */}
-      <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
-              Historial de Conversaciones
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            {conversationHistory.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                No hay conversaciones guardadas aún
-              </p>
-            ) : (
-              conversationHistory.map((conv) => (
-                <Card
-                  key={conv.id}
-                  className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => loadConversation(conv.id)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{conv.title || 'Conversación sin título'}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {conv.context && contextModes.find(m => m.value === conv.context)?.label}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {conv._count?.messages || 0} mensajes • {new Date(conv.lastMessageAt).toLocaleDateString('es-ES')}
-                      </p>
-                      {conv.messages?.[0] && (
-                        <p className="text-sm mt-2 line-clamp-2">
-                          {conv.messages[0].content}
-                        </p>
-                      )}
-                    </div>
-                    <Badge variant="outline">{conv.isActive ? 'Activa' : 'Archivada'}</Badge>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Analytics Dialog */}
-      <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Análisis de Sesión
-            </DialogTitle>
-          </DialogHeader>
-          {analytics && (
-            <div className="space-y-4">
-              {/* Overall Score */}
-              <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+        
+        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+          {/* Main Voice Conversation */}
+          <div className="space-y-6">
+            {/* Main Conversation Card */}
+            <Card className={cn(
+              "p-6 transition-all duration-300",
+              isListening && "ring-4 ring-blue-500 ring-opacity-50 shadow-lg",
+              isSpeaking && "ring-4 ring-green-500 ring-opacity-50 shadow-lg"
+            )}>
+              <div className="flex flex-col items-center space-y-6">
+                {/* Status Indicator */}
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-2">Puntuación General</p>
-                  <p className="text-5xl font-bold text-blue-600">
-                    {analytics.overallScore?.toFixed(0) || 0}
+                  <div className={cn(
+                    "w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-300",
+                    isListening && "bg-blue-100 animate-pulse",
+                    isSpeaking && "bg-green-100 animate-pulse",
+                    !isListening && !isSpeaking && "bg-gray-100"
+                  )}>
+                    {isListening && <Mic className="h-16 w-16 text-blue-600" />}
+                    {isSpeaking && <Volume2 className="h-16 w-16 text-green-600" />}
+                    {!isListening && !isSpeaking && <Mic className="h-16 w-16 text-gray-400" />}
+                  </div>
+                  
+                  <h3 className="text-xl font-bold mb-2">
+                    {isListening && 'Escuchando...'}
+                    {isSpeaking && 'Tutor Hablando...'}
+                    {!isListening && !isSpeaking && 'Listo para Practicar'}
+                  </h3>
+                  
+                  <p className="text-sm text-muted-foreground">
+                    {isListening && 'Habla naturalmente en inglés'}
+                    {isSpeaking && 'Escucha la respuesta del tutor'}
+                    {!isListening && !isSpeaking && 'Haz clic en el botón para comenzar'}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">de 100</p>
                 </div>
-              </Card>
-              
-              {/* Detailed Scores */}
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">Fluidez</p>
-                  <p className="text-2xl font-bold">{analytics.fluencyScore?.toFixed(0) || 0}</p>
-                </Card>
-                <Card className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">Precisión</p>
-                  <p className="text-2xl font-bold">{analytics.accuracyScore?.toFixed(0) || 0}</p>
-                </Card>
-                <Card className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">Comprensión</p>
-                  <p className="text-2xl font-bold">{analytics.comprehensionScore?.toFixed(0) || 0}</p>
-                </Card>
-              </div>
-              
-              {/* Stats */}
-              <Card className="p-4">
-                <h4 className="font-semibold mb-3">Estadísticas</h4>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Duración</p>
-                    <p className="font-medium">{Math.floor(analytics.duration / 60)} min {analytics.duration % 60} seg</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Mensajes</p>
-                    <p className="font-medium">{analytics.messagesCount}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Palabras habladas</p>
-                    <p className="font-medium">{analytics.wordsSpoken}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Palabras nuevas</p>
-                    <p className="font-medium">{analytics.newWordsLearned?.length || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Precisión gramatical</p>
-                    <p className="font-medium">{analytics.grammarAccuracy?.toFixed(0) || 0}%</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Diversidad vocabulario</p>
-                    <p className="font-medium">{analytics.vocabularyDiversity?.toFixed(0) || 0}%</p>
-                  </div>
-                </div>
-              </Card>
-              
-              {/* Strengths */}
-              {analytics.strengths && analytics.strengths.length > 0 && (
-                <Card className="p-4 bg-green-50 border-green-200">
-                  <h4 className="font-semibold mb-2 text-green-900">✨ Fortalezas</h4>
-                  <ul className="space-y-1">
-                    {analytics.strengths.map((strength: string, i: number) => (
-                      <li key={i} className="text-sm text-green-800">• {strength}</li>
-                    ))}
-                  </ul>
-                </Card>
-              )}
-              
-              {/* Areas to Improve */}
-              {analytics.areasToImprove && analytics.areasToImprove.length > 0 && (
-                <Card className="p-4 bg-yellow-50 border-yellow-200">
-                  <h4 className="font-semibold mb-2 text-yellow-900">🎯 Áreas de Mejora</h4>
-                  <ul className="space-y-1">
-                    {analytics.areasToImprove.map((area: string, i: number) => (
-                      <li key={i} className="text-sm text-yellow-800">• {area}</li>
-                    ))}
-                  </ul>
-                </Card>
-              )}
-              
-              {/* Feedback */}
-              {analytics.feedback && (
-                <Card className="p-4">
-                  <h4 className="font-semibold mb-2">💬 Retroalimentación</h4>
-                  <p className="text-sm text-muted-foreground">{analytics.feedback}</p>
-                </Card>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-      
-      {/* Achievements Dialog */}
-      <Dialog open={showAchievements} onOpenChange={setShowAchievements}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5" />
-              Logros y Progreso
-            </DialogTitle>
-          </DialogHeader>
-          {gamificationStats && (
-            <div className="space-y-4">
-              {/* Level Progress */}
-              <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-muted-foreground mb-1">Nivel Actual</p>
-                  <p className="text-4xl font-bold text-purple-600">{gamificationStats.level}</p>
-                </div>
-                <div>
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                    <span>{gamificationStats.levelProgress?.current || 0} puntos</span>
-                    <span>{gamificationStats.levelProgress?.needed || 0} necesarios</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min(gamificationStats.levelProgress?.percentage || 0, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              </Card>
-              
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3">
-                <Card className="p-4 text-center">
-                  <Sparkles className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
-                  <p className="text-2xl font-bold">{gamificationStats.points}</p>
-                  <p className="text-xs text-muted-foreground">Puntos</p>
-                </Card>
-                <Card className="p-4 text-center">
-                  <p className="text-2xl font-bold">🔥</p>
-                  <p className="text-2xl font-bold">{gamificationStats.currentStreak}</p>
-                  <p className="text-xs text-muted-foreground">Racha</p>
-                </Card>
-                <Card className="p-4 text-center">
-                  <Award className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-                  <p className="text-2xl font-bold">{gamificationStats.unlockedAchievements}</p>
-                  <p className="text-xs text-muted-foreground">Logros</p>
-                </Card>
-              </div>
-              
-              {/* Unlocked Achievements */}
-              <div>
-                <h4 className="font-semibold mb-3">Logros Desbloqueados</h4>
-                <div className="space-y-2">
-                  {gamificationStats.achievements?.map((ua: any) => (
-                    <Card key={ua.id} className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50">
-                      <div className="flex items-start gap-3">
-                        <div className="text-2xl">{ua.achievement.icon}</div>
-                        <div className="flex-1">
-                          <h5 className="font-medium">{ua.achievement.name}</h5>
-                          <p className="text-xs text-muted-foreground">{ua.achievement.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Desbloqueado: {new Date(ua.unlockedAt).toLocaleDateString('es-ES')}
-                          </p>
-                        </div>
-                        <Badge variant="secondary">+{ua.achievement.points}</Badge>
-                      </div>
-                    </Card>
-                  ))}
-                  {(!gamificationStats.achievements || gamificationStats.achievements.length === 0) && (
-                    <p className="text-center text-muted-foreground py-4">
-                      Aún no has desbloqueado logros. ¡Sigue practicando!
+                
+                {/* Live Transcript */}
+                {transcript && (
+                  <div className="w-full p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-900">
+                      <span className="font-medium">Tú: </span>
+                      {transcript}
                     </p>
+                  </div>
+                )}
+                
+                {/* Analyzing Indicator */}
+                {isAnalyzing && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Zap className="h-4 w-4 animate-pulse" />
+                    Analizando tu pronunciación...
+                  </div>
+                )}
+                
+                {/* Control Button */}
+                <Button
+                  size="lg"
+                  onClick={toggleConversation}
+                  disabled={isSpeaking || isAnalyzing}
+                  className={cn(
+                    "w-48 h-14 text-lg font-semibold transition-all duration-300",
+                    isListening 
+                      ? "bg-red-600 hover:bg-red-700" 
+                      : "bg-blue-600 hover:bg-blue-700"
+                  )}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="h-5 w-5 mr-2" />
+                      Detener
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-5 w-5 mr-2" />
+                      Empezar a Hablar
+                    </>
+                  )}
+                </Button>
+                
+                <p className="text-xs text-center text-muted-foreground">
+                  💡 Tip: Habla claramente y naturalmente. El AI analizará tu pronunciación en tiempo real.
+                </p>
+              </div>
+            </Card>
+            
+            {/* Latest Analysis Feedback */}
+            {analysis && (
+              <Card className="p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Award className="h-5 w-5 text-yellow-600" />
+                  Análisis Más Reciente
+                </h3>
+                
+                <div className="space-y-3">
+                  {/* Strengths */}
+                  {analysis.accentScore?.strengths?.length > 0 && (
+                    <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-900">Fortalezas</p>
+                        <ul className="text-sm text-green-800 mt-1 space-y-1">
+                          {analysis.accentScore.strengths.map((strength: string, i: number) => (
+                            <li key={i}>• {strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Suggestions */}
+                  {analysis.suggestions?.length > 0 && (
+                    <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-900">Sugerencias</p>
+                        <ul className="text-sm text-blue-800 mt-1 space-y-1">
+                          {analysis.suggestions.slice(0, 3).map((suggestion: string, i: number) => (
+                            <li key={i}>• {suggestion}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Problem Phonemes */}
+                  {analysis.accentScore?.problemPhonemes?.length > 0 && (
+                    <div className="flex items-start gap-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-yellow-900">Sonidos para Practicar</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {analysis.accentScore.problemPhonemes.map((phoneme: string, i: number) => (
+                            <Badge key={i} variant="outline" className="bg-white">
+                              {phoneme}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-      
-      {/* Mobile Menu Sheet */}
-      <Sheet open={showMobileMenu} onOpenChange={setShowMobileMenu}>
-        <SheetContent side="right" className="w-[90vw] sm:w-96 overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <Menu className="h-5 w-5" />
-              Menú del Tutor
-            </SheetTitle>
-          </SheetHeader>
-          
-          <div className="mt-6 space-y-6">
-            {/* NEW: Voice Practice Banner for Mobile */}
-            <Link href="/tutor/voice" onClick={() => setShowMobileMenu(false)}>
-              <Card className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white border-0">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                      <Radio className="h-5 w-5" />
+              </Card>
+            )}
+            
+            {/* Conversation History */}
+            {conversationHistory.length > 0 && (
+              <Card className="p-6">
+                <h3 className="font-semibold mb-4">Historial de Conversación</h3>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {conversationHistory.slice().reverse().slice(0, 8).map((entry, i) => (
+                    <div key={i} className={cn(
+                      "p-3 rounded-lg",
+                      entry.type === 'user' ? "bg-blue-50 border border-blue-200" : "bg-gray-50 border border-gray-200"
+                    )}>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">
+                        {entry.type === 'user' ? 'Tú' : 'Tutor'}
+                      </p>
+                      <p className="text-sm">{entry.text}</p>
+                      {entry.analysis && (
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs">
+                            Pronunciación: {entry.analysis.pronunciationScore.toFixed(0)}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Fluidez: {entry.analysis.fluencyScore.toFixed(0)}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold bg-yellow-400 text-gray-900 px-2 py-0.5 rounded-full">
-                        NEW
-                      </span>
-                      <Star className="h-3 w-3" />
-                    </div>
-                    <h3 className="font-bold text-sm mb-1">Voice Practice AI</h3>
-                    <p className="text-xs text-blue-100">
-                      Real-time pronunciation analysis
-                    </p>
-                  </div>
+                  ))}
                 </div>
               </Card>
-            </Link>
-            
-            {/* Practice Modes */}
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <Target className="h-4 w-4" />
-                MODO DE PRÁCTICA
-              </h3>
-              <div className="space-y-2">
-                {contextModes.map(mode => (
-                  <Button
-                    key={mode.value}
-                    variant={context === mode.value ? 'default' : 'outline'}
-                    className="w-full justify-start text-left h-auto py-3"
-                    size="sm"
-                    onClick={() => {
-                      changeContext(mode.value);
-                      setShowMobileMenu(false);
-                    }}
-                  >
-                    <div className="w-full">
-                      <div className="font-medium text-sm">{mode.label}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {mode.description}
-                      </div>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Quick Actions */}
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <Sparkles className="h-4 w-4" />
-                ACCIONES RÁPIDAS
-              </h3>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    loadConversationHistory();
-                    setShowMobileMenu(false);
-                  }}
-                >
-                  <History className="h-4 w-4 mr-2" />
-                  Ver Historial
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    endSessionAndAnalyze();
-                    setShowMobileMenu(false);
-                  }}
-                  disabled={!conversationId || messages.length < 2}
-                >
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Análisis de Sesión
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setShowAchievements(true);
-                    setShowMobileMenu(false);
-                  }}
-                >
-                  <Award className="h-4 w-4 mr-2" />
-                  Logros y Progreso
-                </Button>
-              </div>
-            </div>
-            
-            {/* Vocabulary of the Week */}
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <BookOpen className="h-4 w-4" />
-                VOCABULARIO DE LA SEMANA
-              </h3>
-              <div className="space-y-2 mb-3">
-                {initialData.currentWeekVocab?.slice(0, 5).map(term => (
-                  <div key={term.id} className="p-2.5 bg-blue-50 rounded-lg border border-blue-100">
-                    <p className="font-medium text-sm">{term.term}</p>
-                    <p className="text-xs text-muted-foreground">{term.translation}</p>
-                  </div>
-                ))}
-              </div>
-              <Link href="/tutor/vocabulary-review">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Sistema de Repaso Completo
-                </Button>
-              </Link>
-            </div>
-            
-            {/* Progress Stats */}
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <BarChart3 className="h-4 w-4" />
-                TU PROGRESO
-              </h3>
-              <Card className="p-4">
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Nivel:</span>
-                    <Badge>{initialData.learningContext.currentLevel}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Conversaciones:</span>
-                    <span className="font-medium">{initialData.learningContext.totalConversations}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Mensajes:</span>
-                    <span className="font-medium">{initialData.learningContext.totalMessages}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-            
-            {/* Gamification Stats */}
-            {gamificationStats && (
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-                  <Sparkles className="h-4 w-4" />
-                  GAMIFICACIÓN
-                </h3>
-                <div className="grid grid-cols-3 gap-2">
-                  <Card className="p-3 text-center">
-                    <Sparkles className="h-5 w-5 mx-auto mb-1 text-yellow-500" />
-                    <p className="text-xl font-bold">{gamificationStats.points}</p>
-                    <p className="text-xs text-muted-foreground">Puntos</p>
-                  </Card>
-                  <Card className="p-3 text-center">
-                    <p className="text-xl font-bold">🔥</p>
-                    <p className="text-xl font-bold">{gamificationStats.currentStreak}</p>
-                    <p className="text-xs text-muted-foreground">Racha</p>
-                  </Card>
-                  <Card className="p-3 text-center">
-                    <Award className="h-5 w-5 mx-auto mb-1 text-blue-500" />
-                    <p className="text-xl font-bold">{gamificationStats.unlockedAchievements}</p>
-                    <p className="text-xs text-muted-foreground">Logros</p>
-                  </Card>
-                </div>
-              </div>
             )}
           </div>
-        </SheetContent>
-      </Sheet>
+          
+          {/* Sidebar - Stats */}
+          <div className="space-y-4">
+            {/* Session Statistics */}
+            {(sessionStats.pronunciation > 0 || sessionStats.fluency > 0 || sessionStats.accent > 0) && (
+              <Card className="p-4">
+                <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                  Estadísticas de Sesión
+                </h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium">Pronunciación</span>
+                      <span className="text-xs font-bold text-blue-600">{sessionStats.pronunciation.toFixed(0)}/100</span>
+                    </div>
+                    <Progress value={sessionStats.pronunciation} className="h-2" />
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium">Fluidez</span>
+                      <span className="text-xs font-bold text-green-600">{sessionStats.fluency.toFixed(0)}/100</span>
+                    </div>
+                    <Progress value={sessionStats.fluency} className="h-2" />
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium">Similitud de Acento</span>
+                      <span className="text-xs font-bold text-purple-600">{sessionStats.accent.toFixed(0)}/100</span>
+                    </div>
+                    <Progress value={sessionStats.accent} className="h-2" />
+                  </div>
+                </div>
+              </Card>
+            )}
+            
+            {/* Gamification Card */}
+            {gamificationStats && (
+              <Card className="p-4 bg-gradient-to-br from-blue-50 to-purple-50">
+                <h3 className="font-semibold mb-3 text-sm">Tu Progreso</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Nivel</span>
+                    <span className="font-bold text-blue-600">{gamificationStats.level}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Puntos XP</span>
+                    <span className="font-bold text-purple-600">{gamificationStats.points}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Racha</span>
+                    <span className="font-bold text-orange-600">{gamificationStats.currentStreak} días</span>
+                  </div>
+                </div>
+              </Card>
+            )}
+            
+            {/* Quick Links */}
+            <Card className="p-4">
+              <h3 className="font-semibold mb-3 text-sm">Enlaces Rápidos</h3>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => router.push('/vocabulario')}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Vocabulario
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => router.push('/recursos')}
+                >
+                  <Languages className="h-4 w-4 mr-2" />
+                  Recursos
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -774,7 +774,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <Button
                     size="sm"
                     className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-                    onClick={() => router.push('/conversacion')}
+                    onClick={() => router.push('/tutor')}
                   >
                     <Mic className="h-4 w-4 mr-2" />
                     Empezar Ahora
