@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Home, Mic, MicOff, Award, TrendingUp, Sparkles, 
   Zap, CheckCircle, AlertCircle, GraduationCap, Volume2, BookOpen, Languages,
-  MessageSquare, User
+  MessageSquare, User, ChevronDown, ChevronUp, TrendingDown, PlayCircle, PauseCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AppHeader } from '@/components/app-header';
@@ -427,346 +427,380 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <AppHeader currentSection="tutor" />
       
-      {/* Tutor-Specific Bar */}
-      <div className="sticky top-16 z-40 w-full border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
-        <div className="container max-w-7xl mx-auto px-4 py-3">
+      {/* Modern Floating Header */}
+      <div className="sticky top-16 z-40 w-full border-b bg-white/80 backdrop-blur-lg shadow-sm">
+        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Badge variant="secondary" className="bg-white text-blue-600 text-xs sm:text-sm">
-                <Mic className="h-3 w-3 mr-1" />
-                AI Conversation Tutor
-              </Badge>
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
+                isListening && "bg-gradient-to-r from-blue-500 to-blue-600 animate-pulse",
+                isSpeaking && "bg-gradient-to-r from-green-500 to-green-600 animate-pulse",
+                !isListening && !isSpeaking && "bg-gradient-to-r from-indigo-500 to-purple-600"
+              )}>
+                {isListening && <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white" />}
+                {isSpeaking && <Volume2 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />}
+                {!isListening && !isSpeaking && <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-white" />}
+              </div>
+              
+              <div className="hidden sm:block">
+                <h2 className="text-sm font-bold text-gray-900">
+                  {isListening && '🎤 Escuchando...'}
+                  {isSpeaking && '🔊 Hablando...'}
+                  {!isListening && !isSpeaking && 'Tutor de IA'}
+                </h2>
+                <p className="text-xs text-gray-500">
+                  {isListening && 'Habla en inglés'}
+                  {isSpeaking && 'Escucha la respuesta'}
+                  {!isListening && !isSpeaking && 'Conversación en inglés'}
+                </p>
+              </div>
               
               {gamificationStats && (
-                <div className="hidden lg:flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
-                    <Sparkles className="h-4 w-4" />
-                    <span className="font-bold">{gamificationStats.points}</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
-                    <Award className="h-4 w-4" />
-                    <span className="font-bold">Nivel {gamificationStats.level}</span>
-                  </div>
+                <div className="hidden lg:flex items-center gap-2 ml-4">
+                  <Badge variant="secondary" className="gap-1 bg-gradient-to-r from-blue-50 to-purple-50 border-purple-200">
+                    <Award className="h-3 w-3 text-purple-600" />
+                    <span className="text-xs font-bold text-purple-900">Nivel {gamificationStats.level}</span>
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 border-orange-200">
+                    <Sparkles className="h-3 w-3 text-orange-600" />
+                    <span className="text-xs font-bold text-orange-900">{gamificationStats.points} XP</span>
+                  </Badge>
                 </div>
               )}
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button
+                variant={showAnalysis ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setShowAnalysis(!showAnalysis)}
+                className={cn(
+                  "h-8 sm:h-9 px-2 sm:px-3 text-xs transition-all",
+                  showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                )}
+              >
+                {showAnalysis ? <CheckCircle className="h-3 w-3 sm:mr-1" /> : <AlertCircle className="h-3 w-3 sm:mr-1" />}
+                <span className="hidden sm:inline">Análisis</span>
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push('/dashboard')}
-                className="text-white hover:bg-white/20"
+                onClick={resetConversation}
+                disabled={isListening || isSpeaking}
+                className="h-8 sm:h-9 px-2 sm:px-3 text-xs"
               >
-                <Home className="h-4 w-4 mr-2" />
-                Dashboard
+                <span className="hidden sm:inline">Reiniciar</span>
+                <span className="sm:hidden">🔄</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
       
-      <div className="container max-w-6xl mx-auto py-8 px-4">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-                Tutor de IA
-              </h1>
-              <p className="text-muted-foreground">
-                Habla en inglés y recibe traducción simultánea al español con análisis de pronunciación y gramática
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={showAnalysis ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowAnalysis(!showAnalysis)}
-                className="gap-2"
-              >
-                {showAnalysis ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                Análisis {showAnalysis ? 'ON' : 'OFF'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetConversation}
-                disabled={isListening || isSpeaking}
-              >
-                Reiniciar
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-          {/* Main Conversation Area */}
-          <div className="space-y-6">
-            {/* Voice Control Card */}
-            <Card className={cn(
-              "p-6 transition-all duration-300",
-              isListening && "ring-4 ring-blue-500 ring-opacity-50 shadow-lg",
-              isSpeaking && "ring-4 ring-green-500 ring-opacity-50 shadow-lg"
-            )}>
-              <div className="flex flex-col items-center space-y-6">
-                {/* Status Indicator */}
-                <div className="text-center">
-                  <div className={cn(
-                    "w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-300",
-                    isListening && "bg-blue-100 animate-pulse",
-                    isSpeaking && "bg-green-100 animate-pulse",
-                    !isListening && !isSpeaking && "bg-gray-100"
-                  )}>
-                    {isListening && <Mic className="h-16 w-16 text-blue-600" />}
-                    {isSpeaking && <Volume2 className="h-16 w-16 text-green-600" />}
-                    {!isListening && !isSpeaking && <Mic className="h-16 w-16 text-gray-400" />}
-                  </div>
-                  
-                  <h3 className="text-xl font-bold mb-2">
-                    {isListening && 'Escuchando...'}
-                    {isSpeaking && 'Tutor Hablando...'}
-                    {!isListening && !isSpeaking && 'Listo para Conversar'}
-                  </h3>
-                  
-                  <p className="text-sm text-muted-foreground">
-                    {isListening && 'Habla en inglés'}
-                    {isSpeaking && 'Escucha la respuesta del tutor'}
-                    {!isListening && !isSpeaking && 'Haz clic en el botón para comenzar'}
-                  </p>
-                </div>
-                
-                {/* Live Transcript */}
-                {transcript && (
-                  <div className="w-full p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm text-blue-900">
-                      <span className="font-medium">Tú: </span>
-                      {transcript}
-                    </p>
-                  </div>
-                )}
-                
-                {/* Analyzing Indicator */}
-                {isAnalyzing && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Zap className="h-4 w-4 animate-pulse" />
-                    Procesando tu mensaje...
-                  </div>
-                )}
-                
-                {/* Control Button */}
-                <Button
-                  size="lg"
-                  onClick={toggleConversation}
-                  disabled={isSpeaking || isAnalyzing}
-                  className={cn(
-                    "w-48 h-14 text-lg font-semibold transition-all duration-300",
-                    isListening 
-                      ? "bg-red-600 hover:bg-red-700" 
-                      : "bg-blue-600 hover:bg-blue-700"
-                  )}
-                >
-                  {isListening ? (
-                    <>
-                      <MicOff className="h-5 w-5 mr-2" />
-                      Detener
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="h-5 w-5 mr-2" />
-                      Empezar a Hablar
-                    </>
-                  )}
-                </Button>
-                
-                <p className="text-xs text-center text-muted-foreground">
-                  💡 Tip: Habla claramente en inglés. Recibirás traducción simultánea al español.
-                </p>
-              </div>
-            </Card>
-            
-            {/* Conversation History */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Historial de Conversación</h3>
-              <div className="space-y-4 max-h-[500px] overflow-y-auto">
+      <div className="container max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
+        <div className="grid lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] gap-4 lg:gap-6">
+          {/* Main Chat Area - Modern Messenger Style */}
+          <div className="flex flex-col h-[calc(100vh-180px)] sm:h-[calc(100vh-160px)]">
+            {/* Chat Container */}
+            <Card className="flex-1 flex flex-col overflow-hidden border-2 shadow-lg">
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50/50 to-white">
                 {messages.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>La conversación comenzará cuando hagas clic en "Empezar a Hablar"</p>
+                  <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 flex items-center justify-center mb-4">
+                      <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-indigo-600" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+                      ¡Listo para practicar!
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-500 max-w-sm">
+                      Presiona el botón del micrófono para empezar a hablar en inglés
+                    </p>
                   </div>
                 ) : (
                   <>
                     {messages.map((message, i) => (
-                      <div key={i} className={cn(
-                        "p-4 rounded-lg transition-all",
-                        message.type === 'user' 
-                          ? "bg-blue-50 border border-blue-200" 
-                          : "bg-green-50 border border-green-200"
-                      )}>
-                        <div className="flex items-start gap-3">
-                          <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                            message.type === 'user' ? "bg-blue-600" : "bg-green-600"
-                          )}>
-                            {message.type === 'user' ? (
-                              <User className="h-4 w-4 text-white" />
-                            ) : (
-                              <GraduationCap className="h-4 w-4 text-white" />
-                            )}
+                      <div
+                        key={i}
+                        className={cn(
+                          "flex gap-2 sm:gap-3 animate-in slide-in-from-bottom-2 duration-300",
+                          message.type === 'user' ? 'justify-end' : 'justify-start'
+                        )}
+                      >
+                        {/* Avatar */}
+                        {message.type === 'tutor' && (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                            <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                           </div>
+                        )}
+                        
+                        {/* Message Bubble */}
+                        <div className={cn(
+                          "max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 shadow-sm",
+                          message.type === 'user'
+                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-sm'
+                            : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'
+                        )}>
+                          <p className="text-xs sm:text-sm leading-relaxed break-words">{message.text}</p>
                           
-                          <div className="flex-1 space-y-2">
-                            <p className="text-xs font-medium text-muted-foreground">
-                              {message.type === 'user' ? 'Tú' : 'Tutor IA'}
-                            </p>
-                            <p className="text-sm leading-relaxed">{message.text}</p>
-                            
-                            {/* Traducción al español */}
-                            {message.translation && (
-                              <div className="flex items-start gap-2 mt-2 p-2 bg-white/50 rounded border border-gray-200">
-                                <Languages className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-gray-700 italic">{message.translation}</p>
+                          {/* Translation */}
+                          {message.translation && (
+                            <div className={cn(
+                              "mt-2 pt-2 border-t flex items-start gap-2 text-xs",
+                              message.type === 'user' 
+                                ? 'border-blue-400/30 text-blue-50'
+                                : 'border-gray-200 text-gray-600'
+                            )}>
+                              <Languages className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                              <p className="italic">{message.translation}</p>
+                            </div>
+                          )}
+                          
+                          {/* Suggested Words */}
+                          {message.suggestedWords && message.suggestedWords.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 -mx-3 sm:-mx-4 px-3 sm:px-4 py-2 rounded-b-2xl">
+                              <p className="text-xs font-medium text-yellow-900 mb-1.5 flex items-center gap-1">
+                                <BookOpen className="h-3 w-3" />
+                                Vocabulario para practicar:
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {message.suggestedWords.map((word, wi) => (
+                                  <Badge 
+                                    key={wi} 
+                                    variant="outline" 
+                                    className="bg-white text-xs py-0.5 px-2"
+                                    title={word.translation}
+                                  >
+                                    {word.term}
+                                  </Badge>
+                                ))}
                               </div>
-                            )}
-                            
-                            {/* Palabras sugeridas para practicar */}
-                            {message.suggestedWords && message.suggestedWords.length > 0 && (
-                              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <p className="text-xs font-medium text-yellow-900 mb-2 flex items-center gap-1">
-                                  <BookOpen className="h-3 w-3" />
-                                  Palabras de tu vocabulario para practicar:
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {message.suggestedWords.map((word, wi) => (
-                                    <Badge 
-                                      key={wi} 
-                                      variant="outline" 
-                                      className="bg-white text-xs"
-                                      title={word.translation}
-                                    >
-                                      {word.term}
-                                      {word.pronunciation && ` [${word.pronunciation}]`}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
+                        
+                        {/* User Avatar */}
+                        {message.type === 'user' && (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+                          </div>
+                        )}
                       </div>
                     ))}
                     <div ref={messagesEndRef} />
                   </>
                 )}
               </div>
+              
+              {/* Input Area */}
+              <div className="border-t bg-white p-3 sm:p-4">
+                {/* Live Transcript */}
+                {transcript && (
+                  <div className="mb-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-xl animate-pulse">
+                    <p className="text-xs sm:text-sm text-blue-900 flex items-center gap-2">
+                      <Mic className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 animate-pulse" />
+                      <span>{transcript}</span>
+                    </p>
+                  </div>
+                )}
+                
+                {/* Analyzing Indicator */}
+                {isAnalyzing && (
+                  <div className="mb-3 p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-xl">
+                    <p className="text-xs sm:text-sm text-purple-900 flex items-center gap-2">
+                      <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-pulse" />
+                      <span>Analizando tu mensaje...</span>
+                    </p>
+                  </div>
+                )}
+                
+                {/* Control Buttons */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Button
+                    size="lg"
+                    onClick={toggleConversation}
+                    disabled={isSpeaking || isAnalyzing}
+                    className={cn(
+                      "flex-1 h-12 sm:h-14 text-sm sm:text-base font-semibold rounded-xl transition-all duration-300 shadow-lg",
+                      isListening 
+                        ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                        : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    )}
+                  >
+                    {isListening ? (
+                      <>
+                        <MicOff className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        Detener
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        {isSpeaking ? 'Escuchando...' : 'Hablar'}
+                      </>
+                    )}
+                  </Button>
+                  
+                  {isSpeaking && (
+                    <Button
+                      size="lg"
+                      onClick={stopSpeaking}
+                      className="h-12 sm:h-14 px-4 sm:px-6 rounded-xl bg-orange-500 hover:bg-orange-600"
+                    >
+                      <PauseCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </Button>
+                  )}
+                </div>
+                
+                <p className="text-[10px] sm:text-xs text-center text-gray-500 mt-2">
+                  💡 Habla claramente en inglés para recibir análisis en tiempo real
+                </p>
+              </div>
             </Card>
             
-            {/* Analysis Panel - MEJORAS #1 y #3 */}
-            <AnalysisPanel
-              grammarAnalysis={currentAnalysis.grammar}
-              pronunciationAnalysis={currentAnalysis.pronunciation}
-              isVisible={showAnalysis}
-            />
+            {/* Analysis Panel - Mobile/Desktop */}
+            <div className="mt-4">
+              <AnalysisPanel
+                grammarAnalysis={currentAnalysis.grammar}
+                pronunciationAnalysis={currentAnalysis.pronunciation}
+                isVisible={showAnalysis}
+              />
+            </div>
           </div>
           
-          {/* Sidebar */}
-          <div className="space-y-4">
-            {/* Gamification Card */}
+          {/* Sidebar - Stats & Info */}
+          <div className="space-y-3 sm:space-y-4 lg:block hidden">
+            {/* Gamification Stats */}
             {gamificationStats && (
-              <Card className="p-4 bg-gradient-to-br from-blue-50 to-purple-50">
-                <h3 className="font-semibold mb-3 text-sm">Tu Progreso</h3>
+              <Card className="p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border-2 border-purple-200 shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm text-purple-900">Tu Progreso</h3>
+                </div>
+                
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Nivel</span>
-                    <span className="font-bold text-blue-600">{gamificationStats.level}</span>
+                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Award className="h-4 w-4 text-blue-600" />
+                      <span className="text-xs text-gray-700">Nivel</span>
+                    </div>
+                    <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                      {gamificationStats.level}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Puntos XP</span>
-                    <span className="font-bold text-purple-600">{gamificationStats.points}</span>
+                  
+                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-purple-600" />
+                      <span className="text-xs text-gray-700">Puntos XP</span>
+                    </div>
+                    <span className="text-sm font-bold text-purple-600">
+                      {gamificationStats.points}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Racha</span>
-                    <span className="font-bold text-orange-600">{gamificationStats.currentStreak} días</span>
+                  
+                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-orange-600" />
+                      <span className="text-xs text-gray-700">Racha</span>
+                    </div>
+                    <span className="text-sm font-bold text-orange-600">
+                      {gamificationStats.currentStreak} días 🔥
+                    </span>
                   </div>
                 </div>
               </Card>
             )}
             
-            {/* Vocabulario para Practicar */}
+            {/* Practice Vocabulary */}
             {practiceWords.length > 0 && (
-              <Card className="p-4">
-                <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-blue-600" />
-                  Vocabulario para Practicar
-                </h3>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {practiceWords.slice(0, 10).map((word, i) => (
-                    <div key={i} className="p-2 bg-blue-50 rounded-lg border border-blue-100">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-blue-900">{word.term}</p>
-                          {word.pronunciation && (
-                            <p className="text-xs text-blue-600">[{word.pronunciation}]</p>
-                          )}
-                          <p className="text-xs text-gray-600 mt-1">{word.translation}</p>
-                        </div>
-                        {!word.mastered && (
-                          <Badge variant="outline" className="text-xs">
-                            {word.attempts} intentos
-                          </Badge>
-                        )}
-                      </div>
+              <Card className="p-4 border-2 border-blue-200 shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 flex items-center justify-center">
+                    <BookOpen className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm text-blue-900">Vocabulario</h3>
+                </div>
+                
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                  {practiceWords.slice(0, 8).map((word, i) => (
+                    <div key={i} className="p-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:border-blue-300 transition-all">
+                      <p className="text-xs font-semibold text-blue-900">{word.term}</p>
+                      {word.pronunciation && (
+                        <p className="text-[10px] text-blue-600">[{word.pronunciation}]</p>
+                      )}
+                      <p className="text-[10px] text-gray-600 mt-0.5">{word.translation}</p>
+                      {!word.mastered && (
+                        <Badge variant="outline" className="text-[10px] mt-1 h-4">
+                          {word.attempts} intentos
+                        </Badge>
+                      )}
                     </div>
                   ))}
                 </div>
               </Card>
             )}
             
-            {/* Vocabulario Sugerido en Conversación */}
+            {/* Suggested Vocab in Conversation */}
             {suggestedVocab.length > 0 && (
-              <Card className="p-4 bg-yellow-50 border-yellow-200">
-                <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-yellow-600" />
-                  Palabras Sugeridas
-                </h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  El tutor está incluyendo estas palabras en la conversación para ayudarte a practicar:
+              <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center">
+                    <AlertCircle className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm text-yellow-900">Sugeridas</h3>
+                </div>
+                
+                <p className="text-[10px] text-gray-600 mb-2">
+                  Palabras incluidas en la conversación:
                 </p>
-                <div className="space-y-2">
+                
+                <div className="space-y-1.5">
                   {suggestedVocab.map((word, i) => (
                     <div key={i} className="p-2 bg-white rounded-lg border border-yellow-200">
-                      <p className="text-sm font-medium">{word.term}</p>
-                      <p className="text-xs text-gray-600">{word.translation}</p>
+                      <p className="text-xs font-semibold text-gray-900">{word.term}</p>
+                      <p className="text-[10px] text-gray-600">{word.translation}</p>
                     </div>
                   ))}
                 </div>
               </Card>
             )}
             
-            {/* Quick Links */}
-            <Card className="p-4">
-              <h3 className="font-semibold mb-3 text-sm">Enlaces Rápidos</h3>
+            {/* Quick Actions */}
+            <Card className="p-4 border-2 shadow-lg">
+              <h3 className="font-bold text-sm text-gray-900 mb-3">Acciones Rápidas</h3>
               <div className="space-y-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start"
+                  className="w-full justify-start text-xs hover:bg-blue-50 hover:border-blue-300"
                   onClick={() => router.push('/vocabulario')}
                 >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Vocabulario
+                  <BookOpen className="h-3.5 w-3.5 mr-2 text-blue-600" />
+                  Ver Vocabulario
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start"
+                  className="w-full justify-start text-xs hover:bg-purple-50 hover:border-purple-300"
                   onClick={() => router.push('/recursos')}
                 >
-                  <Languages className="h-4 w-4 mr-2" />
-                  Recursos
+                  <Languages className="h-3.5 w-3.5 mr-2 text-purple-600" />
+                  Recursos de Estudio
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start text-xs hover:bg-green-50 hover:border-green-300"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  <Home className="h-3.5 w-3.5 mr-2 text-green-600" />
+                  Dashboard
                 </Button>
               </div>
             </Card>
