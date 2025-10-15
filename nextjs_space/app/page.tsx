@@ -8,7 +8,7 @@ import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, Clock, Target, Users, BookOpen, TrendingUp, ArrowRight, Menu, X, MessageSquare, Mic, Award, History, BarChart3, Sparkles, Brain, Zap, Trophy, Volume2, Flame, Star } from 'lucide-react'
+import { CheckCircle, Clock, Target, Users, BookOpen, TrendingUp, ArrowRight, Menu, X, MessageSquare, Mic, Award, History, BarChart3, Sparkles, Brain, Zap, Trophy, Volume2, Flame, Star, Languages } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -412,11 +412,11 @@ export default function HomePage() {
           {/* Main features grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {[
-              { icon: MessageSquare, title: "Conversaciones Reales", desc: "Practica con 5 modos diferentes: conversación casual, reuniones de trabajo, entrevistas, emails profesionales y ejercicios de gramática.", color: "bg-blue-500", delay: 0 },
-              { icon: Mic, title: "Reconocimiento de Voz", desc: "Habla naturalmente y el AI transcribe automáticamente. Practica tu pronunciación en tiempo real sin escribir.", color: "bg-green-500", delay: 0.1 },
+              { icon: MessageSquare, title: "Conversaciones Fluidas", desc: "Practica inglés de forma natural con tu tutor de IA. Habla de cualquier tema y recibe feedback personalizado en tiempo real.", color: "bg-blue-500", delay: 0 },
+              { icon: Mic, title: "Reconocimiento de Voz", desc: "Habla en inglés y el AI transcribe automáticamente. Recibe traducción simultánea al español y practica sin escribir.", color: "bg-green-500", delay: 0.1 },
               { icon: Trophy, title: "Sistema de Gamificación", desc: "Gana puntos, sube de nivel, mantén rachas diarias y desbloquea logros. Mantén tu motivación al máximo.", color: "bg-yellow-500", delay: 0.2 },
-              { icon: BarChart3, title: "Análisis Detallado", desc: "Recibe análisis completo de cada sesión: fluidez, precisión, comprensión, vocabulario y gramática con recomendaciones personalizadas.", color: "bg-purple-500", delay: 0.3 },
-              { icon: Brain, title: "Repaso Inteligente", desc: "Sistema de repetición espaciada para vocabulario. Aprende y retén nuevas palabras de forma científicamente comprobada.", color: "bg-pink-500", delay: 0.4 },
+              { icon: Languages, title: "Traducción en Vivo", desc: "Cada mensaje del tutor incluye traducción simultánea al español. Comprende todo y aprende vocabulario nuevo de forma natural.", color: "bg-purple-500", delay: 0.3 },
+              { icon: BookOpen, title: "Vocabulario Integrado", desc: "El tutor sugiere palabras de tu vocabulario semanal para practicar. Aprende nuevas palabras en contexto durante las conversaciones.", color: "bg-pink-500", delay: 0.4 },
               { icon: History, title: "Historial Completo", desc: "Accede a todas tus conversaciones pasadas. Revisa tu progreso y repasa temas específicos cuando lo necesites.", color: "bg-orange-500", delay: 0.5 }
             ].map((feature, index) => (
               <motion.div

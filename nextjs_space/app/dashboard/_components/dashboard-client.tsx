@@ -721,8 +721,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                           <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-xs text-gray-900">5 Modos</h4>
-                          <p className="text-xs text-gray-600">Trabajo, entrevistas, más</p>
+                          <h4 className="font-semibold text-xs text-gray-900">Voz en Tiempo Real</h4>
+                          <p className="text-xs text-gray-600">Traducción simultánea</p>
                         </div>
                       </div>
                     </div>
@@ -742,11 +742,11 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                          <TrendingUp className="h-3.5 w-3.5 text-orange-600" />
+                          <BookOpen className="h-3.5 w-3.5 text-orange-600" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-xs text-gray-900">Análisis AI</h4>
-                          <p className="text-xs text-gray-600">Feedback detallado</p>
+                          <h4 className="font-semibold text-xs text-gray-900">Vocabulario Sugerido</h4>
+                          <p className="text-xs text-gray-600">Palabras para practicar</p>
                         </div>
                       </div>
                     </div>
@@ -761,7 +761,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                       </div>
                       <div className="flex items-center gap-1 text-emerald-900">
                         <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                        <span>Sistema de repetición</span>
+                        <span>Traducción simultánea</span>
                       </div>
                       <div className="flex items-center gap-1 text-emerald-900">
                         <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
