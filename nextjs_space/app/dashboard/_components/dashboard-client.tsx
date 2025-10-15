@@ -51,6 +51,7 @@ import {
 import { getProfileImageUrl } from '@/lib/utils'
 import { InviteFriendsModal } from '@/components/invite-friends-modal'
 import { AppHeader } from '@/components/app-header'
+import { SectionNavigator } from '@/components/section-navigator'
 
 // Helper function to format Markdown text
 function formatMarkdownText(text: string | null | undefined): React.ReactNode {
@@ -404,103 +405,30 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Header */}
       <AppHeader currentSection="dashboard" />
 
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex justify-between items-center">
-            <div className="flex space-x-8">
-              <button
-                onClick={() => setCurrentView('overview')}
-                className={`py-4 text-sm font-medium border-b-2 ${
-                  currentView === 'overview'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Vista General
-              </button>
-              <button
-                onClick={() => setCurrentView('week')}
-                className={`py-4 text-sm font-medium border-b-2 ${
-                  currentView === 'week'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Vista Semanal
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                data-tour="nav-tutor"
-                size="sm"
-                onClick={() => router.push('/tutor')}
-                className="my-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                AI Tutor
-              </Button>
-              <Button
-                data-tour="nav-vocabulary"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/vocabulario')}
-                className="my-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800"
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Vocabulario
-              </Button>
-              <Button
-                data-tour="nav-resources"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/recursos')}
-                className="my-2"
-              >
-                <Library className="h-4 w-4 mr-2" />
-                Recursos
-              </Button>
-              <Button
-                data-tour="nav-guide"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/guia')}
-                className="my-2"
-              >
-                <HelpCircle className="h-4 w-4 mr-2" />
-                Guía de Uso
-              </Button>
-            </div>
+      {/* Section Navigator */}
+      <SectionNavigator 
+        currentSection="dashboard"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant={currentView === 'overview' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setCurrentView('overview')}
+              className="text-xs"
+            >
+              Vista General
+            </Button>
+            <Button
+              variant={currentView === 'week' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setCurrentView('week')}
+              className="text-xs"
+            >
+              Vista Semanal
+            </Button>
           </div>
-
-          {/* Mobile Navigation - Tabs only */}
-          <div className="md:hidden flex justify-center">
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setCurrentView('overview')}
-                className={`py-3 px-4 text-sm font-medium border-b-2 ${
-                  currentView === 'overview'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                General
-              </button>
-              <button
-                onClick={() => setCurrentView('week')}
-                className={`py-3 px-4 text-sm font-medium border-b-2 ${
-                  currentView === 'week'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                Semanal
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+        }
+      />
 
       {/* Compact Progress Stats */}
       <section className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">

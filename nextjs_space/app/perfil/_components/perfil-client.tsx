@@ -60,6 +60,7 @@ import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { AppHeader } from '@/components/app-header'
+import { SectionNavigator } from '@/components/section-navigator'
 
 interface UserData {
   id: string
@@ -424,22 +425,8 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
       {/* Header */}
       <AppHeader currentSection="perfil" />
 
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard')}
-              className="my-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* Section Navigator - Show Dashboard by default since Perfil is not in main nav */}
+      <SectionNavigator currentSection="dashboard" />
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-8">

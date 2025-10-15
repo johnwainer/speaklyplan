@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getProfileImageUrl } from '@/lib/utils'
 import { AppHeader } from '@/components/app-header'
+import { SectionNavigator } from '@/components/section-navigator'
 import { 
   BookOpen, Target, Calendar, Library, TrendingUp, 
   Users, Clock, Lightbulb, CheckCircle2, XCircle, 
@@ -607,22 +608,8 @@ export default function GuiaClient({ user }: GuiaClientProps) {
       {/* Header */}
       <AppHeader currentSection="guia" />
 
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard')}
-              className="my-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* Section Navigator */}
+      <SectionNavigator currentSection="guia" />
 
       {/* Main Content */}
       <main className="py-8 px-4">

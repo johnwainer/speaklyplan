@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { getProfileImageUrl } from '@/lib/utils'
 import { AppHeader } from '@/components/app-header'
+import { SectionNavigator } from '@/components/section-navigator'
 import { 
   BookOpen, ArrowLeft, LogOut, User, 
   Smartphone, Globe, Youtube, Headphones, 
@@ -260,22 +261,8 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       {/* Header */}
       <AppHeader currentSection="recursos" />
 
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard')}
-              className="my-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* Section Navigator */}
+      <SectionNavigator currentSection="recursos" />
 
       {/* Main Content */}
       <main className="py-8 px-4">

@@ -33,6 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { getProfileImageUrl } from '@/lib/utils'
 import { AppHeader } from '@/components/app-header'
+import { SectionNavigator } from '@/components/section-navigator'
 
 interface VocabularyTerm {
   id: string
@@ -338,22 +339,8 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
       {/* Header */}
       <AppHeader currentSection="vocabulario" />
 
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard')}
-              className="my-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* Section Navigator */}
+      <SectionNavigator currentSection="vocabulario" />
 
       {/* How to Use - Pronunciation Features */}
       <section className="py-3 sm:py-4 px-3 sm:px-4 relative overflow-hidden">

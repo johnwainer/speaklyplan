@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AppHeader } from '@/components/app-header';
+import { SectionNavigator } from '@/components/section-navigator';
 import { cn } from '@/lib/utils';
 import { AnalysisPanel } from './analysis-panel';
 
@@ -537,81 +538,77 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <AppHeader currentSection="tutor" />
       
-      {/* Modern Floating Header */}
-      <div className="sticky top-16 z-40 w-full border-b bg-white/80 backdrop-blur-lg shadow-sm">
-        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+      {/* Section Navigator */}
+      <SectionNavigator 
+        currentSection="tutor"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant={showAnalysis ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowAnalysis(!showAnalysis)}
+              className={cn(
+                "h-8 text-xs transition-all",
+                showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+              )}
+            >
+              {showAnalysis ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
+              Análisis
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetConversation}
+              disabled={isListening || isSpeaking}
+              className="h-8 text-xs"
+            >
+              Reiniciar
+            </Button>
+          </div>
+        }
+      />
+
+      {/* Status Header */}
+      <div className="border-b bg-white/90 backdrop-blur-sm">
+        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className={cn(
-                "w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
+                "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300",
                 isListening && "bg-gradient-to-r from-blue-500 to-blue-600 animate-pulse",
                 isSpeaking && "bg-gradient-to-r from-green-500 to-green-600 animate-pulse",
                 !isListening && !isSpeaking && "bg-gradient-to-r from-indigo-500 to-purple-600"
               )}>
-                {isListening && <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white" />}
-                {isSpeaking && <Volume2 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />}
-                {!isListening && !isSpeaking && <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-white" />}
+                {isListening && <Mic className="h-4 w-4 text-white" />}
+                {isSpeaking && <Volume2 className="h-4 w-4 text-white" />}
+                {!isListening && !isSpeaking && <GraduationCap className="h-4 w-4 text-white" />}
               </div>
               
               <div className="hidden sm:block">
-                <h2 className="text-sm font-bold text-gray-900">
+                <h2 className="text-xs font-bold text-gray-900">
                   {isListening && '🎤 Escuchando...'}
-                  {isSpeaking && (
-                    <span className="flex items-center gap-1">
-                      <Volume2 className="h-4 w-4 text-green-600 animate-pulse" />
-                      🔊 Tutor hablando...
-                    </span>
-                  )}
+                  {isSpeaking && '🔊 Tutor hablando...'}
                   {!isListening && !isSpeaking && 'Tutor de IA'}
                 </h2>
-                <p className="text-xs text-gray-500">
+                <p className="text-[10px] text-gray-500">
                   {isListening && 'Habla en inglés'}
-                  {isSpeaking && (
-                    <span className="text-green-600 font-semibold animate-pulse">
-                      Escucha el audio del tutor 🔊
-                    </span>
-                  )}
+                  {isSpeaking && 'Escucha el audio del tutor 🔊'}
                   {!isListening && !isSpeaking && 'Conversación en inglés'}
                 </p>
               </div>
               
               {gamificationStats && (
-                <div className="hidden lg:flex items-center gap-2 ml-4">
-                  <Badge variant="secondary" className="gap-1 bg-gradient-to-r from-blue-50 to-purple-50 border-purple-200">
+                <div className="hidden lg:flex items-center gap-1.5 ml-3">
+                  <Badge variant="secondary" className="gap-1 text-[10px] px-2 py-0.5">
                     <Award className="h-3 w-3 text-purple-600" />
-                    <span className="text-xs font-bold text-purple-900">Nivel {gamificationStats.level}</span>
+                    Nivel {gamificationStats.level}
                   </Badge>
-                  <Badge variant="secondary" className="gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 border-orange-200">
+                  <Badge variant="secondary" className="gap-1 text-[10px] px-2 py-0.5">
                     <Sparkles className="h-3 w-3 text-orange-600" />
-                    <span className="text-xs font-bold text-orange-900">{gamificationStats.points} XP</span>
+                    {gamificationStats.points} XP
                   </Badge>
                 </div>
               )}
-            </div>
-            
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Button
-                variant={showAnalysis ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setShowAnalysis(!showAnalysis)}
-                className={cn(
-                  "h-8 sm:h-9 px-2 sm:px-3 text-xs transition-all",
-                  showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-                )}
-              >
-                {showAnalysis ? <CheckCircle className="h-3 w-3 sm:mr-1" /> : <AlertCircle className="h-3 w-3 sm:mr-1" />}
-                <span className="hidden sm:inline">Análisis</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetConversation}
-                disabled={isListening || isSpeaking}
-                className="h-8 sm:h-9 px-2 sm:px-3 text-xs"
-              >
-                <span className="hidden sm:inline">Reiniciar</span>
-                <span className="sm:hidden">🔄</span>
-              </Button>
             </div>
           </div>
         </div>
