@@ -135,13 +135,6 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
                         {section.description}
                       </span>
                     </div>
-
-                    {/* Active Indicator */}
-                    {isActive && (
-                      <div className="absolute -bottom-[9px] left-1/2 -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-50" 
-                           style={{ color: section.color.replace('text-', '') }}
-                      />
-                    )}
                   </button>
                   
                   {/* Separator */}
