@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { analyzeGrammar, analyzePronunciation, translateToSpanish } from '@/lib/ai/tutor-service';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const { userMessage, conversationHistory, practiceWords } = await req.json();
+    const { userMessage, conversationHistory, practiceWords, enableAnalysis = true } = await req.json();
     
     if (!userMessage?.trim()) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -133,10 +134,91 @@ Respond naturally and keep the conversation flowing.`
       }
     }
     
+    // MEJORA #1 y #3: Análisis de pronunciación y gramática en paralelo
+    let grammarAnalysis = null;
+    let pronunciationAnalysis = null;
+    
+    if (enableAnalysis && userMessage.trim().split(' ').length >= 3) {
+      // Obtener nivel del usuario
+      const learningContext = await prisma.learningContext.findUnique({
+        where: { userId: session.user.id }
+      });
+      
+      const userLevel = learningContext?.currentLevel || 'B1';
+      
+      // Ejecutar análisis en paralelo para mejor performance
+      const [grammar, pronunciation] = await Promise.all([
+        analyzeGrammar(userMessage, userLevel).catch(err => {
+          console.error('Grammar analysis error:', err);
+          return null;
+        }),
+        analyzePronunciation(userMessage, userLevel).catch(err => {
+          console.error('Pronunciation analysis error:', err);
+          return null;
+        })
+      ]);
+      
+      grammarAnalysis = grammar;
+      pronunciationAnalysis = pronunciation;
+      
+      // Guardar errores comunes para tracking (Modo Tolerante - no interrumpir)
+      if (grammar?.errors && grammar.errors.length > 0) {
+        for (const error of grammar.errors) {
+          try {
+            await prisma.commonMistake.upsert({
+              where: {
+                userId_mistake: {
+                  userId: session.user.id,
+                  mistake: error.original
+                }
+              },
+              update: {
+                occurrences: { increment: 1 },
+                lastSeenAt: new Date(),
+                correction: error.correction,
+                explanation: error.explanationSpanish || error.explanation
+              },
+              create: {
+                userId: session.user.id,
+                errorType: 'grammar',
+                mistake: error.original,
+                correction: error.correction,
+                explanation: error.explanationSpanish || error.explanation,
+                occurrences: 1
+              }
+            });
+          } catch (e) {
+            console.log('Error saving common mistake:', e);
+          }
+        }
+      }
+      
+      // Guardar análisis de pronunciación para tracking de patrones
+      if (pronunciation && pronunciation.phonemeErrors?.length > 0) {
+        try {
+          await prisma.voiceSession.create({
+            data: {
+              userId: session.user.id,
+              transcript: userMessage,
+              pronunciationScore: pronunciation.pronunciationScore || 85,
+              fluencyScore: pronunciation.fluencyScore || 85,
+              accentScore: 85,
+              phonemeErrors: pronunciation.phonemeErrors || [],
+              suggestions: pronunciation.suggestions || []
+            }
+          });
+        } catch (e) {
+          console.log('Error saving voice session:', e);
+        }
+      }
+    }
+    
     return NextResponse.json({
       response: tutorResponse,
       translation,
-      suggestedWords: usedWords.length > 0 ? usedWords : null
+      suggestedWords: usedWords.length > 0 ? usedWords : null,
+      grammarAnalysis,
+      pronunciationAnalysis
     });
     
   } catch (error) {
@@ -145,7 +227,9 @@ Respond naturally and keep the conversation flowing.`
       { 
         response: "I see. Could you tell me more about that?",
         translation: "Ya veo. ¿Podrías contarme más sobre eso?",
-        suggestedWords: null
+        suggestedWords: null,
+        grammarAnalysis: null,
+        pronunciationAnalysis: null
       },
       { status: 200 } // Return 200 con fallback para no romper la UX
     );

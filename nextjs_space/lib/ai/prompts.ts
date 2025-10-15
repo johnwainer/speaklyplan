@@ -101,14 +101,19 @@ Return ONLY a JSON object with this exact structure (no markdown, no code blocks
   "errors": [
     {
       "type": "verb_tense",
+      "category": "grammar",
       "original": "I go yesterday",
       "correction": "I went yesterday",
-      "explanation": "Use past tense for past actions"
+      "explanation": "Use past tense for past actions",
+      "explanationSpanish": "Usa el pasado simple para acciones pasadas",
+      "severity": "medium",
+      "position": 2
     }
   ],
   "feedback": {
     "hasErrors": true,
-    "suggestion": "Good try! Remember to use past tense when talking about yesterday."
+    "suggestion": "Good try! Remember to use past tense when talking about yesterday.",
+    "accuracyScore": 75
   }
 }
 
@@ -117,11 +122,74 @@ If there are no errors, return:
   "errors": [],
   "feedback": {
     "hasErrors": false,
-    "suggestion": "Great job! Your grammar is correct."
+    "suggestion": "Great job! Your grammar is correct.",
+    "accuracyScore": 100
   }
 }
 
-Focus on the most important 1-2 errors only. Be encouraging.
+Error types: verb_tense, subject_verb, preposition, article, word_order, plural_singular
+Severity: low, medium, high
+Focus on the most important 1-3 errors only. Be encouraging.
+`;
+
+export const getPronunciationAnalysisPrompt = (text: string, level: string) => `
+You are an expert phonetics analyzer for Spanish speakers learning English. Analyze this transcribed speech for pronunciation issues:
+
+TEXT: "${text}"
+LEVEL: ${level}
+
+Common issues for Spanish speakers:
+- TH sounds (/θ/, /ð/) often pronounced as /t/ or /d/
+- R sound (English /r/ vs Spanish rolled /r/)
+- V sound (/v/) often confused with /b/
+- Vowel length distinctions (ship vs sheep)
+- Final consonants often dropped
+- H sound often silent
+
+Return ONLY a JSON object with this structure:
+{
+  "pronunciationScore": 85,
+  "fluencyScore": 80,
+  "phonemeErrors": [
+    {
+      "word": "think",
+      "phoneme": "th",
+      "error": "Pronounced as /t/ instead of /θ/",
+      "errorSpanish": "Pronunciado como /t/ en lugar de /θ/",
+      "correction": "Place tongue between teeth and blow air",
+      "correctionSpanish": "Coloca la lengua entre los dientes y sopla aire",
+      "severity": "medium",
+      "position": 0
+    }
+  ],
+  "strengths": ["Good rhythm", "Clear enunciation"],
+  "areasToImprove": ["TH sounds", "R pronunciation"],
+  "suggestions": [
+    "Practice minimal pairs: think/sink, that/dat",
+    "Record yourself saying TH words and compare with native"
+  ],
+  "suggestionsSpanish": [
+    "Practica pares mínimos: think/sink, that/dat",
+    "Grábate diciendo palabras con TH y compara con nativos"
+  ],
+  "overallFeedback": "Good effort! Focus on TH sounds this week.",
+  "overallFeedbackSpanish": "¡Buen trabajo! Enfócate en los sonidos TH esta semana."
+}
+
+If pronunciation is perfect or text is too short:
+{
+  "pronunciationScore": 100,
+  "fluencyScore": 100,
+  "phonemeErrors": [],
+  "strengths": ["Excellent pronunciation!"],
+  "areasToImprove": [],
+  "suggestions": ["Keep up the great work!"],
+  "suggestionsSpanish": ["¡Sigue así!"],
+  "overallFeedback": "Perfect pronunciation!",
+  "overallFeedbackSpanish": "¡Pronunciación perfecta!"
+}
+
+Be specific, encouraging, and focus on 1-3 most important issues.
 `;
 
 export const getTranslationPrompt = (text: string) => `

@@ -16,7 +16,6 @@ import {
 import { toast } from 'sonner';
 import { AppHeader } from '@/components/app-header';
 import { cn } from '@/lib/utils';
-import { AnalysisPanel } from './analysis-panel';
 
 interface TutorClientProps {
   initialData: {
@@ -36,35 +35,12 @@ interface VocabWord {
   mastered: boolean;
 }
 
-interface GrammarAnalysis {
-  errors: any[];
-  feedback: {
-    hasErrors: boolean;
-    suggestion: string;
-    accuracyScore: number;
-  };
-}
-
-interface PronunciationAnalysis {
-  pronunciationScore: number;
-  fluencyScore: number;
-  phonemeErrors: any[];
-  strengths: string[];
-  areasToImprove: string[];
-  suggestions: string[];
-  suggestionsSpanish?: string[];
-  overallFeedback: string;
-  overallFeedbackSpanish?: string;
-}
-
 interface Message {
   type: 'user' | 'tutor';
   text: string;
   translation?: string;
   timestamp: Date;
   suggestedWords?: VocabWord[];
-  grammarAnalysis?: GrammarAnalysis | null;
-  pronunciationAnalysis?: PronunciationAnalysis | null;
 }
 
 export default function TutorClient({ initialData, userId }: TutorClientProps) {
@@ -77,11 +53,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const [gamificationStats, setGamificationStats] = useState<any>(null);
   const [suggestedVocab, setSuggestedVocab] = useState<VocabWord[]>([]);
   const [practiceWords, setPracticeWords] = useState<VocabWord[]>([]);
-  const [showAnalysis, setShowAnalysis] = useState(true);
-  const [currentAnalysis, setCurrentAnalysis] = useState<{
-    grammar: GrammarAnalysis | null;
-    pronunciation: PronunciationAnalysis | null;
-  }>({ grammar: null, pronunciation: null });
   
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
@@ -272,23 +243,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       const data = await response.json();
       
-      // Actualizar análisis actual
-      if (data.grammarAnalysis || data.pronunciationAnalysis) {
-        setCurrentAnalysis({
-          grammar: data.grammarAnalysis,
-          pronunciation: data.pronunciationAnalysis
-        });
-      }
-      
-      // Agregar respuesta del tutor con análisis
+      // Agregar respuesta del tutor
       const tutorMessage: Message = {
         type: 'tutor',
         text: data.response,
         translation: data.translation,
         timestamp: new Date(),
-        suggestedWords: data.suggestedWords,
-        grammarAnalysis: data.grammarAnalysis,
-        pronunciationAnalysis: data.pronunciationAnalysis
+        suggestedWords: data.suggestedWords
       };
       
       setMessages(prev => [...prev, tutorMessage]);
@@ -297,14 +258,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       // Actualizar vocabulario sugerido si hay
       if (data.suggestedWords && data.suggestedWords.length > 0) {
         setSuggestedVocab(data.suggestedWords);
-      }
-      
-      // Mostrar toast con resumen del análisis
-      if (data.pronunciationAnalysis && data.pronunciationAnalysis.pronunciationScore < 80) {
-        toast.info(`💡 Score de pronunciación: ${data.pronunciationAnalysis.pronunciationScore}/100`);
-      }
-      if (data.grammarAnalysis && data.grammarAnalysis.errors.length > 0) {
-        toast.info(`📝 Se detectaron ${data.grammarAnalysis.errors.length} error(es) gramatical(es)`);
       }
       
       // Hablar la respuesta
@@ -478,28 +431,16 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 Tutor de IA
               </h1>
               <p className="text-muted-foreground">
-                Habla en inglés y recibe traducción simultánea al español con análisis de pronunciación y gramática
+                Habla en inglés y recibe traducción simultánea al español
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={showAnalysis ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowAnalysis(!showAnalysis)}
-                className="gap-2"
-              >
-                {showAnalysis ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                Análisis {showAnalysis ? 'ON' : 'OFF'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetConversation}
-                disabled={isListening || isSpeaking}
-              >
-                Reiniciar
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={resetConversation}
+              disabled={isListening || isSpeaking}
+            >
+              Reiniciar
+            </Button>
           </div>
         </div>
         
@@ -663,13 +604,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 )}
               </div>
             </Card>
-            
-            {/* Analysis Panel - MEJORAS #1 y #3 */}
-            <AnalysisPanel
-              grammarAnalysis={currentAnalysis.grammar}
-              pronunciationAnalysis={currentAnalysis.pronunciation}
-              isVisible={showAnalysis}
-            />
           </div>
           
           {/* Sidebar */}

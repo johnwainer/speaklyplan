@@ -293,6 +293,7 @@ model CommonMistake {
   lastSeenAt   DateTime @default(now())
   mastered     Boolean  @default(false)
   
+  @@unique([userId, mistake])
   @@index([userId, mastered])
 }
 
