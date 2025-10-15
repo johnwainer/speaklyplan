@@ -23,9 +23,11 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       content: (
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">¡Bienvenido a SpeaklyPlan! 🎉</h2>
-          <p className="text-gray-700">
-            Te voy a mostrar una guía rápida de todas las secciones de tu plan de aprendizaje. 
-            Puedes saltar esta guía en cualquier momento.
+          <p className="text-gray-700 mb-3">
+            Te voy a mostrar una guía rápida del Dashboard para que sepas cómo aprovechar al máximo tu plan de aprendizaje.
+          </p>
+          <p className="text-sm text-gray-600">
+            Puedes saltar esta guía en cualquier momento y volver a verla haciendo clic en el botón de ayuda (?) en la esquina inferior izquierda.
           </p>
         </div>
       ),
@@ -33,86 +35,46 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       disableBeacon: true,
     },
     {
-      target: '[data-tour="pending-activities"]',
+      target: '[data-tour="user-menu"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📝 ¡Empieza aquí!</h3>
-          <p className="text-gray-700">
-            Esta es tu lista de tareas pendientes. Aquí verás las actividades que debes completar hoy. 
-            Las actividades se desbloquean en orden, así que completa una para avanzar a la siguiente.
+          <h3 className="text-lg font-bold mb-2">👤 Tu Perfil</h3>
+          <p className="text-gray-700 mb-3">
+            Haz clic en tu nombre para acceder a opciones importantes:
           </p>
+          <div className="space-y-2">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+              <p className="font-semibold text-blue-900 text-sm mb-1">📝 Mi Perfil</p>
+              <p className="text-xs text-gray-700">
+                Actualiza tu foto, datos personales y contraseña
+              </p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+              <p className="font-semibold text-purple-900 text-sm mb-1">👥 Invitar Amigos</p>
+              <p className="text-xs text-gray-700">
+                Comparte SpeaklyPlan con amigos que quieran aprender inglés
+              </p>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+              <p className="font-semibold text-red-900 text-sm mb-1">🚪 Cerrar Sesión</p>
+              <p className="text-xs text-gray-700">
+                Sal de tu cuenta de forma segura
+              </p>
+            </div>
+          </div>
         </div>
       ),
       placement: 'bottom',
     },
     {
-      target: '[data-tour="progress-sidebar"]',
+      target: '[data-tour="nav-dashboard"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📊 Tu Progreso</h3>
+          <h3 className="text-lg font-bold mb-2">🏠 Dashboard</h3>
           <p className="text-gray-700">
-            Aquí puedes ver tu nivel actual, puntos de experiencia y progreso hacia el siguiente nivel. 
-            ¡Gana XP completando actividades y usando el Tutor AI!
+            <strong>Aquí estás ahora.</strong> Es tu centro de control principal donde ves tu progreso, 
+            actividades pendientes y estadísticas de aprendizaje.
           </p>
-        </div>
-      ),
-      placement: 'left',
-    },
-    {
-      target: '[data-tour="daily-missions"]',
-      content: (
-        <div>
-          <h3 className="text-lg font-bold mb-2">🎯 Misiones Diarias</h3>
-          <p className="text-gray-700">
-            Completa estas misiones diarias para ganar puntos extra. Las misiones se reinician cada día 
-            y te ayudan a mantener una práctica constante.
-          </p>
-        </div>
-      ),
-      placement: 'left',
-    },
-    {
-      target: '[data-tour="weekly-plan"]',
-      content: (
-        <div>
-          <h3 className="text-lg font-bold mb-2">📅 Plan Semanal</h3>
-          <p className="text-gray-700">
-            Este es tu plan completo de 24 semanas. Puedes navegar entre semanas, ver tu progreso 
-            y agregar notas o reflexiones personales para cada semana.
-          </p>
-        </div>
-      ),
-      placement: 'top',
-    },
-    {
-      target: '[data-tour="user-menu"]',
-      content: (
-        <div>
-          <h3 className="text-lg font-bold mb-2">👤 Menú de Usuario</h3>
-          <p className="text-gray-700 mb-3">
-            Haz clic en tu nombre para abrir el menú desplegable con opciones importantes:
-          </p>
-          <div className="space-y-3">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="font-semibold text-blue-900 mb-1">📝 Mi Perfil</p>
-              <p className="text-sm text-gray-700">
-                Personaliza tu foto de perfil, actualiza tus datos personales y cambia tu contraseña.
-              </p>
-            </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-              <p className="font-semibold text-purple-900 mb-1">👥 Invitar Amigos</p>
-              <p className="text-sm text-gray-700">
-                ¿Conoces a alguien que también quiere aprender inglés? Comparte SpeaklyPlan con ellos. 
-                ¡Aprender juntos es más motivador!
-              </p>
-            </div>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="font-semibold text-red-900 mb-1">🚪 Cerrar Sesión</p>
-              <p className="text-sm text-gray-700">
-                Sal de tu cuenta de forma segura cuando termines.
-              </p>
-            </div>
-          </div>
         </div>
       ),
       placement: 'bottom',
@@ -121,11 +83,16 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       target: '[data-tour="nav-tutor"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">🤖 Tutor AI</h3>
-          <p className="text-gray-700">
-            Tu profesor de inglés personal disponible 24/7. Practica conversaciones en diferentes contextos: 
-            casual, reuniones, entrevistas, emails y más. ¡Recibe feedback instantáneo!
+          <h3 className="text-lg font-bold mb-2">🤖 Tutor de IA</h3>
+          <p className="text-gray-700 mb-2">
+            Tu profesor personal de inglés disponible 24/7. Aquí puedes:
           </p>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li>Practicar conversaciones reales en diferentes contextos</li>
+            <li>Recibir feedback instantáneo sobre gramática y vocabulario</li>
+            <li>Usar reconocimiento de voz para mejorar tu pronunciación</li>
+            <li>Ganar XP y puntos por cada sesión de práctica</li>
+          </ul>
         </div>
       ),
       placement: 'bottom',
@@ -134,19 +101,18 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       target: '[data-tour="nav-vocabulary"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📚 Vocabulario Interactivo</h3>
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-3">
-            <p className="font-bold text-emerald-700 mb-1">✨ NOVEDAD: Práctica de Pronunciación</p>
-            <p className="text-sm text-gray-700">Ahora cada término incluye herramientas de pronunciación:</p>
+          <h3 className="text-lg font-bold mb-2">📚 Vocabulario</h3>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 mb-2">
+            <p className="font-bold text-emerald-700 text-sm mb-1">✨ Con Práctica de Pronunciación</p>
           </div>
-          <div className="space-y-2 text-sm text-gray-700">
-            <p>🔊 <strong>Escuchar:</strong> Reproduce la pronunciación correcta con voz nativa</p>
-            <p>🎤 <strong>Practicar:</strong> Graba tu pronunciación con reconocimiento de voz</p>
-            <p>⭐ <strong>Calificar:</strong> Recibe puntuación 0-100 y feedback instantáneo</p>
-          </div>
-          <p className="text-gray-700 mt-3">
-            Más de 1200 términos organizados en 12 categorías profesionales para dominar.
+          <p className="text-gray-700 mb-2">
+            Más de 1,200 términos profesionales organizados en 12 categorías:
           </p>
+          <div className="space-y-1 text-sm text-gray-700">
+            <p>🔊 <strong>Escuchar:</strong> Pronunciación con voz nativa</p>
+            <p>🎤 <strong>Practicar:</strong> Graba y recibe calificación 0-100</p>
+            <p>📊 <strong>Seguimiento:</strong> Ve tu progreso por categoría</p>
+          </div>
         </div>
       ),
       placement: 'bottom',
@@ -157,8 +123,9 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
         <div>
           <h3 className="text-lg font-bold mb-2">🎓 Recursos</h3>
           <p className="text-gray-700">
-            Encuentra recursos externos recomendados: apps, podcasts, videos y cursos 
-            para complementar tu aprendizaje.
+            Recursos externos curados: apps recomendadas (Duolingo, HelloTalk), 
+            podcasts para CTOs, canales de YouTube, y más herramientas para 
+            complementar tu aprendizaje.
           </p>
         </div>
       ),
@@ -170,25 +137,201 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
         <div>
           <h3 className="text-lg font-bold mb-2">📖 Guía de Uso</h3>
           <p className="text-gray-700">
-            Guía completa e interactiva sobre cómo usar la plataforma, 
-            con tutoriales, FAQs y consejos para aprovechar al máximo tu aprendizaje.
+            Guía completa e interactiva con tutoriales paso a paso, checklist de inicio, 
+            tips diarios, FAQs y consejos para aprovechar al máximo la plataforma.
           </p>
         </div>
       ),
       placement: 'bottom',
     },
     {
+      target: '.py-3.px-4.bg-gradient-to-r',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">📊 Estadísticas Rápidas</h3>
+          <p className="text-gray-700 mb-2">
+            Aquí ves de un vistazo tus métricas más importantes:
+          </p>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                <span className="text-xs">📈</span>
+              </div>
+              <span><strong>Porcentaje completado:</strong> Tu progreso total del plan</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                <span className="text-xs">🔥</span>
+              </div>
+              <span><strong>Racha actual:</strong> Días consecutivos practicando</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
+                <span className="text-xs">📅</span>
+              </div>
+              <span><strong>Semana actual:</strong> En qué parte del plan estás</span>
+            </div>
+          </div>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+    {
+      target: '[data-tour="pending-activities"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">🎯 ¡Empieza aquí!</h3>
+          <p className="text-gray-700 mb-2">
+            Tu lista de actividades pendientes de la semana actual. Cada actividad incluye:
+          </p>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li><strong>Título y descripción:</strong> Qué debes hacer</li>
+            <li><strong>Duración estimada:</strong> Tiempo que te tomará</li>
+            <li><strong>Categoría:</strong> Tipo de actividad (lectura, conversación, etc.)</li>
+          </ul>
+          <p className="text-sm text-gray-600 mt-2">
+            💡 Haz clic en cualquier actividad para ver todos los detalles y marcarla como completada.
+          </p>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+    {
+      target: '.border-emerald-500',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">🎤 Tutor de IA - Acceso Rápido</h3>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-2">
+            <p className="font-bold text-yellow-800 text-sm">✨ NUEVA FUNCIÓN</p>
+          </div>
+          <p className="text-gray-700 mb-2">
+            Acceso directo a tu tutor personal con características destacadas:
+          </p>
+          <div className="space-y-1 text-sm text-gray-700">
+            <p>🗣️ <strong>Voz en tiempo real:</strong> Conversaciones fluidas</p>
+            <p>🌐 <strong>Traducción simultánea:</strong> Español ↔ Inglés</p>
+            <p>🎮 <strong>Gamificación:</strong> Gana XP en cada sesión</p>
+            <p>📚 <strong>Vocabulario sugerido:</strong> Palabras para practicar</p>
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            Disponible 24/7 · Sin límites de uso
+          </p>
+        </div>
+      ),
+      placement: 'left',
+    },
+    {
+      target: '[data-tour="weekly-plan"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">📅 Tu Plan de 24 Semanas</h3>
+          <p className="text-gray-700 mb-2">
+            El plan completo estructurado profesionalmente. Aquí puedes:
+          </p>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside mb-2">
+            <li>Ver el progreso de cada semana (0% a 100%)</li>
+            <li>Navegar entre semanas con los botones de navegación</li>
+            <li>Marcar actividades como completadas</li>
+            <li>Agregar notas y reflexiones personales</li>
+            <li>Ver detalles completos de cada actividad</li>
+          </ul>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+            <p className="text-xs text-gray-700">
+              <strong>Tip:</strong> Usa el botón "Vista Semanal" arriba para ver solo una semana, 
+              o "Vista General" para ver todo el progreso de un vistazo.
+            </p>
+          </div>
+        </div>
+      ),
+      placement: 'top',
+    },
+    {
+      target: '[data-tour="progress-sidebar"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">🏆 Sistema de Gamificación</h3>
+          <p className="text-gray-700 mb-2">
+            Tu progreso gamificado para mantenerte motivado:
+          </p>
+          <div className="space-y-2 text-sm">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+              <p className="font-semibold text-purple-900 mb-1">Nivel y XP</p>
+              <p className="text-xs text-gray-700">
+                Gana experiencia completando actividades y usando el tutor. 
+                Cada nivel desbloqueado te acerca más a la fluidez.
+              </p>
+            </div>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
+              <p className="font-semibold text-orange-900 mb-1">Rachas</p>
+              <p className="text-xs text-gray-700">
+                Mantén tu racha diaria practicando todos los días. 
+                ¡Tu racha actual y récord personal se muestran aquí!
+              </p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+              <p className="font-semibold text-blue-900 mb-1">Actividades</p>
+              <p className="text-xs text-gray-700">
+                Contador de actividades completadas vs. total del plan.
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+      placement: 'left',
+    },
+    {
+      target: '[data-tour="daily-missions"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">🎯 Misiones Diarias y Semanales</h3>
+          <p className="text-gray-700 mb-2">
+            Completa misiones para ganar XP adicional:
+          </p>
+          <div className="space-y-2 text-sm">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+              <p className="font-semibold text-yellow-900 text-sm mb-1">⚡ Práctica Diaria (50 XP)</p>
+              <p className="text-xs text-gray-700">Completa 3 actividades hoy</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+              <p className="font-semibold text-blue-900 text-sm mb-1">💬 Sesión con el Tutor (30 XP)</p>
+              <p className="text-xs text-gray-700">Practica 10 minutos con el Tutor AI</p>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+              <p className="font-semibold text-green-900 text-sm mb-1">📚 Vocabulario (25 XP)</p>
+              <p className="text-xs text-gray-700">Aprende 5 palabras nuevas</p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+              <p className="font-semibold text-purple-900 text-sm mb-1">🏆 Semana Perfecta (200 XP)</p>
+              <p className="text-xs text-gray-700">Completa todas las actividades de la semana</p>
+            </div>
+          </div>
+          <p className="text-xs text-gray-600 mt-2">
+            Las misiones diarias se reinician cada 24 horas. ¡No rompas tu racha!
+          </p>
+        </div>
+      ),
+      placement: 'left',
+    },
+    {
       target: 'body',
       content: (
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">¡Listo para empezar! 🚀</h2>
+          <h2 className="text-2xl font-bold mb-2">¡Todo listo para empezar! 🚀</h2>
           <p className="text-gray-700 mb-3">
-            Ya conoces todas las secciones principales. Recuerda que puedes volver a ver 
-            este tour en cualquier momento desde el botón flotante en la esquina inferior izquierda.
+            Ya conoces todas las secciones y herramientas del Dashboard. 
           </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3 text-left">
+            <p className="font-semibold text-blue-900 mb-2">💡 Recomendación para empezar:</p>
+            <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+              <li>Revisa las actividades pendientes de esta semana</li>
+              <li>Completa al menos una actividad hoy</li>
+              <li>Prueba el Tutor de IA por 10 minutos</li>
+              <li>Explora el vocabulario y practica pronunciación</li>
+            </ol>
+          </div>
           <p className="text-sm text-gray-600">
-            💡 <strong>Tip:</strong> Comienza completando tus actividades del día y 
-            luego practica con el Tutor AI. ¡Buena suerte! 🎯
+            Recuerda: Puedes volver a ver este tour en cualquier momento haciendo clic 
+            en el botón de ayuda <strong>(?)</strong> en la esquina inferior izquierda.
           </p>
         </div>
       ),

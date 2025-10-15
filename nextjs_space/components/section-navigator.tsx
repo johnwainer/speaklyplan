@@ -37,7 +37,8 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-300',
-      description: 'Tu progreso'
+      description: 'Tu progreso',
+      tourId: 'nav-dashboard'
     },
     {
       id: 'tutor',
@@ -48,7 +49,8 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-300',
       description: 'Práctica con voz',
-      isNew: true
+      isNew: true,
+      tourId: 'nav-tutor'
     },
     {
       id: 'vocabulario',
@@ -58,7 +60,8 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-300',
-      description: 'Palabras clave'
+      description: 'Palabras clave',
+      tourId: 'nav-vocabulary'
     },
     {
       id: 'recursos',
@@ -68,7 +71,8 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       borderColor: 'border-orange-300',
-      description: 'Herramientas'
+      description: 'Herramientas',
+      tourId: 'nav-resources'
     },
     {
       id: 'guia',
@@ -78,6 +82,7 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       color: 'text-pink-600',
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-300',
+      tourId: 'nav-guide',
       description: 'Cómo usar'
     }
   ]
@@ -96,6 +101,7 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
                 <div key={section.id} className="flex items-center">
                   <button
                     onClick={() => router.push(section.path)}
+                    data-tour={section.tourId}
                     className={cn(
                       "group relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-200",
                       "hover:scale-105 active:scale-95",
