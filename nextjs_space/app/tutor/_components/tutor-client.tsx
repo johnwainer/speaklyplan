@@ -135,6 +135,21 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     // Initialize Speech Synthesis
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
+      
+      // Cargar las voces inmediatamente (fix para Chrome)
+      const loadVoices = () => {
+        const voices = synthRef.current?.getVoices();
+        if (voices && voices.length > 0) {
+          console.log('Voces disponibles:', voices.length);
+        }
+      };
+      
+      loadVoices();
+      
+      // Escuchar cambios en las voces (algunos navegadores las cargan después)
+      if (synthRef.current.onvoiceschanged !== undefined) {
+        synthRef.current.onvoiceschanged = loadVoices;
+      }
     }
   };
   
@@ -178,8 +193,21 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     setIsAnalyzing(true);
     
     try {
-      // 1. Analizar la pronunciación
-      const analysisResponse = await fetch('/api/tutor/voice/analyze', {
+      // Generar respuesta rápidamente - análisis simplificado
+      const responsePromise = fetch('/api/tutor/voice/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: transcriptText,
+          conversationContext: {
+            mode: context,
+            history: conversationHistory.slice(-4) // Solo últimos 4 mensajes para contexto
+          }
+        })
+      });
+      
+      // Análisis detallado en segundo plano (no bloquea la respuesta)
+      const analysisPromise = fetch('/api/tutor/voice/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -188,33 +216,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         })
       });
       
-      if (!analysisResponse.ok) {
-        throw new Error('Analysis failed');
-      }
-      
-      const analysisData = await analysisResponse.json();
-      setAnalysis(analysisData.analysis);
-      
-      // Actualizar estadísticas de sesión
-      setSessionStats({
-        pronunciation: analysisData.analysis.pronunciationScore,
-        fluency: analysisData.analysis.fluencyScore,
-        accent: analysisData.analysis.accentScore.overall
-      });
-      
-      // 2. Generar respuesta del tutor con contexto
-      const responseData = await fetch('/api/tutor/voice/stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transcript: transcriptText,
-          analysisResult: analysisData.analysis,
-          conversationContext: {
-            mode: context,
-            history: conversationHistory
-          }
-        })
-      });
+      // Esperar solo la respuesta para hablar rápido
+      const responseData = await responsePromise;
       
       if (!responseData.ok) {
         throw new Error('Response generation failed');
@@ -222,17 +225,14 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       const response = await responseData.json();
       setTutorResponse(response.text);
+      setIsAnalyzing(false);
       
-      // 3. Hablar la respuesta
-      await speakText(response.text);
-      
-      // 4. Agregar a historial
+      // Agregar a historial inmediatamente
       setConversationHistory(prev => [
         ...prev,
         {
           type: 'user',
-          text: transcriptText,
-          analysis: analysisData.analysis
+          text: transcriptText
         },
         {
           type: 'tutor',
@@ -240,8 +240,36 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         }
       ]);
       
-      // 5. Gamificación - Award points
-      await fetch('/api/tutor/gamification', {
+      // Hablar la respuesta inmediatamente
+      speakText(response.text);
+      
+      // Procesar análisis en background (no bloquea)
+      analysisPromise.then(async (analysisResponse) => {
+        if (analysisResponse.ok) {
+          const analysisData = await analysisResponse.json();
+          setAnalysis(analysisData.analysis);
+          
+          // Actualizar estadísticas
+          setSessionStats({
+            pronunciation: analysisData.analysis.pronunciationScore,
+            fluency: analysisData.analysis.fluencyScore,
+            accent: analysisData.analysis.accentScore.overall
+          });
+          
+          // Mostrar feedback si hay errores críticos
+          if (analysisData.analysis.phonemeErrors?.length > 0) {
+            const criticalErrors = analysisData.analysis.phonemeErrors.filter((e: any) => e.severity === 'high');
+            if (criticalErrors.length > 0) {
+              toast.info(`💡 ${criticalErrors[0].suggestion}`, {
+                duration: 4000
+              });
+            }
+          }
+        }
+      }).catch(err => console.log('Background analysis error:', err));
+      
+      // Gamificación en background
+      fetch('/api/tutor/gamification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -249,19 +277,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           points: 10,
           reason: 'Práctica de conversación'
         })
-      });
-      
-      loadGamificationStats();
-      
-      // 6. Mostrar feedback si hay errores críticos
-      if (analysisData.analysis.phonemeErrors.length > 0) {
-        const criticalErrors = analysisData.analysis.phonemeErrors.filter((e: any) => e.severity === 'high');
-        if (criticalErrors.length > 0) {
-          toast.info(`💡 Tip de pronunciación: ${criticalErrors[0].suggestion}`, {
-            duration: 5000
-          });
-        }
-      }
+      }).then(() => loadGamificationStats())
+        .catch(err => console.log('Gamification error:', err));
       
       // Limpiar transcript
       setTranscript('');
@@ -269,7 +286,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     } catch (error) {
       console.error('Error processing voice input:', error);
       toast.error('Error al procesar entrada de voz');
-    } finally {
       setIsAnalyzing(false);
     }
   };
@@ -285,17 +301,41 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Configure voice for English
+      // Configure voice for English - Buscar la mejor voz disponible
       const voices = synthRef.current.getVoices();
-      const targetVoice = voices.find(v => v.lang.startsWith('en'));
       
-      if (targetVoice) {
-        utterance.voice = targetVoice;
+      // Priorizar voces premium de Google y Microsoft para mejor calidad
+      const preferredVoiceNames = [
+        'Google US English',
+        'Google UK English Female',
+        'Microsoft Zira - English (United States)',
+        'Microsoft David - English (United States)',
+        'Samantha',
+        'Alex'
+      ];
+      
+      let selectedVoice = null;
+      
+      // Buscar voces premium primero
+      for (const name of preferredVoiceNames) {
+        selectedVoice = voices.find(v => v.name.includes(name));
+        if (selectedVoice) break;
+      }
+      
+      // Si no encontramos una voz premium, buscar cualquier voz en inglés de calidad
+      if (!selectedVoice) {
+        selectedVoice = voices.find(v => 
+          v.lang.startsWith('en') && !v.localService
+        ) || voices.find(v => v.lang.startsWith('en'));
+      }
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
       
       utterance.lang = 'en-US';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
+      utterance.rate = 1.0;  // Velocidad natural
+      utterance.pitch = 1.05; // Ligeramente más alto para sonar más amigable
       utterance.volume = 1.0;
       
       utterance.onstart = () => {
@@ -331,13 +371,43 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
-  const changeContext = (newContext: string) => {
+  const changeContext = async (newContext: string) => {
     setContext(newContext);
     setConversationHistory([]);
     setAnalysis(null);
     setSessionStats({ pronunciation: 0, fluency: 0, accent: 0 });
     stopListening();
-    toast.success(`Modo cambiado: ${contextModes.find(m => m.value === newContext)?.label}`);
+    
+    const mode = contextModes.find(m => m.value === newContext);
+    toast.success(`Modo cambiado: ${mode?.label}`);
+    
+    // Generar mensaje inicial del tutor para el nuevo contexto
+    await generateContextIntroduction(newContext);
+  };
+
+  const generateContextIntroduction = async (contextMode: string) => {
+    setIsSpeaking(true);
+    
+    // Mensajes iniciales según el contexto
+    const introMessages: Record<string, string> = {
+      casual: "Hi! I'm your English tutor. Let's have a casual conversation. Tell me, what did you do today?",
+      meeting: "Hello! Let's practice a business meeting. Imagine we're in a team meeting. Can you tell me about your current project?",
+      interview: "Good morning! I'll be your interviewer today. First, tell me about yourself and your experience.",
+      email: "Hi! Let's practice professional email writing. Imagine you need to write an important email to a client. What would you say?",
+      grammar: "Hello! Let's work on your grammar. I'll give you some exercises. First, can you tell me about your goals in English?"
+    };
+    
+    const introText = introMessages[contextMode] || introMessages.casual;
+    setTutorResponse(introText);
+    
+    // Agregar al historial
+    setConversationHistory([{
+      type: 'tutor',
+      text: introText
+    }]);
+    
+    // Hablar el mensaje
+    await speakText(introText);
   };
 
   return (

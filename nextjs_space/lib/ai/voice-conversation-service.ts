@@ -112,15 +112,32 @@ function getDefaultAnalysis(transcript: string): VoiceAnalysisResult {
 }
 
 /**
- * Genera una respuesta de voz conversacional del tutor
+ * Genera una respuesta de voz conversacional del tutor (optimizada para velocidad)
  */
 export async function generateVoiceResponse(
   userTranscript: string,
   conversationContext: any,
-  analysisResult: VoiceAnalysisResult
+  analysisResult?: VoiceAnalysisResult
 ): Promise<{ text: string; shouldCorrect: boolean; correctionPhrase?: string }> {
   try {
-    const hasCriticalErrors = analysisResult.phonemeErrors.some(e => e.severity === 'high');
+    const mode = conversationContext?.mode || 'casual';
+    const history = conversationContext?.history || [];
+    
+    // Contexto específico por modo
+    const modeContexts: Record<string, string> = {
+      casual: 'You are having a friendly, casual conversation. Keep it light and engaging.',
+      meeting: 'You are in a professional business meeting. Use formal language and discuss work topics.',
+      interview: 'You are conducting a job interview. Ask relevant professional questions.',
+      email: 'You are helping practice professional email writing. Discuss email best practices.',
+      grammar: 'You are teaching grammar. Focus on explaining rules and providing examples.'
+    };
+    
+    const contextInstruction = modeContexts[mode] || modeContexts.casual;
+    
+    // Construir historial breve
+    const recentHistory = history.slice(-4).map((h: any) => 
+      `${h.type === 'user' ? 'Student' : 'Tutor'}: ${h.text}`
+    ).join('\n');
     
     const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
       method: 'POST',
@@ -133,23 +150,24 @@ export async function generateVoiceResponse(
         messages: [
           {
             role: 'system',
-            content: `You are a conversational English tutor in a voice conversation. 
-Keep responses natural and concise (1-3 sentences max).
-Be encouraging and supportive.
-If there are critical pronunciation errors, naturally incorporate the correct pronunciation in your response.
-Focus on maintaining conversation flow while gently correcting.`
+            content: `You are a friendly English conversation tutor. ${contextInstruction}
+
+CRITICAL RULES:
+- Keep responses SHORT (1-2 sentences, max 25 words)
+- Be natural and conversational
+- Ask follow-up questions to keep conversation flowing
+- Use simple, clear language
+- Be encouraging`
           },
           {
             role: 'user',
-            content: `User said: "${userTranscript}"
-Pronunciation score: ${analysisResult.pronunciationScore}/100
-Has critical errors: ${hasCriticalErrors}
+            content: `${recentHistory ? `Recent conversation:\n${recentHistory}\n\n` : ''}Student just said: "${userTranscript}"
 
-Respond naturally to continue the conversation. If there are critical pronunciation issues, subtly demonstrate the correct pronunciation.`
+Respond naturally and briefly. Ask a follow-up question.`
           }
         ],
-        temperature: 0.8,
-        max_tokens: 150
+        temperature: 0.9,
+        max_tokens: 80 // Reducido para respuestas más cortas y rápidas
       })
     });
     
@@ -161,16 +179,22 @@ Respond naturally to continue the conversation. If there are critical pronunciat
     const text = data.choices?.[0]?.message?.content || 'I see. Please continue.';
     
     return {
-      text,
-      shouldCorrect: hasCriticalErrors,
-      correctionPhrase: hasCriticalErrors 
-        ? `Let me help with that pronunciation...` 
-        : undefined
+      text: text.trim(),
+      shouldCorrect: false
     };
   } catch (error) {
     console.error('Error generating voice response:', error);
+    
+    // Respuestas de fallback según contexto
+    const fallbacks = [
+      'That\'s interesting! Tell me more.',
+      'I see. What else can you share?',
+      'Good point. Can you elaborate?',
+      'Interesting perspective. What do you think about that?'
+    ];
+    
     return {
-      text: 'That\'s interesting. Tell me more.',
+      text: fallbacks[Math.floor(Math.random() * fallbacks.length)],
       shouldCorrect: false
     };
   }
