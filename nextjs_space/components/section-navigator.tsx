@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 interface SectionNavigatorProps {
-  currentSection: 'dashboard' | 'tutor' | 'vocabulario' | 'recursos' | 'guia'
+  currentSection?: 'dashboard' | 'tutor' | 'vocabulario' | 'recursos' | 'guia' | null
   /**
    * Optional custom actions to show on the right side of the navigator
    */

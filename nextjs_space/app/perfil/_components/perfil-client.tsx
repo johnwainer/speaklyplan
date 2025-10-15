@@ -425,8 +425,8 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
       {/* Header */}
       <AppHeader currentSection="perfil" />
 
-      {/* Section Navigator - Show Dashboard by default since Perfil is not in main nav */}
-      <SectionNavigator currentSection="dashboard" />
+      {/* Section Navigator - No section selected when in profile */}
+      <SectionNavigator currentSection={null} />
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-8">
