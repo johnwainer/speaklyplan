@@ -1,24 +1,19 @@
 
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
-  Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, 
-  Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, 
-  RotateCcw, User, Star, Radio, Zap, CheckCircle, AlertCircle, Info 
+  Home, Mic, MicOff, Award, TrendingUp, Sparkles, 
+  Zap, CheckCircle, AlertCircle, GraduationCap, Volume2, BookOpen, Languages,
+  MessageSquare, User
 } from 'lucide-react';
 import { toast } from 'sonner';
-import Link from 'next/link';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { getProfileImageUrl } from '@/lib/utils';
 import { AppHeader } from '@/components/app-header';
 import { cn } from '@/lib/utils';
 
@@ -32,50 +27,55 @@ interface TutorClientProps {
   userId: string;
 }
 
-const contextModes = [
-  { value: 'casual', label: '💬 Conversación Casual', description: 'Charla amigable sobre trabajo e intereses', icon: MessageSquare },
-  { value: 'meeting', label: '🤝 Simulación de Reunión', description: 'Practica reuniones profesionales', icon: Target },
-  { value: 'interview', label: '👔 Entrevista de Trabajo', description: 'Prepárate para entrevistas', icon: User },
-  { value: 'email', label: '📧 Práctica de Emails', description: 'Redacción profesional', icon: Send },
-  { value: 'grammar', label: '📝 Ejercicios de Gramática', description: 'Refuerza la gramática', icon: BookOpen }
-];
+interface VocabWord {
+  term: string;
+  translation: string;
+  pronunciation?: string;
+  attempts: number;
+  mastered: boolean;
+}
+
+interface Message {
+  type: 'user' | 'tutor';
+  text: string;
+  translation?: string;
+  timestamp: Date;
+  suggestedWords?: VocabWord[];
+}
 
 export default function TutorClient({ initialData, userId }: TutorClientProps) {
   // States
-  const [context, setContext] = useState('casual');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<any>(null);
-  const [tutorResponse, setTutorResponse] = useState('');
-  const [sessionStats, setSessionStats] = useState({
-    pronunciation: 0,
-    fluency: 0,
-    accent: 0
-  });
-  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [gamificationStats, setGamificationStats] = useState<any>(null);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  const [suggestedVocab, setSuggestedVocab] = useState<VocabWord[]>([]);
+  const [practiceWords, setPracticeWords] = useState<VocabWord[]>([]);
   
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { data: session, status } = useSession() || {};
   
   // Initialize on mount
   useEffect(() => {
     initVoiceSystem();
     loadGamificationStats();
-    setSessionStartTime(new Date());
+    loadPracticeVocabulary();
+    startInitialConversation();
     
     return () => {
       stopListening();
       stopSpeaking();
     };
   }, []);
+  
+  // Auto-scroll to latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
   
   const initVoiceSystem = () => {
     // Initialize Speech Recognition
@@ -90,7 +90,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       recognition.onstart = () => {
         setIsListening(true);
-        toast.success('🎤 Escuchando... ¡Habla naturalmente!');
+        toast.success('🎤 Listening... Speak naturally!');
       };
       
       recognition.onresult = async (event: any) => {
@@ -99,7 +99,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         
         setTranscript(transcriptResult);
         
-        // Si el resultado es final, analizar
+        // Si el resultado es final, procesar
         if (event.results[current].isFinal) {
           await handleVoiceInput(transcriptResult);
         }
@@ -110,14 +110,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         setIsListening(false);
         
         if (event.error === 'no-speech') {
-          toast.info('No se detectó voz. Intenta hablar de nuevo.');
+          toast.info('No speech detected. Try speaking again.');
         } else {
-          toast.error('Error de reconocimiento de voz. Inténtalo de nuevo.');
+          toast.error('Voice recognition error. Please try again.');
         }
       };
       
       recognition.onend = () => {
-        // Si todavía debería estar escuchando, reiniciar
         if (isListening) {
           setTimeout(() => {
             try {
@@ -136,17 +135,15 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
       
-      // Cargar las voces inmediatamente (fix para Chrome)
       const loadVoices = () => {
         const voices = synthRef.current?.getVoices();
         if (voices && voices.length > 0) {
-          console.log('Voces disponibles:', voices.length);
+          console.log('Voices loaded:', voices.length);
         }
       };
       
       loadVoices();
       
-      // Escuchar cambios en las voces (algunos navegadores las cargan después)
       if (synthRef.current.onvoiceschanged !== undefined) {
         synthRef.current.onvoiceschanged = loadVoices;
       }
@@ -165,9 +162,36 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
+  const loadPracticeVocabulary = async () => {
+    try {
+      const response = await fetch('/api/tutor/practice-vocabulary');
+      if (response.ok) {
+        const data = await response.json();
+        setPracticeWords(data.words || []);
+      }
+    } catch (error) {
+      console.error('Error loading vocabulary:', error);
+    }
+  };
+  
+  const startInitialConversation = async () => {
+    // Mensaje de bienvenida del tutor
+    const welcomeMessage: Message = {
+      type: 'tutor',
+      text: "Hi! I'm your English tutor. Let's have a natural conversation. Tell me, what would you like to talk about today?",
+      translation: "¡Hola! Soy tu tutor de inglés. Tengamos una conversación natural. Dime, ¿de qué te gustaría hablar hoy?",
+      timestamp: new Date()
+    };
+    
+    setMessages([welcomeMessage]);
+    
+    // Hablar el mensaje
+    await speakText(welcomeMessage.text);
+  };
+  
   const startListening = () => {
     if (!recognitionRef.current) {
-      toast.error('Reconocimiento de voz no soportado en tu navegador');
+      toast.error('Voice recognition not supported in your browser');
       return;
     }
     
@@ -176,7 +200,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       setIsListening(true);
     } catch (e) {
       console.error('Failed to start recognition:', e);
-      toast.error('Error al iniciar reconocimiento de voz');
+      toast.error('Error starting voice recognition');
     }
   };
   
@@ -190,83 +214,54 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const handleVoiceInput = async (transcriptText: string) => {
     if (!transcriptText.trim()) return;
     
+    // Agregar mensaje del usuario
+    const userMessage: Message = {
+      type: 'user',
+      text: transcriptText,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setTranscript('');
     setIsAnalyzing(true);
     
     try {
-      // Generar respuesta rápidamente - análisis simplificado
-      const responsePromise = fetch('/api/tutor/voice/stream', {
+      // Obtener respuesta del tutor con traducción y vocabulario sugerido
+      const response = await fetch('/api/tutor/voice/conversation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          transcript: transcriptText,
-          conversationContext: {
-            mode: context,
-            history: conversationHistory.slice(-4) // Solo últimos 4 mensajes para contexto
-          }
+          userMessage: transcriptText,
+          conversationHistory: messages.slice(-6), // Últimos 6 mensajes para contexto
+          practiceWords: practiceWords
         })
       });
       
-      // Análisis detallado en segundo plano (no bloquea la respuesta)
-      const analysisPromise = fetch('/api/tutor/voice/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transcript: transcriptText,
-          context
-        })
-      });
-      
-      // Esperar solo la respuesta para hablar rápido
-      const responseData = await responsePromise;
-      
-      if (!responseData.ok) {
-        throw new Error('Response generation failed');
+      if (!response.ok) {
+        throw new Error('Failed to get tutor response');
       }
       
-      const response = await responseData.json();
-      setTutorResponse(response.text);
+      const data = await response.json();
+      
+      // Agregar respuesta del tutor
+      const tutorMessage: Message = {
+        type: 'tutor',
+        text: data.response,
+        translation: data.translation,
+        timestamp: new Date(),
+        suggestedWords: data.suggestedWords
+      };
+      
+      setMessages(prev => [...prev, tutorMessage]);
       setIsAnalyzing(false);
       
-      // Agregar a historial inmediatamente
-      setConversationHistory(prev => [
-        ...prev,
-        {
-          type: 'user',
-          text: transcriptText
-        },
-        {
-          type: 'tutor',
-          text: response.text
-        }
-      ]);
+      // Actualizar vocabulario sugerido si hay
+      if (data.suggestedWords && data.suggestedWords.length > 0) {
+        setSuggestedVocab(data.suggestedWords);
+      }
       
-      // Hablar la respuesta inmediatamente
-      speakText(response.text);
-      
-      // Procesar análisis en background (no bloquea)
-      analysisPromise.then(async (analysisResponse) => {
-        if (analysisResponse.ok) {
-          const analysisData = await analysisResponse.json();
-          setAnalysis(analysisData.analysis);
-          
-          // Actualizar estadísticas
-          setSessionStats({
-            pronunciation: analysisData.analysis.pronunciationScore,
-            fluency: analysisData.analysis.fluencyScore,
-            accent: analysisData.analysis.accentScore.overall
-          });
-          
-          // Mostrar feedback si hay errores críticos
-          if (analysisData.analysis.phonemeErrors?.length > 0) {
-            const criticalErrors = analysisData.analysis.phonemeErrors.filter((e: any) => e.severity === 'high');
-            if (criticalErrors.length > 0) {
-              toast.info(`💡 ${criticalErrors[0].suggestion}`, {
-                duration: 4000
-              });
-            }
-          }
-        }
-      }).catch(err => console.log('Background analysis error:', err));
+      // Hablar la respuesta
+      await speakText(data.response);
       
       // Gamificación en background
       fetch('/api/tutor/gamification', {
@@ -275,18 +270,26 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         body: JSON.stringify({
           action: 'award_points',
           points: 10,
-          reason: 'Práctica de conversación'
+          reason: 'Conversación con el tutor'
         })
       }).then(() => loadGamificationStats())
         .catch(err => console.log('Gamification error:', err));
       
-      // Limpiar transcript
-      setTranscript('');
-      
     } catch (error) {
       console.error('Error processing voice input:', error);
-      toast.error('Error al procesar entrada de voz');
+      toast.error('Error al procesar tu mensaje');
       setIsAnalyzing(false);
+      
+      // Agregar respuesta de fallback
+      const fallbackMessage: Message = {
+        type: 'tutor',
+        text: "I see. Could you tell me more about that?",
+        translation: "Ya veo. ¿Podrías contarme más sobre eso?",
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, fallbackMessage]);
+      await speakText(fallbackMessage.text);
     }
   };
   
@@ -301,28 +304,24 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Configure voice for English - Buscar la mejor voz disponible
+      // Buscar la mejor voz en inglés
       const voices = synthRef.current.getVoices();
       
-      // Priorizar voces premium de Google y Microsoft para mejor calidad
       const preferredVoiceNames = [
         'Google US English',
         'Google UK English Female',
         'Microsoft Zira - English (United States)',
-        'Microsoft David - English (United States)',
         'Samantha',
         'Alex'
       ];
       
       let selectedVoice = null;
       
-      // Buscar voces premium primero
       for (const name of preferredVoiceNames) {
         selectedVoice = voices.find(v => v.name.includes(name));
         if (selectedVoice) break;
       }
       
-      // Si no encontramos una voz premium, buscar cualquier voz en inglés de calidad
       if (!selectedVoice) {
         selectedVoice = voices.find(v => 
           v.lang.startsWith('en') && !v.localService
@@ -334,8 +333,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       }
       
       utterance.lang = 'en-US';
-      utterance.rate = 1.0;  // Velocidad natural
-      utterance.pitch = 1.05; // Ligeramente más alto para sonar más amigable
+      utterance.rate = 1.0;
+      utterance.pitch = 1.05;
       utterance.volume = 1.0;
       
       utterance.onstart = () => {
@@ -371,43 +370,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
-  const changeContext = async (newContext: string) => {
-    setContext(newContext);
-    setConversationHistory([]);
-    setAnalysis(null);
-    setSessionStats({ pronunciation: 0, fluency: 0, accent: 0 });
+  const resetConversation = () => {
     stopListening();
-    
-    const mode = contextModes.find(m => m.value === newContext);
-    toast.success(`Modo cambiado: ${mode?.label}`);
-    
-    // Generar mensaje inicial del tutor para el nuevo contexto
-    await generateContextIntroduction(newContext);
-  };
-
-  const generateContextIntroduction = async (contextMode: string) => {
-    setIsSpeaking(true);
-    
-    // Mensajes iniciales según el contexto
-    const introMessages: Record<string, string> = {
-      casual: "Hi! I'm your English tutor. Let's have a casual conversation. Tell me, what did you do today?",
-      meeting: "Hello! Let's practice a business meeting. Imagine we're in a team meeting. Can you tell me about your current project?",
-      interview: "Good morning! I'll be your interviewer today. First, tell me about yourself and your experience.",
-      email: "Hi! Let's practice professional email writing. Imagine you need to write an important email to a client. What would you say?",
-      grammar: "Hello! Let's work on your grammar. I'll give you some exercises. First, can you tell me about your goals in English?"
-    };
-    
-    const introText = introMessages[contextMode] || introMessages.casual;
-    setTutorResponse(introText);
-    
-    // Agregar al historial
-    setConversationHistory([{
-      type: 'tutor',
-      text: introText
-    }]);
-    
-    // Hablar el mensaje
-    await speakText(introText);
+    stopSpeaking();
+    setMessages([]);
+    setSuggestedVocab([]);
+    startInitialConversation();
+    toast.success('Conversación reiniciada');
   };
 
   return (
@@ -421,10 +390,9 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             <div className="flex items-center gap-2 sm:gap-4">
               <Badge variant="secondary" className="bg-white text-blue-600 text-xs sm:text-sm">
                 <Mic className="h-3 w-3 mr-1" />
-                AI Voice Tutor
+                AI Conversation Tutor
               </Badge>
               
-              {/* Gamification Stats - Desktop */}
               {gamificationStats && (
                 <div className="hidden lg:flex items-center gap-3">
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
@@ -455,45 +423,31 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       </div>
       
       <div className="container max-w-6xl mx-auto py-8 px-4">
-        {/* Header with Mode Selector */}
+        {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-                Práctica de Conversación con IA
+                Conversación Natural con IA
               </h1>
               <p className="text-muted-foreground">
-                Habla naturalmente y recibe análisis instantáneo de pronunciación
+                Habla naturalmente y recibe traducción simultánea al español
               </p>
             </div>
+            <Button
+              variant="outline"
+              onClick={resetConversation}
+              disabled={isListening || isSpeaking}
+            >
+              Reiniciar
+            </Button>
           </div>
-          
-          {/* Mode Selector */}
-          <Card className="p-4">
-            <h3 className="font-semibold mb-3 text-sm">Selecciona el modo de práctica:</h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              {contextModes.map((mode) => {
-                const Icon = mode.icon;
-                return (
-                  <Button
-                    key={mode.value}
-                    variant={context === mode.value ? 'default' : 'outline'}
-                    className="h-auto py-3 flex flex-col items-center text-center"
-                    onClick={() => changeContext(mode.value)}
-                  >
-                    <Icon className="h-5 w-5 mb-1" />
-                    <span className="text-xs font-medium">{mode.label.slice(2)}</span>
-                  </Button>
-                );
-              })}
-            </div>
-          </Card>
         </div>
         
         <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-          {/* Main Voice Conversation */}
+          {/* Main Conversation Area */}
           <div className="space-y-6">
-            {/* Main Conversation Card */}
+            {/* Voice Control Card */}
             <Card className={cn(
               "p-6 transition-all duration-300",
               isListening && "ring-4 ring-blue-500 ring-opacity-50 shadow-lg",
@@ -516,7 +470,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   <h3 className="text-xl font-bold mb-2">
                     {isListening && 'Escuchando...'}
                     {isSpeaking && 'Tutor Hablando...'}
-                    {!isListening && !isSpeaking && 'Listo para Practicar'}
+                    {!isListening && !isSpeaking && 'Listo para Conversar'}
                   </h3>
                   
                   <p className="text-sm text-muted-foreground">
@@ -540,7 +494,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 {isAnalyzing && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Zap className="h-4 w-4 animate-pulse" />
-                    Analizando tu pronunciación...
+                    Procesando tu mensaje...
                   </div>
                 )}
                 
@@ -570,139 +524,90 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 </Button>
                 
                 <p className="text-xs text-center text-muted-foreground">
-                  💡 Tip: Habla claramente y naturalmente. El AI analizará tu pronunciación en tiempo real.
+                  💡 Tip: Habla claramente y naturalmente. Recibirás traducción simultánea al español.
                 </p>
               </div>
             </Card>
             
-            {/* Latest Analysis Feedback */}
-            {analysis && (
-              <Card className="p-6">
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Award className="h-5 w-5 text-yellow-600" />
-                  Análisis Más Reciente
-                </h3>
-                
-                <div className="space-y-3">
-                  {/* Strengths */}
-                  {analysis.accentScore?.strengths?.length > 0 && (
-                    <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-green-900">Fortalezas</p>
-                        <ul className="text-sm text-green-800 mt-1 space-y-1">
-                          {analysis.accentScore.strengths.map((strength: string, i: number) => (
-                            <li key={i}>• {strength}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Suggestions */}
-                  {analysis.suggestions?.length > 0 && (
-                    <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-blue-900">Sugerencias</p>
-                        <ul className="text-sm text-blue-800 mt-1 space-y-1">
-                          {analysis.suggestions.slice(0, 3).map((suggestion: string, i: number) => (
-                            <li key={i}>• {suggestion}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Problem Phonemes */}
-                  {analysis.accentScore?.problemPhonemes?.length > 0 && (
-                    <div className="flex items-start gap-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-yellow-900">Sonidos para Practicar</p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {analysis.accentScore.problemPhonemes.map((phoneme: string, i: number) => (
-                            <Badge key={i} variant="outline" className="bg-white">
-                              {phoneme}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            )}
-            
             {/* Conversation History */}
-            {conversationHistory.length > 0 && (
-              <Card className="p-6">
-                <h3 className="font-semibold mb-4">Historial de Conversación</h3>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {conversationHistory.slice().reverse().slice(0, 8).map((entry, i) => (
-                    <div key={i} className={cn(
-                      "p-3 rounded-lg",
-                      entry.type === 'user' ? "bg-blue-50 border border-blue-200" : "bg-gray-50 border border-gray-200"
-                    )}>
-                      <p className="text-xs font-medium text-muted-foreground mb-1">
-                        {entry.type === 'user' ? 'Tú' : 'Tutor'}
-                      </p>
-                      <p className="text-sm">{entry.text}</p>
-                      {entry.analysis && (
-                        <div className="flex gap-2 mt-2">
-                          <Badge variant="outline" className="text-xs">
-                            Pronunciación: {entry.analysis.pronunciationScore.toFixed(0)}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Fluidez: {entry.analysis.fluencyScore.toFixed(0)}
-                          </Badge>
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Historial de Conversación</h3>
+              <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                {messages.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>La conversación comenzará cuando hagas clic en "Empezar a Hablar"</p>
+                  </div>
+                ) : (
+                  <>
+                    {messages.map((message, i) => (
+                      <div key={i} className={cn(
+                        "p-4 rounded-lg transition-all",
+                        message.type === 'user' 
+                          ? "bg-blue-50 border border-blue-200" 
+                          : "bg-green-50 border border-green-200"
+                      )}>
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                            message.type === 'user' ? "bg-blue-600" : "bg-green-600"
+                          )}>
+                            {message.type === 'user' ? (
+                              <User className="h-4 w-4 text-white" />
+                            ) : (
+                              <GraduationCap className="h-4 w-4 text-white" />
+                            )}
+                          </div>
+                          
+                          <div className="flex-1 space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">
+                              {message.type === 'user' ? 'Tú' : 'Tutor IA'}
+                            </p>
+                            <p className="text-sm leading-relaxed">{message.text}</p>
+                            
+                            {/* Traducción al español */}
+                            {message.translation && (
+                              <div className="flex items-start gap-2 mt-2 p-2 bg-white/50 rounded border border-gray-200">
+                                <Languages className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-gray-700 italic">{message.translation}</p>
+                              </div>
+                            )}
+                            
+                            {/* Palabras sugeridas para practicar */}
+                            {message.suggestedWords && message.suggestedWords.length > 0 && (
+                              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p className="text-xs font-medium text-yellow-900 mb-2 flex items-center gap-1">
+                                  <BookOpen className="h-3 w-3" />
+                                  Palabras de tu vocabulario para practicar:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {message.suggestedWords.map((word, wi) => (
+                                    <Badge 
+                                      key={wi} 
+                                      variant="outline" 
+                                      className="bg-white text-xs"
+                                      title={word.translation}
+                                    >
+                                      {word.term}
+                                      {word.pronunciation && ` [${word.pronunciation}]`}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </>
+                )}
+              </div>
+            </Card>
           </div>
           
-          {/* Sidebar - Stats */}
+          {/* Sidebar */}
           <div className="space-y-4">
-            {/* Session Statistics */}
-            {(sessionStats.pronunciation > 0 || sessionStats.fluency > 0 || sessionStats.accent > 0) && (
-              <Card className="p-4">
-                <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
-                  <TrendingUp className="h-4 w-4 text-blue-600" />
-                  Estadísticas de Sesión
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium">Pronunciación</span>
-                      <span className="text-xs font-bold text-blue-600">{sessionStats.pronunciation.toFixed(0)}/100</span>
-                    </div>
-                    <Progress value={sessionStats.pronunciation} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium">Fluidez</span>
-                      <span className="text-xs font-bold text-green-600">{sessionStats.fluency.toFixed(0)}/100</span>
-                    </div>
-                    <Progress value={sessionStats.fluency} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium">Similitud de Acento</span>
-                      <span className="text-xs font-bold text-purple-600">{sessionStats.accent.toFixed(0)}/100</span>
-                    </div>
-                    <Progress value={sessionStats.accent} className="h-2" />
-                  </div>
-                </div>
-              </Card>
-            )}
-            
             {/* Gamification Card */}
             {gamificationStats && (
               <Card className="p-4 bg-gradient-to-br from-blue-50 to-purple-50">
@@ -720,6 +625,57 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                     <span className="text-xs text-muted-foreground">Racha</span>
                     <span className="font-bold text-orange-600">{gamificationStats.currentStreak} días</span>
                   </div>
+                </div>
+              </Card>
+            )}
+            
+            {/* Vocabulario para Practicar */}
+            {practiceWords.length > 0 && (
+              <Card className="p-4">
+                <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-blue-600" />
+                  Vocabulario para Practicar
+                </h3>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {practiceWords.slice(0, 10).map((word, i) => (
+                    <div key={i} className="p-2 bg-blue-50 rounded-lg border border-blue-100">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-blue-900">{word.term}</p>
+                          {word.pronunciation && (
+                            <p className="text-xs text-blue-600">[{word.pronunciation}]</p>
+                          )}
+                          <p className="text-xs text-gray-600 mt-1">{word.translation}</p>
+                        </div>
+                        {!word.mastered && (
+                          <Badge variant="outline" className="text-xs">
+                            {word.attempts} intentos
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+            
+            {/* Vocabulario Sugerido en Conversación */}
+            {suggestedVocab.length > 0 && (
+              <Card className="p-4 bg-yellow-50 border-yellow-200">
+                <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  Palabras Sugeridas
+                </h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  El tutor está incluyendo estas palabras en la conversación para ayudarte a practicar:
+                </p>
+                <div className="space-y-2">
+                  {suggestedVocab.map((word, i) => (
+                    <div key={i} className="p-2 bg-white rounded-lg border border-yellow-200">
+                      <p className="text-sm font-medium">{word.term}</p>
+                      <p className="text-xs text-gray-600">{word.translation}</p>
+                    </div>
+                  ))}
                 </div>
               </Card>
             )}
@@ -754,3 +710,4 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     </div>
   );
 }
+
