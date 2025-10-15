@@ -164,18 +164,26 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
       
+      // Force load voices immediately and wait for them
       const loadVoices = () => {
-        const voices = synthRef.current?.getVoices();
-        if (voices && voices.length > 0) {
-          console.log('Voices loaded:', voices.length);
-        }
+        const voices = synthRef.current?.getVoices() || [];
+        console.log('Voices loaded:', voices.length, voices.map(v => v.name));
+        return voices;
       };
       
+      // Try loading voices immediately
       loadVoices();
       
+      // Set up listener for when voices are loaded
       if (synthRef.current.onvoiceschanged !== undefined) {
-        synthRef.current.onvoiceschanged = loadVoices;
+        synthRef.current.onvoiceschanged = () => {
+          loadVoices();
+        };
       }
+      
+      // Some browsers need a small interaction to enable audio
+      // Cancel any pending speech to reset the state
+      synthRef.current.cancel();
     }
   };
   
@@ -204,6 +212,9 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   };
   
   const startInitialConversation = async () => {
+    // Wait a bit for the speech system to be ready
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     // Mensaje de bienvenida del tutor
     const welcomeMessage: Message = {
       type: 'tutor',
@@ -214,8 +225,15 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     
     setMessages([welcomeMessage]);
     
-    // Hablar el mensaje
-    await speakText(welcomeMessage.text);
+    // Show a notification to ensure user interaction (some browsers require this)
+    toast.info('🔊 Escucha el mensaje del tutor. Si no se escucha, haz clic en el ícono 🔊', {
+      duration: 3000
+    });
+    
+    // Hablar el mensaje con un pequeño delay
+    setTimeout(async () => {
+      await speakText(welcomeMessage.text);
+    }, 100);
   };
   
   const startListening = () => {
@@ -343,62 +361,108 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const speakText = async (text: string): Promise<void> => {
     return new Promise((resolve) => {
       if (!synthRef.current) {
+        console.error('Speech synthesis not available');
         resolve();
         return;
       }
       
+      // Cancel any ongoing speech
       synthRef.current.cancel();
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Buscar la mejor voz en inglés
-      const voices = synthRef.current.getVoices();
-      
-      const preferredVoiceNames = [
-        'Google US English',
-        'Google UK English Female',
-        'Microsoft Zira - English (United States)',
-        'Samantha',
-        'Alex'
-      ];
-      
-      let selectedVoice = null;
-      
-      for (const name of preferredVoiceNames) {
-        selectedVoice = voices.find(v => v.name.includes(name));
-        if (selectedVoice) break;
-      }
-      
-      if (!selectedVoice) {
-        selectedVoice = voices.find(v => 
-          v.lang.startsWith('en') && !v.localService
-        ) || voices.find(v => v.lang.startsWith('en'));
-      }
-      
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
-      
-      utterance.lang = 'en-US';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.05;
-      utterance.volume = 1.0;
-      
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-      };
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        resolve();
-      };
-      
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-        resolve();
-      };
-      
-      synthRef.current.speak(utterance);
+      // Wait a bit to ensure cancellation is complete
+      setTimeout(() => {
+        if (!synthRef.current) {
+          resolve();
+          return;
+        }
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Get all available voices
+        const voices = synthRef.current.getVoices();
+        console.log('Available voices for speech:', voices.length);
+        
+        // Try to find the best English voice
+        const preferredVoiceNames = [
+          'Google US English',
+          'Google UK English Female', 
+          'Google UK English Male',
+          'Microsoft Zira - English (United States)',
+          'Microsoft David - English (United States)',
+          'Samantha',
+          'Alex',
+          'Karen',
+          'Daniel'
+        ];
+        
+        let selectedVoice = null;
+        
+        // First, try preferred voices
+        for (const name of preferredVoiceNames) {
+          selectedVoice = voices.find(v => v.name.includes(name));
+          if (selectedVoice) {
+            console.log('Selected preferred voice:', selectedVoice.name);
+            break;
+          }
+        }
+        
+        // If no preferred voice, find any English voice (prefer non-local)
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => 
+            v.lang.startsWith('en') && !v.localService
+          );
+        }
+        
+        // If still no voice, find any English voice
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => v.lang.startsWith('en'));
+        }
+        
+        // Last resort: use default voice
+        if (!selectedVoice && voices.length > 0) {
+          selectedVoice = voices[0];
+        }
+        
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+          console.log('Using voice:', selectedVoice.name, selectedVoice.lang);
+        } else {
+          console.warn('No voice selected, using default');
+        }
+        
+        // Set speech parameters
+        utterance.lang = 'en-US';
+        utterance.rate = 0.95; // Slightly slower for clarity
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        utterance.onstart = () => {
+          console.log('Speech started:', text.substring(0, 50));
+          setIsSpeaking(true);
+        };
+        
+        utterance.onend = () => {
+          console.log('Speech ended');
+          setIsSpeaking(false);
+          resolve();
+        };
+        
+        utterance.onerror = (event) => {
+          console.error('Speech error:', event);
+          setIsSpeaking(false);
+          resolve();
+        };
+        
+        // Speak the text
+        try {
+          synthRef.current.speak(utterance);
+          console.log('Speech utterance queued');
+        } catch (error) {
+          console.error('Error speaking:', error);
+          setIsSpeaking(false);
+          resolve();
+        }
+      }, 50);
     });
   };
   
@@ -449,12 +513,21 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               <div className="hidden sm:block">
                 <h2 className="text-sm font-bold text-gray-900">
                   {isListening && '🎤 Escuchando...'}
-                  {isSpeaking && '🔊 Hablando...'}
+                  {isSpeaking && (
+                    <span className="flex items-center gap-1">
+                      <Volume2 className="h-4 w-4 text-green-600 animate-pulse" />
+                      🔊 Tutor hablando...
+                    </span>
+                  )}
                   {!isListening && !isSpeaking && 'Tutor de IA'}
                 </h2>
                 <p className="text-xs text-gray-500">
                   {isListening && 'Habla en inglés'}
-                  {isSpeaking && 'Escucha la respuesta'}
+                  {isSpeaking && (
+                    <span className="text-green-600 font-semibold animate-pulse">
+                      Escucha el audio del tutor 🔊
+                    </span>
+                  )}
                   {!isListening && !isSpeaking && 'Conversación en inglés'}
                 </p>
               </div>
@@ -504,11 +577,11 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       <div className="container max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
         <div className="grid lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] gap-4 lg:gap-6">
           {/* Main Chat Area - Modern Messenger Style */}
-          <div className="flex flex-col h-[calc(100vh-180px)] sm:h-[calc(100vh-160px)]">
+          <div className="flex flex-col">
             {/* Chat Container */}
-            <Card className="flex-1 flex flex-col overflow-hidden border-2 shadow-lg">
+            <Card className="flex flex-col border-2 shadow-lg" style={{ height: 'calc(100vh - 220px)', minHeight: '500px' }}>
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50/50 to-white">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50/50 to-white" style={{ minHeight: '300px' }}>
                 {messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-4">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 flex items-center justify-center mb-4">
@@ -545,7 +618,19 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                             ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-sm'
                             : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'
                         )}>
-                          <p className="text-xs sm:text-sm leading-relaxed break-words">{message.text}</p>
+                          <div className="flex items-start gap-2">
+                            <p className="text-xs sm:text-sm leading-relaxed break-words flex-1">{message.text}</p>
+                            {/* Play Audio Button for Tutor Messages */}
+                            {message.type === 'tutor' && (
+                              <button
+                                onClick={() => speakText(message.text)}
+                                className="flex-shrink-0 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                title="Escuchar este mensaje"
+                              >
+                                <Volume2 className="h-3.5 w-3.5 text-green-600" />
+                              </button>
+                            )}
+                          </div>
                           
                           {/* Translation */}
                           {message.translation && (
@@ -598,8 +683,18 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
               
               {/* Input Area */}
               <div className="border-t bg-white p-3 sm:p-4">
+                {/* Speaking Indicator - MOST PROMINENT */}
+                {isSpeaking && (
+                  <div className="mb-3 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-xl shadow-lg animate-pulse">
+                    <p className="text-sm sm:text-base text-green-900 font-semibold flex items-center gap-2">
+                      <Volume2 className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 animate-pulse text-green-600" />
+                      <span>🔊 El tutor está hablando. Escucha el audio...</span>
+                    </p>
+                  </div>
+                )}
+                
                 {/* Live Transcript */}
-                {transcript && (
+                {transcript && !isSpeaking && (
                   <div className="mb-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-xl animate-pulse">
                     <p className="text-xs sm:text-sm text-blue-900 flex items-center gap-2">
                       <Mic className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 animate-pulse" />
@@ -609,7 +704,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 )}
                 
                 {/* Analyzing Indicator */}
-                {isAnalyzing && (
+                {isAnalyzing && !isSpeaking && (
                   <div className="mb-3 p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-xl">
                     <p className="text-xs sm:text-sm text-purple-900 flex items-center gap-2">
                       <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-pulse" />
