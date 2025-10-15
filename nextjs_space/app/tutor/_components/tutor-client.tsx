@@ -164,26 +164,40 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
       
-      // Force load voices immediately and wait for them
+      // Force load voices
       const loadVoices = () => {
         const voices = synthRef.current?.getVoices() || [];
-        console.log('Voices loaded:', voices.length, voices.map(v => v.name));
+        console.log('🔊 Voces cargadas:', voices.length);
+        if (voices.length > 0) {
+          console.log('✅ Voces disponibles:', voices.slice(0, 5).map(v => `${v.name} (${v.lang})`));
+        }
         return voices;
       };
       
-      // Try loading voices immediately
+      // Load voices immediately
       loadVoices();
       
-      // Set up listener for when voices are loaded
+      // Set up listener for when voices change
       if (synthRef.current.onvoiceschanged !== undefined) {
-        synthRef.current.onvoiceschanged = () => {
-          loadVoices();
-        };
+        synthRef.current.onvoiceschanged = loadVoices;
       }
       
-      // Some browsers need a small interaction to enable audio
-      // Cancel any pending speech to reset the state
+      // Reset synthesis state
       synthRef.current.cancel();
+      
+      // CRITICAL: Enable audio context with user interaction
+      // This ensures audio will work when called later
+      const enableAudio = () => {
+        if (synthRef.current && synthRef.current.getVoices().length > 0) {
+          console.log('🔊 Sistema de audio activado por interacción del usuario');
+          // Remove listener after first activation
+          document.removeEventListener('click', enableAudio);
+          document.removeEventListener('touchstart', enableAudio);
+        }
+      };
+      
+      document.addEventListener('click', enableAudio, { once: true });
+      document.addEventListener('touchstart', enableAudio, { once: true });
     }
   };
   
@@ -212,8 +226,8 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   };
   
   const startInitialConversation = async () => {
-    // Wait a bit for the speech system to be ready
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for the speech system to be ready
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     // Mensaje de bienvenida del tutor
     const welcomeMessage: Message = {
@@ -225,15 +239,16 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     
     setMessages([welcomeMessage]);
     
-    // Show a notification to ensure user interaction (some browsers require this)
-    toast.info('🔊 Escucha el mensaje del tutor. Si no se escucha, haz clic en el ícono 🔊', {
-      duration: 3000
+    // Show prominent notification about audio
+    toast.info('🔊 El tutor está listo. Si no escuchas el audio, haz clic en el ícono 🔊 junto al mensaje', {
+      duration: 5000
     });
     
-    // Hablar el mensaje con un pequeño delay
+    // Try to speak with a delay to ensure voices are loaded
     setTimeout(async () => {
+      console.log('🎬 Iniciando mensaje de bienvenida');
       await speakText(welcomeMessage.text);
-    }, 100);
+    }, 300);
   };
   
   const startListening = () => {
@@ -361,10 +376,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const speakText = async (text: string): Promise<void> => {
     return new Promise((resolve) => {
       if (!synthRef.current) {
-        console.error('Speech synthesis not available');
+        console.error('❌ Speech synthesis not available');
+        toast.error('Sistema de voz no disponible en tu navegador');
         resolve();
         return;
       }
+      
+      console.log('🔊 Intentando reproducir:', text.substring(0, 50) + '...');
       
       // Cancel any ongoing speech
       synthRef.current.cancel();
@@ -380,15 +398,23 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         
         // Get all available voices
         const voices = synthRef.current.getVoices();
-        console.log('Available voices for speech:', voices.length);
+        console.log('🔊 Voces disponibles:', voices.length);
+        
+        if (voices.length === 0) {
+          console.warn('⚠️ No hay voces cargadas todavía, esperando...');
+          // Try again after a short delay
+          setTimeout(() => speakText(text), 200);
+          resolve();
+          return;
+        }
         
         // Try to find the best English voice
         const preferredVoiceNames = [
           'Google US English',
           'Google UK English Female', 
           'Google UK English Male',
-          'Microsoft Zira - English (United States)',
-          'Microsoft David - English (United States)',
+          'Microsoft Zira',
+          'Microsoft David',
           'Samantha',
           'Alex',
           'Karen',
@@ -401,7 +427,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         for (const name of preferredVoiceNames) {
           selectedVoice = voices.find(v => v.name.includes(name));
           if (selectedVoice) {
-            console.log('Selected preferred voice:', selectedVoice.name);
+            console.log('✅ Voz seleccionada (preferida):', selectedVoice.name);
             break;
           }
         }
@@ -411,44 +437,60 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           selectedVoice = voices.find(v => 
             v.lang.startsWith('en') && !v.localService
           );
+          if (selectedVoice) {
+            console.log('✅ Voz seleccionada (inglés remoto):', selectedVoice.name);
+          }
         }
         
         // If still no voice, find any English voice
         if (!selectedVoice) {
           selectedVoice = voices.find(v => v.lang.startsWith('en'));
+          if (selectedVoice) {
+            console.log('✅ Voz seleccionada (inglés local):', selectedVoice.name);
+          }
         }
         
-        // Last resort: use default voice
+        // Last resort: use first available voice
         if (!selectedVoice && voices.length > 0) {
           selectedVoice = voices[0];
+          console.log('⚠️ Usando voz por defecto:', selectedVoice.name);
         }
         
         if (selectedVoice) {
           utterance.voice = selectedVoice;
-          console.log('Using voice:', selectedVoice.name, selectedVoice.lang);
         } else {
-          console.warn('No voice selected, using default');
+          console.error('❌ No se pudo seleccionar una voz');
         }
         
         // Set speech parameters
         utterance.lang = 'en-US';
-        utterance.rate = 0.95; // Slightly slower for clarity
+        utterance.rate = 0.9; // Slightly slower for better clarity
         utterance.pitch = 1.0;
         utterance.volume = 1.0;
         
         utterance.onstart = () => {
-          console.log('Speech started:', text.substring(0, 50));
+          console.log('▶️ Audio iniciado');
           setIsSpeaking(true);
         };
         
         utterance.onend = () => {
-          console.log('Speech ended');
+          console.log('✅ Audio completado');
           setIsSpeaking(false);
           resolve();
         };
         
         utterance.onerror = (event) => {
-          console.error('Speech error:', event);
+          console.error('❌ Error de audio:', event.error);
+          
+          // Show user-friendly error
+          if (event.error === 'not-allowed') {
+            toast.error('Permiso de audio denegado. Haz clic en el ícono 🔊 para escuchar.');
+          } else if (event.error === 'network') {
+            toast.error('Error de red. Verifica tu conexión.');
+          } else {
+            toast.error('Error reproduciendo audio. Intenta de nuevo.');
+          }
+          
           setIsSpeaking(false);
           resolve();
         };
@@ -456,13 +498,14 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         // Speak the text
         try {
           synthRef.current.speak(utterance);
-          console.log('Speech utterance queued');
+          console.log('🎵 Audio en cola de reproducción');
         } catch (error) {
-          console.error('Error speaking:', error);
+          console.error('❌ Error al encolar audio:', error);
+          toast.error('Error al reproducir audio');
           setIsSpeaking(false);
           resolve();
         }
-      }, 50);
+      }, 100); // Increased delay for better reliability
     });
   };
   
