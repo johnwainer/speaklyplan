@@ -127,11 +127,13 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         const current = event.resultIndex;
         const transcriptResult = event.results[current][0].transcript;
         
-        setTranscript(transcriptResult);
-        
-        // Si el resultado es final, procesar
+        // Solo mostrar el transcript cuando es final, no los resultados intermedios
         if (event.results[current].isFinal) {
+          setTranscript(transcriptResult);
           await handleVoiceInput(transcriptResult);
+        } else {
+          // Opcionalmente, mostrar el texto intermedio pero en tiempo real (sin saltos)
+          setTranscript(transcriptResult);
         }
       };
       
@@ -735,10 +737,10 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 
                 {/* Live Transcript */}
                 {transcript && !isSpeaking && (
-                  <div className="mb-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-xl animate-pulse">
+                  <div className="mb-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-xl">
                     <p className="text-xs sm:text-sm text-blue-900 flex items-center gap-2">
                       <Mic className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 animate-pulse" />
-                      <span>{transcript}</span>
+                      <span className="flex-1 leading-relaxed">{transcript}</span>
                     </p>
                   </div>
                 )}
