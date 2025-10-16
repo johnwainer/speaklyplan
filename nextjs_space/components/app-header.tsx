@@ -17,7 +17,8 @@ import {
   UserPlus,
   LayoutDashboard,
   ChevronDown,
-  Mic
+  Mic,
+  Users
 } from 'lucide-react'
 import {
   Sheet,
@@ -35,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { getProfileImageUrl } from '@/lib/utils'
 import { InviteFriendsModal } from '@/components/invite-friends-modal'
+import { NotificationBadge } from '@/components/practice/notification-badge'
 
 interface AppHeaderProps {
   currentSection: string
@@ -57,6 +59,7 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
       case 'recursos': return 'Recursos'
       case 'guia': return 'Guía de Uso'
       case 'perfil': return 'Mi Perfil'
+      case 'practica': return 'Prácticas 1 a 1'
       default: return 'SpeaklyPlan'
     }
   }
@@ -76,7 +79,8 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
         </button>
         
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center gap-2">
+          <NotificationBadge />
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <button 
@@ -211,6 +215,17 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
                   >
                     <Mic className="h-4 w-4 mr-2 text-blue-600" />
                     <span className="font-medium">Tutor de IA</span>
+                  </Button>
+                  <Button
+                    variant={currentSection === 'practica' ? 'default' : 'outline'}
+                    className="w-full justify-start bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
+                    onClick={() => {
+                      router.push('/practica')
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    <Users className="h-4 w-4 mr-2 text-green-600" />
+                    <span className="font-medium">Prácticas 1 a 1</span>
                   </Button>
                   <Button
                     variant={currentSection === 'vocabulario' ? 'default' : 'outline'}

@@ -57,6 +57,11 @@ model User {
   
   // Tour/Onboarding
   hasSeenTour   Boolean   @default(false)
+  
+  // Practice Preferences
+  practiceAvailable Boolean @default(true)
+  practiceTopics    String[] @default([])
+  practiceTimezone  String?
 
   accounts        Account[]
   sessions        Session[]
@@ -74,6 +79,15 @@ model User {
   vocabularyCards  VocabularyCard[]
   sessionAnalytics SessionAnalytics[]
   voiceSessions    VoiceSession[]
+  
+  // Practice 1-on-1 relations
+  sentInvitations      PracticeInvitation[] @relation("SentInvitations")
+  receivedInvitations  PracticeInvitation[] @relation("ReceivedInvitations")
+  connectionsAsUser1   PracticeConnection[] @relation("ConnectionsAsUser1")
+  connectionsAsUser2   PracticeConnection[] @relation("ConnectionsAsUser2")
+  initiatedMeetings    PracticeMeeting[]    @relation("InitiatedMeetings")
+  partnerMeetings      PracticeMeeting[]    @relation("PartnerMeetings")
+  practiceNotifications PracticeNotification[]
 }
 
 model VerificationToken {
@@ -453,4 +467,162 @@ model VoiceSession {
   @@index([userId])
   @@index([conversationId])
   @@index([createdAt])
+}
+
+// ============================================
+// PRACTICE 1-ON-1 SYSTEM
+// ============================================
+
+// Practice Invitations between users
+model PracticeInvitation {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  senderId    String
+  sender      User     @relation("SentInvitations", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  receiverId  String
+  receiver    User     @relation("ReceivedInvitations", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  // Invitation data
+  message     String?  @db.Text
+  status      InvitationStatus @default(PENDING)
+  
+  // Metadata
+  respondedAt DateTime?
+  
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+// Practice Connections (accepted invitations)
+model PracticeConnection {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Bidirectional relationship
+  user1Id     String
+  user1       User     @relation("ConnectionsAsUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  
+  user2Id     String
+  user2       User     @relation("ConnectionsAsUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  // Statistics
+  totalSessions    Int @default(0)
+  lastSessionAt    DateTime?
+  
+  // Status
+  isActive    Boolean  @default(true)
+  
+  // Relations
+  meetings    PracticeMeeting[]
+  
+  @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
+  @@index([isActive])
+}
+
+// Practice Meetings (1-on-1 sessions)
+model PracticeMeeting {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  connectionId String
+  connection   PracticeConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  
+  initiatorId  String
+  initiator    User     @relation("InitiatedMeetings", fields: [initiatorId], references: [id], onDelete: Cascade)
+  
+  partnerId    String
+  partner      User     @relation("PartnerMeetings", fields: [partnerId], references: [id], onDelete: Cascade)
+
+  // Session data
+  scheduledFor DateTime? // Null = immediate
+  startedAt    DateTime?
+  endedAt      DateTime?
+  durationMinutes Int?   // Calculated on completion
+  
+  status       MeetingStatus @default(SCHEDULED)
+  
+  // Content
+  topic        String?  @db.Text
+  notes        String?  @db.Text
+  externalLink String?  // Link to Zoom, Meet, etc.
+  
+  // Mutual feedback (post-session)
+  initiatorFeedback String? @db.Text
+  partnerFeedback   String? @db.Text
+  initiatorRating   Int?    // 1-5
+  partnerRating     Int?    // 1-5
+  
+  @@index([connectionId])
+  @@index([initiatorId])
+  @@index([partnerId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([createdAt])
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// Practice Notifications
+model PracticeNotification {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relation
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Content
+  type        NotificationType
+  title       String
+  message     String   @db.Text
+  actionUrl   String?  // Link to relevant page
+  
+  // Status
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+  
+  // References
+  invitationId String?
+  meetingId    String?
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([userId, isRead])
+}
+
+enum NotificationType {
+  INVITATION_RECEIVED
+  INVITATION_ACCEPTED
+  INVITATION_REJECTED
+  SESSION_SCHEDULED
+  SESSION_STARTING_SOON
+  SESSION_COMPLETED
+  FEEDBACK_REQUESTED
 }

@@ -26,7 +26,8 @@ import {
   Trophy,
   Zap,
   UserPlus,
-  Mic
+  Mic,
+  Users
 } from 'lucide-react'
 import {
   Sheet,
@@ -710,6 +711,67 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   
                   <p className="text-center text-xs text-gray-500">
                     💡 24/7 · Sin límites
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Prácticas 1 a 1 - New Card */}
+              <Card className="border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden relative">
+                <div className="absolute top-2 right-2">
+                  <Badge className="bg-green-500 text-white border-0 px-2 py-0.5 text-xs font-bold shadow-md">
+                    ¡NOVEDAD!
+                  </Badge>
+                </div>
+                
+                <CardHeader className="pb-2">
+                  <div className="flex items-start gap-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Users className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-base mb-0.5 text-gray-900">
+                        Prácticas 1 a 1 🤝
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Practica con otros estudiantes
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-white/80 rounded-lg p-2 text-center border border-blue-200">
+                      <MessageSquare className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                      <span className="font-medium text-gray-900 block">Conversación</span>
+                      <span className="text-gray-600">en vivo</span>
+                    </div>
+                    <div className="bg-white/80 rounded-lg p-2 text-center border border-blue-200">
+                      <Users className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                      <span className="font-medium text-gray-900 block">Compañeros</span>
+                      <span className="text-gray-600">reales</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-100/50 rounded-lg p-2 text-xs text-center">
+                    <p className="font-medium text-gray-900 mb-0.5">
+                      🎯 Aprendizaje colaborativo
+                    </p>
+                    <p className="text-gray-600">
+                      Practica inglés con estudiantes como tú
+                    </p>
+                  </div>
+
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+                    onClick={() => router.push('/practica')}
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Explorar Ahora
+                  </Button>
+                  
+                  <p className="text-center text-xs text-gray-500">
+                    💡 Conecta · Practica · Mejora
                   </p>
                 </CardContent>
               </Card>
