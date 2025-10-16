@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AppHeader } from '@/components/app-header';
-import { SectionNavigator } from '@/components/section-navigator';
 import { cn } from '@/lib/utils';
 import { AnalysisPanel } from './analysis-panel';
 
@@ -539,109 +538,118 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <AppHeader currentSection="tutor" />
-      
-      {/* Section Navigator */}
-      <SectionNavigator 
-        currentSection="tutor"
-        rightActions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant={showAnalysis ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setShowAnalysis(!showAnalysis)}
-              className={cn(
-                "h-8 text-xs transition-all",
-                showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-              )}
-            >
-              {showAnalysis ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
-              Análisis
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetConversation}
-              disabled={isListening || isSpeaking}
-              className="h-8 text-xs"
-            >
-              Reiniciar
-            </Button>
-          </div>
-        }
-      />
 
-      {/* Progress Header - Moved from Sidebar */}
+      {/* Progress Header con Acciones */}
       {gamificationStats && (
         <div className="border-b bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
           <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center shadow-md">
-                  <TrendingUp className="h-4 w-4 text-white" />
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center shadow-md">
+                    <TrendingUp className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm text-purple-900">Tu Progreso</h3>
                 </div>
-                <h3 className="font-bold text-sm text-purple-900">Tu Progreso</h3>
+                
+                <div className="flex items-center gap-3 sm:gap-6">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
+                    <Award className="h-4 w-4 text-blue-600" />
+                    <span className="text-xs text-gray-600">Nivel</span>
+                    <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text ml-1">
+                      {gamificationStats.level}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
+                    <Sparkles className="h-4 w-4 text-purple-600" />
+                    <span className="text-xs text-gray-600">Puntos</span>
+                    <span className="text-sm font-bold text-purple-600 ml-1">
+                      {gamificationStats.points} XP
+                    </span>
+                  </div>
+                  
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-orange-200 shadow-sm">
+                    <TrendingUp className="h-4 w-4 text-orange-600" />
+                    <span className="text-xs text-gray-600">Racha</span>
+                    <span className="text-sm font-bold text-orange-600 ml-1">
+                      {gamificationStats.currentStreak} días 🔥
+                    </span>
+                  </div>
+                </div>
               </div>
               
-              <div className="flex items-center gap-3 sm:gap-6 flex-1">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
-                  <Award className="h-4 w-4 text-blue-600" />
-                  <span className="text-xs text-gray-600">Nivel</span>
-                  <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text ml-1">
-                    {gamificationStats.level}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
-                  <Sparkles className="h-4 w-4 text-purple-600" />
-                  <span className="text-xs text-gray-600">Puntos</span>
-                  <span className="text-sm font-bold text-purple-600 ml-1">
-                    {gamificationStats.points} XP
-                  </span>
-                </div>
-                
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-orange-200 shadow-sm">
-                  <TrendingUp className="h-4 w-4 text-orange-600" />
-                  <span className="text-xs text-gray-600">Racha</span>
-                  <span className="text-sm font-bold text-orange-600 ml-1">
-                    {gamificationStats.currentStreak} días 🔥
-                  </span>
-                </div>
+              {/* Acciones a la derecha */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={showAnalysis ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setShowAnalysis(!showAnalysis)}
+                  className={cn(
+                    "h-8 text-xs transition-all",
+                    showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                  )}
+                >
+                  {showAnalysis ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
+                  <span className="hidden sm:inline">Análisis</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetConversation}
+                  disabled={isListening || isSpeaking}
+                  className="h-8 text-xs"
+                >
+                  <span className="hidden sm:inline">Reiniciar</span>
+                  <span className="sm:hidden">↻</span>
+                </Button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Status Header */}
-      <div className="border-b bg-white/90 backdrop-blur-sm">
-        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-2">
+      {/* Status Header - Enhanced for Speaking State */}
+      <div className={cn(
+        "border-b transition-all duration-300",
+        isSpeaking 
+          ? "bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 animate-pulse" 
+          : "bg-white/90 backdrop-blur-sm"
+      )}>
+        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className={cn(
-                "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300",
+                "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg",
                 isListening && "bg-gradient-to-r from-blue-500 to-blue-600 animate-pulse",
-                isSpeaking && "bg-gradient-to-r from-green-500 to-green-600 animate-pulse",
+                isSpeaking && "bg-white animate-bounce",
                 !isListening && !isSpeaking && "bg-gradient-to-r from-indigo-500 to-purple-600"
               )}>
-                {isListening && <Mic className="h-4 w-4 text-white" />}
-                {isSpeaking && <Volume2 className="h-4 w-4 text-white" />}
-                {!isListening && !isSpeaking && <GraduationCap className="h-4 w-4 text-white" />}
+                {isListening && <Mic className="h-5 w-5 text-white" />}
+                {isSpeaking && <Volume2 className="h-5 w-5 text-green-600 animate-pulse" />}
+                {!isListening && !isSpeaking && <GraduationCap className="h-5 w-5 text-white" />}
               </div>
               
-              <div className="hidden sm:block">
-                <h2 className="text-xs font-bold text-gray-900">
-                  {isListening && '🎤 Escuchando...'}
-                  {isSpeaking && '🔊 Tutor hablando...'}
+              <div>
+                <h2 className={cn(
+                  "text-sm font-bold transition-all duration-300",
+                  isSpeaking ? "text-white" : "text-gray-900"
+                )}>
+                  {isListening && '🎤 Escuchando tu voz...'}
+                  {isSpeaking && '🔊 ¡El tutor está hablando! Escucha atentamente'}
                   {!isListening && !isSpeaking && 'Tutor de IA'}
                 </h2>
-                <p className="text-[10px] text-gray-500">
-                  {isListening && 'Habla en inglés'}
-                  {isSpeaking && 'Escucha el audio del tutor 🔊'}
-                  {!isListening && !isSpeaking && 'Conversación en inglés'}
+                <p className={cn(
+                  "text-xs transition-all duration-300",
+                  isSpeaking ? "text-white/90 font-medium" : "text-gray-500"
+                )}>
+                  {isListening && 'Habla en inglés con claridad'}
+                  {isSpeaking && '🎧 Asegúrate de tener el audio activado'}
+                  {!isListening && !isSpeaking && 'Conversación interactiva en inglés'}
                 </p>
               </div>
               
-              {gamificationStats && (
+              {gamificationStats && !isSpeaking && (
                 <div className="hidden lg:flex items-center gap-1.5 ml-3">
                   <Badge variant="secondary" className="gap-1 text-[10px] px-2 py-0.5">
                     <Award className="h-3 w-3 text-purple-600" />
