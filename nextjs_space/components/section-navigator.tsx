@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 interface SectionNavigatorProps {
-  currentSection?: 'dashboard' | 'tutor' | 'vocabulario' | 'recursos' | 'guia' | null
+  currentSection?: 'dashboard' | 'tutor' | 'practica' | 'vocabulario' | 'recursos' | 'guia' | null
   /**
    * Optional custom actions to show on the right side of the navigator
    */
@@ -51,6 +51,18 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       description: 'Práctica con voz',
       isNew: true,
       tourId: 'nav-tutor'
+    },
+    {
+      id: 'practica',
+      name: 'Práctica 1:1',
+      icon: MessageSquare,
+      path: '/practica',
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-300',
+      description: 'Sesiones en vivo',
+      isNew: true,
+      tourId: 'nav-practica'
     },
     {
       id: 'vocabulario',
