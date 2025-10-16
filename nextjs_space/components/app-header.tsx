@@ -136,6 +136,16 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
                 <UserPlus className="h-4 w-4 mr-2" />
                 <span>Invitar Amigos</span>
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setDropdownOpen(false)
+                  router.push('/guia')
+                }}
+                className="cursor-pointer"
+              >
+                <HelpCircle className="h-4 w-4 mr-2" />
+                <span>Guía de Uso</span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
@@ -249,17 +259,6 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
                     <Library className="h-4 w-4 mr-2" />
                     Recursos
                   </Button>
-                  <Button
-                    variant={currentSection === 'guia' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => {
-                      router.push('/guia')
-                      setMobileMenuOpen(false)
-                    }}
-                  >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    Guía de Uso
-                  </Button>
                 </div>
               </div>
 
@@ -277,6 +276,18 @@ export function AppHeader({ currentSection, showBackButton = false }: AppHeaderP
                   >
                     <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
                     <span className="font-medium text-blue-700">Invitar Amigos</span>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      router.push('/guia')
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Guía de Uso
                   </Button>
                   
                   <Button

@@ -85,17 +85,6 @@ export function SectionNavigator({ currentSection, rightActions }: SectionNaviga
       borderColor: 'border-orange-300',
       description: 'Herramientas',
       tourId: 'nav-resources'
-    },
-    {
-      id: 'guia',
-      name: 'Guía',
-      icon: HelpCircle,
-      path: '/guia',
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-50',
-      borderColor: 'border-pink-300',
-      tourId: 'nav-guide',
-      description: 'Cómo usar'
     }
   ]
 
