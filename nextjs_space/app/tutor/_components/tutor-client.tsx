@@ -102,11 +102,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     };
   }, []);
   
-  // Auto-scroll to latest message
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-  
   const initVoiceSystem = () => {
     // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
