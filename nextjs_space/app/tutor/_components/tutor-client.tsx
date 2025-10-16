@@ -540,6 +540,36 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <AppHeader currentSection="tutor" />
 
+      {/* Section Navigator - Submenu General */}
+      <SectionNavigator 
+        currentSection="tutor"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant={showAnalysis ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowAnalysis(!showAnalysis)}
+              className={cn(
+                "h-8 text-xs transition-all",
+                showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+              )}
+            >
+              {showAnalysis ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
+              Análisis
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetConversation}
+              disabled={isListening || isSpeaking}
+              className="h-8 text-xs"
+            >
+              Reiniciar
+            </Button>
+          </div>
+        }
+      />
+
       {/* Progress Header */}
       {gamificationStats && (
         <div className="border-b bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
@@ -581,36 +611,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           </div>
         </div>
       )}
-
-      {/* Section Navigator - Submenu General */}
-      <SectionNavigator 
-        currentSection="tutor"
-        rightActions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant={showAnalysis ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setShowAnalysis(!showAnalysis)}
-              className={cn(
-                "h-8 text-xs transition-all",
-                showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-              )}
-            >
-              {showAnalysis ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
-              Análisis
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetConversation}
-              disabled={isListening || isSpeaking}
-              className="h-8 text-xs"
-            >
-              Reiniciar
-            </Button>
-          </div>
-        }
-      />
       
       <div className="container max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
         <div className="grid lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] gap-4 lg:gap-6">
