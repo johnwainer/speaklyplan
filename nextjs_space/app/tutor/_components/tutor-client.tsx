@@ -570,6 +570,48 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         }
       />
 
+      {/* Progress Header - Moved from Sidebar */}
+      {gamificationStats && (
+        <div className="border-b bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+          <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center shadow-md">
+                  <TrendingUp className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="font-bold text-sm text-purple-900">Tu Progreso</h3>
+              </div>
+              
+              <div className="flex items-center gap-3 sm:gap-6 flex-1">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
+                  <Award className="h-4 w-4 text-blue-600" />
+                  <span className="text-xs text-gray-600">Nivel</span>
+                  <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text ml-1">
+                    {gamificationStats.level}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
+                  <Sparkles className="h-4 w-4 text-purple-600" />
+                  <span className="text-xs text-gray-600">Puntos</span>
+                  <span className="text-sm font-bold text-purple-600 ml-1">
+                    {gamificationStats.points} XP
+                  </span>
+                </div>
+                
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-orange-200 shadow-sm">
+                  <TrendingUp className="h-4 w-4 text-orange-600" />
+                  <span className="text-xs text-gray-600">Racha</span>
+                  <span className="text-sm font-bold text-orange-600 ml-1">
+                    {gamificationStats.currentStreak} días 🔥
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Status Header */}
       <div className="border-b bg-white/90 backdrop-blur-sm">
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-2">
@@ -617,11 +659,11 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       </div>
       
       <div className="container max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
-        <div className="grid lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] gap-4 lg:gap-6">
+        <div className="grid lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] gap-4 lg:gap-6">
           {/* Main Chat Area - Modern Messenger Style */}
           <div className="flex flex-col">
-            {/* Chat Container */}
-            <Card className="flex flex-col border-2 shadow-lg" style={{ height: 'calc(100vh - 220px)', minHeight: '500px' }}>
+            {/* Chat Container - Reduced Height */}
+            <Card className="flex flex-col border-2 shadow-lg" style={{ height: 'calc(100vh - 380px)', minHeight: '400px', maxHeight: '550px' }}>
               {/* Messages Area */}
               <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50/50 to-white" style={{ minHeight: '300px' }}>
                 {messages.length === 0 ? (
@@ -797,62 +839,27 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 </p>
               </div>
             </Card>
-            
-            {/* Analysis Panel - Mobile/Desktop */}
-            <div className="mt-4">
+          </div>
+          
+          {/* Sidebar - Feedback & Info */}
+          <div className="space-y-3 sm:space-y-4">
+            {/* Analysis Panel - Moved from Below Chat */}
+            <div className="hidden lg:block">
               <AnalysisPanel
                 grammarAnalysis={currentAnalysis.grammar}
                 pronunciationAnalysis={currentAnalysis.pronunciation}
                 isVisible={showAnalysis}
               />
             </div>
-          </div>
-          
-          {/* Sidebar - Stats & Info */}
-          <div className="space-y-3 sm:space-y-4 lg:block hidden">
-            {/* Gamification Stats */}
-            {gamificationStats && (
-              <Card className="p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border-2 border-purple-200 shadow-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="font-bold text-sm text-purple-900">Tu Progreso</h3>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Award className="h-4 w-4 text-blue-600" />
-                      <span className="text-xs text-gray-700">Nivel</span>
-                    </div>
-                    <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-                      {gamificationStats.level}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-purple-600" />
-                      <span className="text-xs text-gray-700">Puntos XP</span>
-                    </div>
-                    <span className="text-sm font-bold text-purple-600">
-                      {gamificationStats.points}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-orange-600" />
-                      <span className="text-xs text-gray-700">Racha</span>
-                    </div>
-                    <span className="text-sm font-bold text-orange-600">
-                      {gamificationStats.currentStreak} días 🔥
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            )}
+            
+            {/* Analysis Panel - Mobile View Below Chat */}
+            <div className="lg:hidden mt-4">
+              <AnalysisPanel
+                grammarAnalysis={currentAnalysis.grammar}
+                pronunciationAnalysis={currentAnalysis.pronunciation}
+                isVisible={showAnalysis}
+              />
+            </div>
             
             {/* Practice Vocabulary */}
             {practiceWords.length > 0 && (
