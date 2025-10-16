@@ -863,40 +863,6 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 </div>
               </Card>
             )}
-            
-            {/* Quick Actions */}
-            <Card className="p-4 border-2 shadow-lg">
-              <h3 className="font-bold text-sm text-gray-900 mb-3">Acciones Rápidas</h3>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs hover:bg-blue-50 hover:border-blue-300"
-                  onClick={() => router.push('/vocabulario')}
-                >
-                  <BookOpen className="h-3.5 w-3.5 mr-2 text-blue-600" />
-                  Ver Vocabulario
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs hover:bg-purple-50 hover:border-purple-300"
-                  onClick={() => router.push('/recursos')}
-                >
-                  <Languages className="h-3.5 w-3.5 mr-2 text-purple-600" />
-                  Recursos de Estudio
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs hover:bg-green-50 hover:border-green-300"
-                  onClick={() => router.push('/dashboard')}
-                >
-                  <Home className="h-3.5 w-3.5 mr-2 text-green-600" />
-                  Dashboard
-                </Button>
-              </div>
-            </Card>
           </div>
         </div>
       </div>

@@ -68,7 +68,7 @@ export function AnalysisPanel({
   const [isPronunciationExpanded, setIsPronunciationExpanded] = useState(true);
   const [isGrammarExpanded, setIsGrammarExpanded] = useState(true);
   
-  if (!isVisible || (!grammarAnalysis && !pronunciationAnalysis)) {
+  if (!isVisible) {
     return null;
   }
 
@@ -93,8 +93,9 @@ export function AnalysisPanel({
   return (
     <div className="space-y-3 sm:space-y-4 animate-in slide-in-from-bottom-4 duration-300">
       {/* Pronunciation Analysis */}
-      {pronunciationAnalysis && (
-        <Card className="overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg">
+      <Card className="overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg">
+        {pronunciationAnalysis ? (
+          <>
           {/* Header - Always Visible */}
           <div 
             onClick={() => setIsPronunciationExpanded(!isPronunciationExpanded)}
@@ -244,12 +245,24 @@ export function AnalysisPanel({
               )}
             </div>
           )}
-        </Card>
-      )}
+          </>
+        ) : (
+          <div className="p-4 sm:p-6 text-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center mx-auto mb-3 shadow-md">
+              <Volume2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+            </div>
+            <h3 className="font-bold text-sm sm:text-base text-purple-900 mb-2">Análisis de Pronunciación</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
+              Habla con el tutor para ver tu análisis de pronunciación y fluidez aquí
+            </p>
+          </div>
+        )}
+      </Card>
 
       {/* Grammar Analysis */}
-      {grammarAnalysis && (
-        <Card className="overflow-hidden border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg">
+      <Card className="overflow-hidden border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg">
+        {grammarAnalysis ? (
+          <>
           {/* Header - Always Visible */}
           <div 
             onClick={() => setIsGrammarExpanded(!isGrammarExpanded)}
@@ -367,8 +380,19 @@ export function AnalysisPanel({
               )}
             </div>
           )}
-        </Card>
-      )}
+          </>
+        ) : (
+          <div className="p-4 sm:p-6 text-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 flex items-center justify-center mx-auto mb-3 shadow-md">
+              <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+            </div>
+            <h3 className="font-bold text-sm sm:text-base text-blue-900 mb-2">Análisis Gramatical</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
+              Habla con el tutor para ver tu análisis gramatical y correcciones aquí
+            </p>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
