@@ -89,6 +89,17 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
                 </div>
               </div>
             </div>
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg p-3 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-2">
+                <span className="text-xl">📖</span>
+                <div>
+                  <p className="font-semibold text-green-900 text-sm mb-1">Guía de Uso</p>
+                  <p className="text-xs text-gray-700">
+                    Tutoriales, tips diarios y guía completa de la plataforma
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 rounded-lg p-3 hover:shadow-md transition-shadow">
               <div className="flex items-start gap-2">
                 <span className="text-xl">👥</span>
@@ -183,6 +194,51 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
       placement: 'bottom',
     },
     {
+      target: '[data-tour="nav-practica"]',
+      content: (
+        <div>
+          <div className="mb-3 text-center">
+            <div className="inline-block p-3 bg-gradient-to-r from-pink-500 to-rose-600 rounded-xl shadow-lg">
+              <span className="text-3xl">👥</span>
+            </div>
+            <span className="ml-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full animate-pulse">
+              ¡NUEVO!
+            </span>
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-center bg-gradient-to-r from-pink-600 to-rose-600 text-transparent bg-clip-text">
+            Práctica Social
+          </h3>
+          <p className="text-gray-700 mb-3 text-center font-medium">
+            Practica con <strong>otros estudiantes</strong> en sesiones uno a uno
+          </p>
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-2">
+              <p className="font-semibold text-blue-900 text-xs mb-1">📩 Invitar</p>
+              <p className="text-[10px] text-gray-600">Envía invitaciones</p>
+            </div>
+            <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-2">
+              <p className="font-semibold text-green-900 text-xs mb-1">💬 Sesiones</p>
+              <p className="text-[10px] text-gray-600">Práctica en vivo</p>
+            </div>
+            <div className="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-2">
+              <p className="font-semibold text-purple-900 text-xs mb-1">📊 Historial</p>
+              <p className="text-[10px] text-gray-600">Revisa sesiones</p>
+            </div>
+            <div className="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-2">
+              <p className="font-semibold text-orange-900 text-xs mb-1">💡 Feedback</p>
+              <p className="text-[10px] text-gray-600">Mejora mutua</p>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-2">
+            <p className="text-xs text-center font-semibold text-gray-700">
+              ✨ La mejor forma de mejorar tu fluidez
+            </p>
+          </div>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+    {
       target: '[data-tour="nav-vocabulary"]',
       content: (
         <div>
@@ -263,53 +319,6 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
               <span className="text-lg">🌐</span>
               <span className="text-xs text-gray-700"><strong>Sitios web:</strong> Herramientas útiles</span>
             </div>
-          </div>
-        </div>
-      ),
-      placement: 'bottom',
-    },
-    {
-      target: '[data-tour="nav-practica"]',
-      content: (
-        <div>
-          <div className="mb-3">
-            <div className="inline-block p-2 bg-gradient-to-r from-pink-500 to-rose-600 rounded-lg">
-              <span className="text-2xl">🎉</span>
-            </div>
-            <span className="ml-2 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full animate-pulse">
-              ¡NUEVO!
-            </span>
-          </div>
-          <h3 className="text-xl font-bold mb-3 bg-gradient-to-r from-pink-600 to-rose-600 text-transparent bg-clip-text">
-            👥 Práctica Social
-          </h3>
-          <p className="text-gray-700 mb-3">
-            <strong>¡La función más esperada!</strong> Practica inglés con otros estudiantes en sesiones uno a uno.
-          </p>
-          <div className="space-y-2 mb-3">
-            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-3">
-              <p className="font-semibold text-blue-900 text-sm mb-1">📩 Invita Compañeros</p>
-              <p className="text-xs text-gray-700">
-                Busca usuarios por email y envía invitaciones de práctica
-              </p>
-            </div>
-            <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-3">
-              <p className="font-semibold text-green-900 text-sm mb-1">💬 Sesiones en Vivo</p>
-              <p className="text-xs text-gray-700">
-                Practica conversaciones estructuradas con feedback mutuo
-              </p>
-            </div>
-            <div className="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-3">
-              <p className="font-semibold text-purple-900 text-sm mb-1">📊 Historial</p>
-              <p className="text-xs text-gray-700">
-                Revisa tus sesiones pasadas y el feedback recibido
-              </p>
-            </div>
-          </div>
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-2">
-            <p className="text-xs text-gray-700">
-              <strong>💡 Tip:</strong> Las sesiones de práctica son la manera más efectiva de mejorar tu fluidez
-            </p>
           </div>
         </div>
       ),
@@ -504,69 +513,49 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
     {
       target: 'body',
       content: (
-        <div className="text-center">
-          <div className="mb-4">
-            <div className="inline-block p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full mb-3 animate-pulse">
-              <span className="text-5xl">🚀</span>
+        <div className="text-center max-h-[80vh] overflow-y-auto">
+          <div className="mb-3">
+            <div className="inline-block p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full mb-2 animate-pulse">
+              <span className="text-4xl">🚀</span>
             </div>
           </div>
-          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-green-600 to-emerald-600 text-transparent bg-clip-text">
+          <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-green-600 to-emerald-600 text-transparent bg-clip-text">
             ¡Todo Listo para Empezar!
           </h2>
-          <p className="text-gray-700 mb-4 text-lg">
-            Ya conoces todas las secciones y herramientas de SpeaklyPlan
+          <p className="text-gray-700 mb-3 text-sm">
+            Ya conoces todas las herramientas de SpeaklyPlan
           </p>
           
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-xl p-4 mb-4 text-left">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 bg-blue-500 rounded-lg">
-                <span className="text-xl">💡</span>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-xl p-3 mb-3 text-left">
+            <p className="font-bold text-blue-900 text-sm mb-2 text-center">💡 Tus Primeros Pasos</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 bg-white/70 rounded-lg p-2">
+                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">1</div>
+                <p className="text-xs text-gray-900">Revisa tus actividades pendientes</p>
               </div>
-              <p className="font-bold text-blue-900 text-lg">Tus Primeros Pasos:</p>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 font-bold text-white">1</div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">Revisa tus actividades pendientes</p>
-                  <p className="text-xs text-gray-600">Ve qué tienes que hacer esta semana</p>
-                </div>
+              <div className="flex items-center gap-2 bg-white/70 rounded-lg p-2">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">2</div>
+                <p className="text-xs text-gray-900">Completa 1 actividad hoy</p>
               </div>
-              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
-                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 font-bold text-white">2</div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">Completa al menos una actividad hoy</p>
-                  <p className="text-xs text-gray-600">¡Empieza tu racha de aprendizaje!</p>
-                </div>
+              <div className="flex items-center gap-2 bg-white/70 rounded-lg p-2">
+                <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">3</div>
+                <p className="text-xs text-gray-900">Prueba el Tutor IA (10 min)</p>
               </div>
-              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 font-bold text-white">3</div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">Prueba el Tutor de IA por 10 minutos</p>
-                  <p className="text-xs text-gray-600">Conversa en inglés y recibe feedback instantáneo</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
-                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 font-bold text-white">4</div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">Explora el vocabulario</p>
-                  <p className="text-xs text-gray-600">Practica pronunciación de palabras profesionales</p>
-                </div>
+              <div className="flex items-center gap-2 bg-white/70 rounded-lg p-2">
+                <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">4</div>
+                <p className="text-xs text-gray-900">Practica vocabulario</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-xl p-4 mb-4">
-            <p className="font-bold text-yellow-900 mb-2">🎯 Meta del Día 1:</p>
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-2xl">✅</span>
-              <p className="text-sm text-gray-700">Completa 1 actividad + 10 min con el Tutor IA</p>
-            </div>
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-xl p-3 mb-3">
+            <p className="font-bold text-yellow-900 text-sm mb-1">🎯 Meta del Día 1</p>
+            <p className="text-xs text-gray-700">1 actividad + 10 min con Tutor IA = ¡Éxito! 🎉</p>
           </div>
           
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <p className="text-sm text-gray-600">
-              💬 <strong>¿Necesitas ayuda?</strong> Vuelve a ver este tour haciendo clic en el botón de ayuda <strong>(?)</strong> en la esquina inferior izquierda o visita la <strong>Guía de Uso</strong>.
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+            <p className="text-xs text-gray-600">
+              💬 <strong>¿Necesitas ayuda?</strong> Haz clic en <strong>(?)</strong> o ve a la <strong>Guía de Uso</strong>
             </p>
           </div>
         </div>
