@@ -559,7 +559,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         )}
 
                         <div className="grid sm:grid-cols-2 gap-2.5 w-full overflow-hidden">
-                          {pendingActivities.slice(0, 4).map((activity) => (
+                          {pendingActivities.slice(0, 2).map((activity) => (
                             <div
                               key={activity?.id}
                               className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
@@ -594,7 +594,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                           ))}
                         </div>
 
-                        {pendingActivities.length > 4 && (
+                        {pendingActivities.length > 2 && (
                           <div className="text-center pt-1.5">
                             <Button
                               size="sm"
@@ -605,7 +605,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                               }}
                               className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs h-8"
                             >
-                              Ver {pendingActivities.length - 4} actividades más
+                              Ver {pendingActivities.length - 2} actividades más
                             </Button>
                           </div>
                         )}
