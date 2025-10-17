@@ -311,19 +311,19 @@ export default function GuiaClient({ user }: GuiaClientProps) {
             <ul className="space-y-2 text-sm">
               <li className="flex justify-between items-start">
                 <span>• <strong>Duolingo:</strong> Para vocabulario y práctica diaria</span>
-                <span className="text-xs text-gray-500">Básico-Intermedio</span>
+                <span className="text-xs sm:text-sm text-gray-500">Básico-Intermedio</span>
               </li>
               <li className="flex justify-between items-start">
                 <span>• <strong>Anki:</strong> Sistema de repetición espaciada para memorizar</span>
-                <span className="text-xs text-gray-500">Todos los niveles</span>
+                <span className="text-xs sm:text-sm text-gray-500">Todos los niveles</span>
               </li>
               <li className="flex justify-between items-start">
                 <span>• <strong>HelloTalk:</strong> Intercambio de idiomas con nativos</span>
-                <span className="text-xs text-gray-500">Intermedio+</span>
+                <span className="text-xs sm:text-sm text-gray-500">Intermedio+</span>
               </li>
               <li className="flex justify-between items-start">
                 <span>• <strong>ELSA Speak:</strong> Mejora tu pronunciación con IA</span>
-                <span className="text-xs text-gray-500">Todos los niveles</span>
+                <span className="text-xs sm:text-sm text-gray-500">Todos los niveles</span>
               </li>
             </ul>
           </div>

@@ -441,8 +441,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-blue-600">{progressData.percentageCompleted}%</div>
-                  <div className="text-xs text-gray-600">Completado</div>
+                  <div className="text-xl sm:text-2xl font-bold text-blue-600">{progressData.percentageCompleted}%</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Completado</div>
                 </div>
               </div>
 
@@ -451,8 +451,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <Flame className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-green-600">{progressData.currentStreak} días</div>
-                  <div className="text-xs text-gray-600">Racha actual</div>
+                  <div className="text-xl sm:text-2xl font-bold text-green-600">{progressData.currentStreak} días</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Racha actual</div>
                 </div>
               </div>
 
@@ -461,8 +461,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-purple-600">Semana {progressData.currentWeek}</div>
-                  <div className="text-xs text-gray-600">de 24 semanas</div>
+                  <div className="text-xl sm:text-2xl font-bold text-purple-600">Semana {progressData.currentWeek}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">de 24 semanas</div>
                 </div>
               </div>
             </div>
@@ -491,8 +491,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         <Target className="h-4 w-4 text-white" />
                       </div>
                       <div className="min-w-0 overflow-hidden">
-                        <CardTitle className="text-base sm:text-lg truncate">¡Empieza aquí!</CardTitle>
-                        <CardDescription className="text-xs truncate">
+                        <CardTitle className="text-lg sm:text-xl truncate">¡Empieza aquí!</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm truncate">
                           Tus actividades de esta semana
                         </CardDescription>
                       </div>
@@ -503,7 +503,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         setSelectedWeek(progressData.currentWeek)
                         setCurrentView('week')
                       }}
-                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs px-3 h-8"
+                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-sm px-3 h-8"
                     >
                       Ver todas
                     </Button>
@@ -570,10 +570,10 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                             >
                               <div className="flex items-start justify-between gap-2 max-w-full overflow-hidden">
                                 <div className="flex-1 min-w-0 overflow-hidden">
-                                  <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
+                                  <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">
                                     {activity?.title}
                                   </h4>
-                                  <p className="text-xs text-gray-600 line-clamp-2 break-words">
+                                  <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 break-words">
                                     {formatMarkdownText(activity?.description)}
                                   </p>
                                   <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
@@ -603,7 +603,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                                 setSelectedWeek(progressData.currentWeek)
                                 setCurrentView('week')
                               }}
-                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs h-8"
+                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-sm h-8"
                             >
                               Ver {pendingActivities.length - 2} actividades más
                             </Button>
@@ -631,10 +631,10 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         <Mic className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-sm mb-0 text-gray-900">
+                        <CardTitle className="text-base sm:text-lg mb-0 text-gray-900">
                           Tutor de IA 🎤
                         </CardTitle>
-                        <CardDescription className="text-xs">
+                        <CardDescription className="text-xs sm:text-sm">
                           Practica conversación en tiempo real
                         </CardDescription>
                       </div>
@@ -642,24 +642,24 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   </CardHeader>
                   
                   <CardContent className="pt-0 px-3 pb-3 space-y-2">
-                    <div className="flex gap-1.5 text-xs">
+                    <div className="flex gap-1.5 text-xs sm:text-sm">
                       <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
                         <MessageSquare className="h-3 w-3 text-emerald-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs">Voz Real</span>
+                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Voz Real</span>
                       </div>
                       <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
                         <Trophy className="h-3 w-3 text-purple-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs">Gamificación</span>
+                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Gamificación</span>
                       </div>
                       <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
                         <BookOpen className="h-3 w-3 text-orange-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs">Vocabulario</span>
+                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Vocabulario</span>
                       </div>
                     </div>
 
                     <Button
                       size="sm"
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md text-xs h-8"
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md text-sm h-8"
                       onClick={() => router.push('/tutor')}
                     >
                       <Mic className="h-3 w-3 mr-1.5" />
@@ -686,10 +686,10 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         <Users className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-sm mb-0 text-gray-900">
+                        <CardTitle className="text-base sm:text-lg mb-0 text-gray-900">
                           Prácticas 1 a 1 🤝
                         </CardTitle>
-                        <CardDescription className="text-xs">
+                        <CardDescription className="text-xs sm:text-sm">
                           Practica con otros estudiantes
                         </CardDescription>
                       </div>
@@ -697,24 +697,24 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   </CardHeader>
 
                   <CardContent className="pt-0 px-3 pb-3 space-y-2">
-                    <div className="flex gap-1.5 text-xs">
+                    <div className="flex gap-1.5 text-xs sm:text-sm">
                       <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
                         <MessageSquare className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs">Conversación</span>
+                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Conversación</span>
                       </div>
                       <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
                         <Users className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs">En vivo</span>
+                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">En vivo</span>
                       </div>
                       <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
                         <Target className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs">Colaborativo</span>
+                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Colaborativo</span>
                       </div>
                     </div>
 
                     <Button 
                       size="sm"
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md text-xs h-8"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md text-sm h-8"
                       onClick={() => router.push('/practica')}
                     >
                       <Users className="h-3 w-3 mr-1.5" />

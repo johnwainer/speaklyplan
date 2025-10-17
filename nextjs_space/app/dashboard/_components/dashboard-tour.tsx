@@ -169,19 +169,19 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
           <div className="grid grid-cols-2 gap-2 mb-3">
             <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-2">
               <p className="font-semibold text-blue-900 text-xs mb-1">💬 Conversaciones</p>
-              <p className="text-[10px] text-gray-600">Práctica real en contexto</p>
+              <p className="text-xs text-gray-600">Práctica real en contexto</p>
             </div>
             <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-2">
               <p className="font-semibold text-green-900 text-xs mb-1">✅ Feedback</p>
-              <p className="text-[10px] text-gray-600">Corrección instantánea</p>
+              <p className="text-xs text-gray-600">Corrección instantánea</p>
             </div>
             <div className="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-2">
               <p className="font-semibold text-purple-900 text-xs mb-1">🎤 Voz</p>
-              <p className="text-[10px] text-gray-600">Reconocimiento de voz</p>
+              <p className="text-xs text-gray-600">Reconocimiento de voz</p>
             </div>
             <div className="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-2">
               <p className="font-semibold text-orange-900 text-xs mb-1">⭐ XP</p>
-              <p className="text-[10px] text-gray-600">Gana puntos</p>
+              <p className="text-xs text-gray-600">Gana puntos</p>
             </div>
           </div>
           <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-2">
@@ -214,19 +214,19 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
           <div className="grid grid-cols-2 gap-2 mb-3">
             <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-2">
               <p className="font-semibold text-blue-900 text-xs mb-1">📩 Invitar</p>
-              <p className="text-[10px] text-gray-600">Envía invitaciones</p>
+              <p className="text-xs text-gray-600">Envía invitaciones</p>
             </div>
             <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-2">
               <p className="font-semibold text-green-900 text-xs mb-1">💬 Sesiones</p>
-              <p className="text-[10px] text-gray-600">Práctica en vivo</p>
+              <p className="text-xs text-gray-600">Práctica en vivo</p>
             </div>
             <div className="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-2">
               <p className="font-semibold text-purple-900 text-xs mb-1">📊 Historial</p>
-              <p className="text-[10px] text-gray-600">Revisa sesiones</p>
+              <p className="text-xs text-gray-600">Revisa sesiones</p>
             </div>
             <div className="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-2">
               <p className="font-semibold text-orange-900 text-xs mb-1">💡 Feedback</p>
-              <p className="text-[10px] text-gray-600">Mejora mutua</p>
+              <p className="text-xs text-gray-600">Mejora mutua</p>
             </div>
           </div>
           <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-2">
@@ -260,7 +260,7 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
                 <span className="text-lg">🔊</span>
                 <div>
                   <p className="font-semibold text-blue-900 text-xs">Escuchar</p>
-                  <p className="text-[10px] text-gray-600">Pronunciación con voz nativa</p>
+                  <p className="text-xs text-gray-600">Pronunciación con voz nativa</p>
                 </div>
               </div>
             </div>
@@ -269,7 +269,7 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
                 <span className="text-lg">🎤</span>
                 <div>
                   <p className="font-semibold text-green-900 text-xs">Practicar</p>
-                  <p className="text-[10px] text-gray-600">Graba y recibe calificación 0-100</p>
+                  <p className="text-xs text-gray-600">Graba y recibe calificación 0-100</p>
                 </div>
               </div>
             </div>
@@ -278,7 +278,7 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
                 <span className="text-lg">📊</span>
                 <div>
                   <p className="font-semibold text-purple-900 text-xs">Seguimiento</p>
-                  <p className="text-[10px] text-gray-600">Ve tu progreso por categoría</p>
+                  <p className="text-xs text-gray-600">Ve tu progreso por categoría</p>
                 </div>
               </div>
             </div>

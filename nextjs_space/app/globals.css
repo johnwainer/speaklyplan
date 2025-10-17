@@ -72,6 +72,50 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 16px; /* Base font size para mejor legibilidad */
+  }
+}
+
+/* Sistema de Tipografía Unificado */
+@layer components {
+  /* Títulos */
+  .heading-1 {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold;
+  }
+  
+  .heading-2 {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+  }
+  
+  .heading-3 {
+    @apply text-lg sm:text-xl lg:text-2xl font-semibold;
+  }
+  
+  .heading-4 {
+    @apply text-base sm:text-lg font-semibold;
+  }
+  
+  /* Cuerpo de texto */
+  .body-large {
+    @apply text-base sm:text-lg font-normal;
+  }
+  
+  .body-normal {
+    @apply text-sm sm:text-base font-normal;
+  }
+  
+  .body-small {
+    @apply text-xs sm:text-sm font-normal;
+  }
+  
+  /* Metadatos y captions */
+  .caption {
+    @apply text-xs font-medium;
+  }
+  
+  /* Textos enfatizados */
+  .text-emphasis {
+    @apply font-semibold;
   }
 }
 

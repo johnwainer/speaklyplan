@@ -802,7 +802,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   )}
                 </div>
                 
-                <p className="text-[10px] sm:text-xs text-center text-gray-500 mt-2">
+                <p className="text-xs sm:text-sm text-center text-gray-500 mt-2">
                   💡 Habla claramente en inglés para recibir análisis en tiempo real
                 </p>
               </div>
@@ -844,11 +844,11 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                     <div key={i} className="p-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:border-blue-300 transition-all">
                       <p className="text-xs font-semibold text-blue-900">{word.term}</p>
                       {word.pronunciation && (
-                        <p className="text-[10px] text-blue-600">[{word.pronunciation}]</p>
+                        <p className="text-xs text-blue-600">[{word.pronunciation}]</p>
                       )}
-                      <p className="text-[10px] text-gray-600 mt-0.5">{word.translation}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">{word.translation}</p>
                       {!word.mastered && (
-                        <Badge variant="outline" className="text-[10px] mt-1 h-4">
+                        <Badge variant="outline" className="text-xs mt-1 h-4">
                           {word.attempts} intentos
                         </Badge>
                       )}
@@ -868,7 +868,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   <h3 className="font-bold text-sm text-yellow-900">Sugeridas</h3>
                 </div>
                 
-                <p className="text-[10px] text-gray-600 mb-2">
+                <p className="text-xs text-gray-600 mb-2">
                   Palabras incluidas en la conversación:
                 </p>
                 
@@ -876,7 +876,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   {suggestedVocab.map((word, i) => (
                     <div key={i} className="p-2 bg-white rounded-lg border border-yellow-200">
                       <p className="text-xs font-semibold text-gray-900">{word.term}</p>
-                      <p className="text-[10px] text-gray-600">{word.translation}</p>
+                      <p className="text-xs text-gray-600">{word.translation}</p>
                     </div>
                   ))}
                 </div>

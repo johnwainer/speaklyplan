@@ -107,7 +107,7 @@ export function AnalysisPanel({
               </div>
               <div>
                 <h3 className="font-bold text-sm sm:text-base text-purple-900">Pronunciación</h3>
-                <p className="text-[10px] sm:text-xs text-purple-600 flex items-center gap-1.5">
+                <p className="text-xs sm:text-xs text-purple-600 flex items-center gap-1.5">
                   <Star className={cn("h-3 w-3", getScoreColor(pronunciationAnalysis.pronunciationScore))} />
                   {pronunciationAnalysis.pronunciationScore}/100
                 </p>
@@ -116,7 +116,7 @@ export function AnalysisPanel({
             
             <div className="flex items-center gap-2">
               <div className={cn(
-                "px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold text-white",
+                "px-2 sm:px-3 py-1 rounded-full text-xs sm:text-xs font-bold text-white",
                 pronunciationAnalysis.pronunciationScore >= 90 && "bg-green-500",
                 pronunciationAnalysis.pronunciationScore >= 70 && pronunciationAnalysis.pronunciationScore < 90 && "bg-yellow-500",
                 pronunciationAnalysis.pronunciationScore < 70 && "bg-red-500"
@@ -140,7 +140,7 @@ export function AnalysisPanel({
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <div className="p-2 sm:p-3 bg-white/70 rounded-lg border border-purple-200">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] sm:text-xs text-gray-600 font-medium">Pronunciación</span>
+                    <span className="text-xs sm:text-xs text-gray-600 font-medium">Pronunciación</span>
                     <span className={cn("text-xs sm:text-sm font-bold", getScoreColor(pronunciationAnalysis.pronunciationScore))}>
                       {pronunciationAnalysis.pronunciationScore}
                     </span>
@@ -152,7 +152,7 @@ export function AnalysisPanel({
                 </div>
                 <div className="p-2 sm:p-3 bg-white/70 rounded-lg border border-purple-200">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] sm:text-xs text-gray-600 font-medium">Fluidez</span>
+                    <span className="text-xs sm:text-xs text-gray-600 font-medium">Fluidez</span>
                     <span className={cn("text-xs sm:text-sm font-bold", getScoreColor(pronunciationAnalysis.fluencyScore))}>
                       {pronunciationAnalysis.fluencyScore}
                     </span>
@@ -176,7 +176,7 @@ export function AnalysisPanel({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
                     <Target className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-purple-700" />
-                    <p className="text-[10px] sm:text-xs font-bold text-purple-900">
+                    <p className="text-xs sm:text-xs font-bold text-purple-900">
                       Errores de Fonemas ({pronunciationAnalysis.phonemeErrors.length})
                     </p>
                   </div>
@@ -192,16 +192,16 @@ export function AnalysisPanel({
                         <span className="text-xs sm:text-sm font-bold">
                           "{error.word}" - /{error.phoneme}/
                         </span>
-                        <Badge variant="outline" className="text-[10px] h-4 sm:h-5">
+                        <Badge variant="outline" className="text-xs h-4 sm:h-5">
                           {error.severity === 'low' && '⚠️'}
                           {error.severity === 'medium' && '⚠️⚠️'}
                           {error.severity === 'high' && '⚠️⚠️⚠️'}
                         </Badge>
                       </div>
-                      <p className="text-[10px] sm:text-xs mb-1">
+                      <p className="text-xs sm:text-xs mb-1">
                         ❌ {error.errorSpanish || error.error}
                       </p>
-                      <p className="text-[10px] sm:text-xs font-semibold">
+                      <p className="text-xs sm:text-xs font-semibold">
                         ✅ {error.correctionSpanish || error.correction}
                       </p>
                     </div>
@@ -214,11 +214,11 @@ export function AnalysisPanel({
                 <div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-green-600" />
-                    <p className="text-[10px] sm:text-xs font-bold text-green-700">Fortalezas</p>
+                    <p className="text-xs sm:text-xs font-bold text-green-700">Fortalezas</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {pronunciationAnalysis.strengths.slice(0, 4).map((strength, i) => (
-                      <Badge key={i} className="bg-green-50 text-green-700 border-green-300 text-[10px] sm:text-xs">
+                      <Badge key={i} className="bg-green-50 text-green-700 border-green-300 text-xs sm:text-xs">
                         ✓ {strength}
                       </Badge>
                     ))}
@@ -231,11 +231,11 @@ export function AnalysisPanel({
                 <div className="p-2 sm:p-3 bg-purple-100/50 rounded-lg border border-purple-300">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Lightbulb className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-purple-700" />
-                    <p className="text-[10px] sm:text-xs font-bold text-purple-900">Sugerencias</p>
+                    <p className="text-xs sm:text-xs font-bold text-purple-900">Sugerencias</p>
                   </div>
                   <ul className="space-y-1">
                     {pronunciationAnalysis.suggestionsSpanish.slice(0, 3).map((suggestion, i) => (
-                      <li key={i} className="text-[10px] sm:text-xs text-gray-700 flex items-start gap-1.5">
+                      <li key={i} className="text-xs sm:text-xs text-gray-700 flex items-start gap-1.5">
                         <Zap className="h-3 w-3 text-purple-500 flex-shrink-0 mt-0.5" />
                         <span>{suggestion}</span>
                       </li>
@@ -274,7 +274,7 @@ export function AnalysisPanel({
               </div>
               <div>
                 <h3 className="font-bold text-sm sm:text-base text-blue-900">Gramática</h3>
-                <p className="text-[10px] sm:text-xs text-blue-600 flex items-center gap-1.5">
+                <p className="text-xs sm:text-xs text-blue-600 flex items-center gap-1.5">
                   <Star className={cn("h-3 w-3", getScoreColor(grammarAnalysis.feedback.accuracyScore))} />
                   {grammarAnalysis.feedback.accuracyScore}/100
                 </p>
@@ -283,11 +283,11 @@ export function AnalysisPanel({
             
             <div className="flex items-center gap-2">
               {grammarAnalysis.errors && grammarAnalysis.errors.length > 0 ? (
-                <div className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-orange-500 text-white">
+                <div className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-xs font-bold bg-orange-500 text-white">
                   {grammarAnalysis.errors.length} error{grammarAnalysis.errors.length !== 1 ? 'es' : ''}
                 </div>
               ) : (
-                <div className="px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-green-500 text-white">
+                <div className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-xs font-bold bg-green-500 text-white">
                   ¡Perfecto!
                 </div>
               )}
@@ -305,7 +305,7 @@ export function AnalysisPanel({
               {/* Accuracy Score */}
               <div className="p-2 sm:p-3 bg-white/70 rounded-lg border border-blue-200">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] sm:text-xs text-gray-600 font-medium">Precisión Gramatical</span>
+                  <span className="text-xs sm:text-xs text-gray-600 font-medium">Precisión Gramatical</span>
                   <span className={cn("text-xs sm:text-sm font-bold", getScoreColor(grammarAnalysis.feedback.accuracyScore))}>
                     {grammarAnalysis.feedback.accuracyScore}/100
                   </span>
@@ -330,7 +330,7 @@ export function AnalysisPanel({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
                     <AlertCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-blue-700" />
-                    <p className="text-[10px] sm:text-xs font-bold text-blue-900">
+                    <p className="text-xs sm:text-xs font-bold text-blue-900">
                       Errores Detectados ({grammarAnalysis.errors.length})
                     </p>
                   </div>
@@ -343,10 +343,10 @@ export function AnalysisPanel({
                       )}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <Badge variant="outline" className="text-[10px] sm:text-xs">
+                        <Badge variant="outline" className="text-xs sm:text-xs">
                           {error.type.replace('_', ' ')}
                         </Badge>
-                        <Badge variant="outline" className="text-[10px] h-4 sm:h-5">
+                        <Badge variant="outline" className="text-xs h-4 sm:h-5">
                           {error.severity === 'low' && '⚠️'}
                           {error.severity === 'medium' && '⚠️⚠️'}
                           {error.severity === 'high' && '⚠️⚠️⚠️'}
@@ -354,15 +354,15 @@ export function AnalysisPanel({
                       </div>
                       
                       <div className="space-y-1">
-                        <div className="text-[10px] sm:text-xs">
+                        <div className="text-xs sm:text-xs">
                           <span className="text-gray-600 font-medium">❌ Dijiste:</span>
                           <span className="ml-1.5 line-through">{error.original}</span>
                         </div>
-                        <div className="text-[10px] sm:text-xs">
+                        <div className="text-xs sm:text-xs">
                           <span className="text-gray-600 font-medium">✅ Correcto:</span>
                           <span className="ml-1.5 font-semibold text-green-700">{error.correction}</span>
                         </div>
-                        <div className="text-[10px] sm:text-xs text-gray-600 mt-1.5 p-1.5 sm:p-2 bg-white/50 rounded flex items-start gap-1">
+                        <div className="text-xs sm:text-xs text-gray-600 mt-1.5 p-1.5 sm:p-2 bg-white/50 rounded flex items-start gap-1">
                           <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
                           <span>{error.explanationSpanish || error.explanation}</span>
                         </div>
