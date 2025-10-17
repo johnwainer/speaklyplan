@@ -29,6 +29,7 @@ import { es } from 'date-fns/locale'
 import Image from 'next/image'
 import { AppHeader } from '@/components/app-header'
 import { SectionNavigator } from '@/components/section-navigator'
+import { GoogleCalendarConnect } from '@/app/dashboard/practicas/_components/google-calendar-connect'
 
 interface PracticeStats {
   totalSessions: number
@@ -328,6 +329,16 @@ export default function PracticaClient() {
               </motion.div>
             </motion.div>
           )}
+
+          {/* Google Calendar Integration */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <GoogleCalendarConnect />
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Upcoming Sessions */}
