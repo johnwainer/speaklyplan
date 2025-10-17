@@ -4,12 +4,14 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Calendar, CheckCircle2, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface GoogleStatus {
   connected: boolean;
   expiresAt: string | null;
+  configured?: boolean;
 }
 
 export function GoogleCalendarConnect() {
@@ -120,7 +122,22 @@ export function GoogleCalendarConnect() {
         </div>
       </CardHeader>
       <CardContent>
-        {status?.connected ? (
+        {!status?.configured && status?.configured !== undefined ? (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>Configuración requerida:</strong> Las credenciales de Google OAuth no están configuradas. 
+              <br />
+              <a 
+                href="/CONFIGURAR_GOOGLE_CALENDAR.pdf" 
+                target="_blank"
+                className="underline font-medium hover:text-primary mt-2 inline-block"
+              >
+                Ver guía de configuración →
+              </a>
+            </AlertDescription>
+          </Alert>
+        ) : status?.connected ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle2 className="h-5 w-5" />
@@ -155,13 +172,18 @@ export function GoogleCalendarConnect() {
             </p>
             <Button
               onClick={handleConnect}
-              disabled={connecting}
+              disabled={connecting || !status?.configured}
               size="sm"
             >
               {connecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Conectando...
+                </>
+              ) : !status?.configured ? (
+                <>
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  Configuración requerida
                 </>
               ) : (
                 <>

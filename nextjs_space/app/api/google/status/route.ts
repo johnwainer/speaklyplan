@@ -30,9 +30,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Check if Google OAuth is configured
+    const isConfigured = Boolean(
+      process.env.GOOGLE_CLIENT_ID && 
+      process.env.GOOGLE_CLIENT_SECRET && 
+      process.env.GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID' &&
+      process.env.GOOGLE_CLIENT_SECRET !== 'YOUR_GOOGLE_CLIENT_SECRET'
+    );
+
     return NextResponse.json({
       connected: user.googleConnected,
       expiresAt: user.googleTokenExpiresAt,
+      configured: isConfigured,
     });
   } catch (error) {
     console.error('Error checking Google status:', error);
