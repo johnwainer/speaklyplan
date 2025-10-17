@@ -224,29 +224,29 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   };
   
   const startInitialConversation = async () => {
-    // Wait for the speech system to be ready
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // MEJORA: Reducir delay inicial para conversación más fluida
+    await new Promise(resolve => setTimeout(resolve, 400));
     
-    // Mensaje de bienvenida del tutor
+    // Mensaje de bienvenida del tutor (más corto y directo)
     const welcomeMessage: Message = {
       type: 'tutor',
-      text: "Hi! I'm your English tutor. Tell me, what would you like to talk about today?",
-      translation: "¡Hola! Soy tu tutor de inglés. Dime, ¿de qué te gustaría hablar hoy?",
+      text: "Hi! I'm your tutor. What do you want to talk about?",
+      translation: "¡Hola! Soy tu tutor. ¿De qué quieres hablar?",
       timestamp: new Date()
     };
     
     setMessages([welcomeMessage]);
     
     // Show prominent notification about audio
-    toast.info('🔊 El tutor está listo. Si no escuchas el audio, haz clic en el ícono 🔊 junto al mensaje', {
-      duration: 5000
+    toast.info('🔊 Tutor listo. Usa el botón 🔊 si no escuchas audio', {
+      duration: 4000
     });
     
-    // Try to speak with a delay to ensure voices are loaded
+    // MEJORA: Iniciar audio más rápido
     setTimeout(async () => {
       console.log('🎬 Iniciando mensaje de bienvenida');
       await speakText(welcomeMessage.text);
-    }, 300);
+    }, 200);
   };
   
   const startListening = () => {
@@ -385,7 +385,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       // Cancel any ongoing speech
       synthRef.current.cancel();
       
-      // Wait a bit to ensure cancellation is complete
+      // MEJORA: Reducir delay para respuesta más rápida
       setTimeout(() => {
         if (!synthRef.current) {
           resolve();
@@ -406,49 +406,68 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           return;
         }
         
-        // Try to find the best English voice
+        // MEJORA: Seleccionar las voces más naturales y humanas disponibles
         const preferredVoiceNames = [
+          // Voces premium de Google (más naturales)
           'Google US English',
-          'Google UK English Female', 
-          'Google UK English Male',
+          'Google UK English Female',
+          // Voces naturales de Microsoft
+          'Microsoft Aria Online (Natural)',
+          'Microsoft Jenny Online (Natural)',
+          'Microsoft Guy Online (Natural)',
+          // Voces de calidad de Apple (Mac/iOS)
+          'Samantha',
+          'Karen',
+          'Victoria',
+          'Allison',
+          // Voces estándar de Microsoft
           'Microsoft Zira',
           'Microsoft David',
-          'Samantha',
+          // Otras voces de Apple
           'Alex',
-          'Karen',
           'Daniel'
         ];
         
         let selectedVoice = null;
         
-        // First, try preferred voices
-        for (const name of preferredVoiceNames) {
-          selectedVoice = voices.find(v => v.name.includes(name));
-          if (selectedVoice) {
-            console.log('✅ Voz seleccionada (preferida):', selectedVoice.name);
-            break;
+        // Prioridad 1: Buscar voces "Natural" o "Premium"
+        selectedVoice = voices.find(v => 
+          v.lang.startsWith('en') && 
+          (v.name.includes('Natural') || v.name.includes('Premium') || v.name.includes('Neural'))
+        );
+        
+        if (selectedVoice) {
+          console.log('✅ Voz Natural/Premium encontrada:', selectedVoice.name);
+        } else {
+          // Prioridad 2: Voces preferidas de la lista
+          for (const name of preferredVoiceNames) {
+            selectedVoice = voices.find(v => v.name.includes(name));
+            if (selectedVoice) {
+              console.log('✅ Voz preferida encontrada:', selectedVoice.name);
+              break;
+            }
           }
         }
         
-        // If no preferred voice, find any English voice (prefer non-local)
+        // Prioridad 3: Cualquier voz en inglés remota (mejor calidad)
         if (!selectedVoice) {
           selectedVoice = voices.find(v => 
             v.lang.startsWith('en') && !v.localService
           );
           if (selectedVoice) {
-            console.log('✅ Voz seleccionada (inglés remoto):', selectedVoice.name);
+            console.log('✅ Voz remota encontrada:', selectedVoice.name);
           }
         }
         
-        // If still no voice, find any English voice
+        // Prioridad 4: Cualquier voz en inglés
         if (!selectedVoice) {
           selectedVoice = voices.find(v => v.lang.startsWith('en'));
           if (selectedVoice) {
-            console.log('✅ Voz seleccionada (inglés local):', selectedVoice.name);
+            console.log('✅ Voz local encontrada:', selectedVoice.name);
           }
         }
         
-        // Last resort: use first available voice
+        // Último recurso: primera voz disponible
         if (!selectedVoice && voices.length > 0) {
           selectedVoice = voices[0];
           console.log('⚠️ Usando voz por defecto:', selectedVoice.name);
@@ -460,10 +479,10 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           console.error('❌ No se pudo seleccionar una voz');
         }
         
-        // Set speech parameters
+        // MEJORA: Parámetros optimizados para voz más natural y humana
         utterance.lang = 'en-US';
-        utterance.rate = 0.9; // Slightly slower for better clarity
-        utterance.pitch = 1.0;
+        utterance.rate = 0.95;  // Velocidad ligeramente más natural (antes 0.9)
+        utterance.pitch = 1.05; // Tono un poco más agudo para sonar más amigable
         utterance.volume = 1.0;
         
         utterance.onstart = () => {
@@ -503,7 +522,7 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           setIsSpeaking(false);
           resolve();
         }
-      }, 100); // Increased delay for better reliability
+      }, 50); // MEJORA: Reducido para respuesta más rápida (antes 100ms)
     });
   };
   
@@ -736,12 +755,12 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                   </div>
                 )}
                 
-                {/* Analyzing Indicator */}
+                {/* Analyzing Indicator - MEJORADO */}
                 {isAnalyzing && !isSpeaking && (
-                  <div className="mb-3 p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-xl">
-                    <p className="text-xs sm:text-sm text-purple-900 flex items-center gap-2">
-                      <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-pulse" />
-                      <span>Analizando tu mensaje...</span>
+                  <div className="mb-3 p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-xl animate-pulse">
+                    <p className="text-xs sm:text-sm text-purple-900 font-semibold flex items-center gap-2">
+                      <Zap className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-purple-600" />
+                      <span>⚡ Procesando respuesta...</span>
                     </p>
                   </div>
                 )}
