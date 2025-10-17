@@ -480,20 +480,19 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Main Content */}
       <main className="py-8 px-4">
         <div className="container max-w-7xl mx-auto">
-          {/* Top Section Grid - Empieza Aquí + CTA Conversación */}
+          {/* Top Section - Empieza Aquí (Full Width) */}
           {currentView === 'overview' && (
-            <div className="grid lg:grid-cols-[1fr_320px] gap-6 mb-6">
-              {/* Empieza Aquí - Column 1 (Main) */}
-              <Card data-tour="pending-activities" className="border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+            <>
+              <Card data-tour="pending-activities" className="border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden mb-6">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between gap-2 sm:gap-4">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                        <Target className="h-4 w-4 text-white" />
+                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                        <Target className="h-5 w-5 text-white" />
                       </div>
                       <div className="min-w-0 overflow-hidden">
-                        <CardTitle className="text-base sm:text-lg truncate">¡Empieza aquí!</CardTitle>
-                        <CardDescription className="text-xs truncate">
+                        <CardTitle className="text-lg sm:text-xl truncate">¡Empieza aquí!</CardTitle>
+                        <CardDescription className="text-sm truncate">
                           Tus actividades de esta semana
                         </CardDescription>
                       </div>
@@ -504,7 +503,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         setSelectedWeek(progressData.currentWeek)
                         setCurrentView('week')
                       }}
-                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs sm:text-sm px-2 sm:px-4"
+                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-sm px-4"
                     >
                       Ver todas
                     </Button>
@@ -523,16 +522,16 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
                     if (pendingActivities.length === 0) {
                       return (
-                        <div className="text-center py-4">
-                          <CheckCircle2 className="h-10 w-10 text-green-600 mx-auto mb-2" />
-                          <h3 className="text-base font-semibold text-gray-900 mb-1">
+                        <div className="text-center py-6">
+                          <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
                             ¡Felicitaciones! Semana completada 🎉
                           </h3>
-                          <p className="text-sm text-gray-600 mb-3">
+                          <p className="text-sm text-gray-600 mb-4">
                             Has completado todas las actividades de esta semana
                           </p>
                           <Button
-                            size="sm"
+                            size="default"
                             onClick={() => {
                               setSelectedWeek(progressData.currentWeek + 1)
                               setCurrentView('week')
@@ -547,66 +546,66 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     }
 
                     return (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {completedToday.length > 0 && (
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
                             <div className="flex items-center gap-2 text-green-700">
-                              <CheckCircle2 className="h-4 w-4" />
-                              <span className="text-xs font-medium">
+                              <CheckCircle2 className="h-5 w-5" />
+                              <span className="text-sm font-medium">
                                 ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
                               </span>
                             </div>
                           </div>
                         )}
 
-                        <div className="grid gap-2 w-full overflow-hidden">
-                          {pendingActivities.slice(0, 2).map((activity) => (
+                        <div className="grid sm:grid-cols-2 gap-3 w-full overflow-hidden">
+                          {pendingActivities.slice(0, 4).map((activity) => (
                             <div
                               key={activity?.id}
-                              className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
+                              className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
                               onClick={() => {
                                 setSelectedWeek(progressData.currentWeek)
                                 setCurrentView('week')
                               }}
                             >
-                              <div className="flex items-start justify-between gap-2 sm:gap-3 max-w-full overflow-hidden">
+                              <div className="flex items-start justify-between gap-3 max-w-full overflow-hidden">
                                 <div className="flex-1 min-w-0 overflow-hidden">
-                                  <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
+                                  <h4 className="font-semibold text-base text-gray-900 mb-1 truncate">
                                     {activity?.title}
                                   </h4>
-                                  <p className="text-xs text-gray-600 line-clamp-1 break-words">
+                                  <p className="text-sm text-gray-600 line-clamp-2 break-words">
                                     {formatMarkdownText(activity?.description)}
                                   </p>
-                                  <div className="flex items-center gap-1 sm:gap-2 mt-1 flex-wrap">
-                                    <Badge variant="secondary" className="text-xs py-0 px-2 whitespace-nowrap">
+                                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                    <Badge variant="secondary" className="text-xs py-0.5 px-2 whitespace-nowrap">
                                       <Clock className="h-3 w-3 mr-1" />
                                       {activity?.duration} min
                                     </Badge>
-                                    <Badge variant="outline" className="text-xs py-0 px-2 truncate max-w-[120px]">
+                                    <Badge variant="outline" className="text-xs py-0.5 px-2 truncate max-w-[120px]">
                                       {activity?.category}
                                     </Badge>
                                   </div>
                                 </div>
-                                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
-                                  <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                  <Zap className="h-6 w-6" />
                                 </div>
                               </div>
                             </div>
                           ))}
                         </div>
 
-                        {pendingActivities.length > 2 && (
-                          <div className="text-center pt-1">
+                        {pendingActivities.length > 4 && (
+                          <div className="text-center pt-2">
                             <Button
-                              size="sm"
+                              size="default"
                               variant="outline"
                               onClick={() => {
                                 setSelectedWeek(progressData.currentWeek)
                                 setCurrentView('week')
                               }}
-                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs"
+                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50"
                             >
-                              Ver {pendingActivities.length - 2} actividades más
+                              Ver {pendingActivities.length - 4} actividades más
                             </Button>
                           </div>
                         )}
@@ -616,166 +615,117 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                 </CardContent>
               </Card>
 
-              {/* Práctica de Conversación - Column 2 (Sidebar width) */}
-              <Card className="border-2 border-emerald-500 shadow-xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative">
-                {/* Badge de "Nuevo" */}
-                <div className="absolute top-2 right-2">
-                  <Badge className="bg-yellow-400 text-purple-900 border-0 px-2 py-0.5 text-xs font-bold shadow-md animate-pulse">
-                    ✨ NUEVO
-                  </Badge>
-                </div>
-                
-                <CardHeader className="pb-2">
-                  <div className="flex items-start gap-2">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                      <Mic className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-base mb-0.5 text-gray-900">
-                        Tutor de IA 🎤
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Practica en tiempo real
-                      </CardDescription>
-                    </div>
+              {/* Novedades - Tutor AI y Prácticas 1 a 1 (Compactas lado a lado) */}
+              <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                {/* Tutor de IA */}
+                <Card className="border-2 border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative hover:shadow-lg transition-shadow">
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-yellow-400 text-purple-900 border-0 px-2 py-0.5 text-xs font-bold shadow-md">
+                      ✨ NUEVO
+                    </Badge>
                   </div>
-                </CardHeader>
-                
-                <CardContent className="pt-2 space-y-3">
-                  {/* Compact Features */}
-                  <div className="space-y-2">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                          <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-xs text-gray-900">Voz en Tiempo Real</h4>
-                          <p className="text-xs text-gray-600">Traducción simultánea</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                          <Trophy className="h-3.5 w-3.5 text-purple-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-xs text-gray-900">Gamificación</h4>
-                          <p className="text-xs text-gray-600">Gana XP y sube de nivel</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-2 border border-emerald-200">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                          <BookOpen className="h-3.5 w-3.5 text-orange-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-xs text-gray-900">Vocabulario Sugerido</h4>
-                          <p className="text-xs text-gray-600">Palabras para practicar</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Benefits List */}
-                  <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-2 border border-emerald-200">
-                    <div className="space-y-1 text-xs">
-                      <div className="flex items-center gap-1 text-emerald-900">
-                        <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                        <span>Reconocimiento de voz</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-emerald-900">
-                        <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                        <span>Traducción simultánea</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-emerald-900">
-                        <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                        <span>Historial completo</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* CTA Button */}
-                  <Button
-                    size="sm"
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-                    onClick={() => router.push('/tutor')}
-                  >
-                    <Mic className="h-4 w-4 mr-2" />
-                    Empezar Ahora
-                  </Button>
                   
-                  <p className="text-center text-xs text-gray-500">
-                    💡 24/7 · Sin límites
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Prácticas 1 a 1 - New Card */}
-              <Card className="border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden relative">
-                <div className="absolute top-2 right-2">
-                  <Badge className="bg-green-500 text-white border-0 px-2 py-0.5 text-xs font-bold shadow-md">
-                    ¡NOVEDAD!
-                  </Badge>
-                </div>
-                
-                <CardHeader className="pb-2">
-                  <div className="flex items-start gap-2">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                      <Users className="h-5 w-5 text-white" />
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <Mic className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-base mb-0.5 text-gray-900">
+                          Tutor de IA 🎤
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          Practica conversación en tiempo real
+                        </CardDescription>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-base mb-0.5 text-gray-900">
-                        Prácticas 1 a 1 🤝
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Practica con otros estudiantes
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-white/80 rounded-lg p-2 text-center border border-blue-200">
-                      <MessageSquare className="h-4 w-4 text-blue-600 mx-auto mb-1" />
-                      <span className="font-medium text-gray-900 block">Conversación</span>
-                      <span className="text-gray-600">en vivo</span>
-                    </div>
-                    <div className="bg-white/80 rounded-lg p-2 text-center border border-blue-200">
-                      <Users className="h-4 w-4 text-blue-600 mx-auto mb-1" />
-                      <span className="font-medium text-gray-900 block">Compañeros</span>
-                      <span className="text-gray-600">reales</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-100/50 rounded-lg p-2 text-xs text-center">
-                    <p className="font-medium text-gray-900 mb-0.5">
-                      🎯 Aprendizaje colaborativo
-                    </p>
-                    <p className="text-gray-600">
-                      Practica inglés con estudiantes como tú
-                    </p>
-                  </div>
-
-                  <Button 
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
-                    onClick={() => router.push('/practica')}
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Explorar Ahora
-                  </Button>
+                  </CardHeader>
                   
-                  <p className="text-center text-xs text-gray-500">
-                    💡 Conecta · Practica · Mejora
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                  <CardContent className="pt-0 space-y-3">
+                    <div className="flex gap-2 text-xs">
+                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-emerald-200">
+                        <MessageSquare className="h-4 w-4 text-emerald-600 mx-auto mb-1" />
+                        <span className="font-medium text-gray-900 block">Voz Real</span>
+                      </div>
+                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-emerald-200">
+                        <Trophy className="h-4 w-4 text-purple-600 mx-auto mb-1" />
+                        <span className="font-medium text-gray-900 block">Gamificación</span>
+                      </div>
+                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-emerald-200">
+                        <BookOpen className="h-4 w-4 text-orange-600 mx-auto mb-1" />
+                        <span className="font-medium text-gray-900 block">Vocabulario</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md"
+                      onClick={() => router.push('/tutor')}
+                    >
+                      <Mic className="h-4 w-4 mr-2" />
+                      Empezar Ahora
+                    </Button>
+                    
+                    <p className="text-center text-xs text-gray-500">
+                      💡 Disponible 24/7 · Sin límites
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Prácticas 1 a 1 */}
+                <Card className="border-2 border-blue-500 shadow-md bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden relative hover:shadow-lg transition-shadow">
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-green-500 text-white border-0 px-2 py-0.5 text-xs font-bold shadow-md">
+                      ¡NOVEDAD!
+                    </Badge>
+                  </div>
+                  
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <Users className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-base mb-0.5 text-gray-900">
+                          Prácticas 1 a 1 🤝
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          Practica con otros estudiantes
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pt-0 space-y-3">
+                    <div className="flex gap-2 text-xs">
+                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-blue-200">
+                        <MessageSquare className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                        <span className="font-medium text-gray-900 block">Conversación</span>
+                      </div>
+                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-blue-200">
+                        <Users className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                        <span className="font-medium text-gray-900 block">En vivo</span>
+                      </div>
+                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-blue-200">
+                        <Target className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                        <span className="font-medium text-gray-900 block">Colaborativo</span>
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md"
+                      onClick={() => router.push('/practica')}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Explorar Ahora
+                    </Button>
+                    
+                    <p className="text-center text-xs text-gray-500">
+                      💡 Conecta · Practica · Mejora
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
           )}
 
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">
