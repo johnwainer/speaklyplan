@@ -483,16 +483,16 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
           {/* Top Section - Empieza Aquí (Full Width) */}
           {currentView === 'overview' && (
             <>
-              <Card data-tour="pending-activities" className="border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden mb-6">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between gap-2 sm:gap-4">
+              <Card data-tour="pending-activities" className="border-2 border-blue-500 shadow-md bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden mb-4">
+                <CardHeader className="pb-2 pt-3 px-4">
+                  <div className="flex items-center justify-between gap-2 sm:gap-3">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                        <Target className="h-5 w-5 text-white" />
+                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                        <Target className="h-4 w-4 text-white" />
                       </div>
                       <div className="min-w-0 overflow-hidden">
-                        <CardTitle className="text-lg sm:text-xl truncate">¡Empieza aquí!</CardTitle>
-                        <CardDescription className="text-sm truncate">
+                        <CardTitle className="text-base sm:text-lg truncate">¡Empieza aquí!</CardTitle>
+                        <CardDescription className="text-xs truncate">
                           Tus actividades de esta semana
                         </CardDescription>
                       </div>
@@ -503,13 +503,13 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         setSelectedWeek(progressData.currentWeek)
                         setCurrentView('week')
                       }}
-                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-sm px-4"
+                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs px-3 h-8"
                     >
                       Ver todas
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-2 overflow-hidden">
+                <CardContent className="pt-2 px-4 pb-4 overflow-hidden">
                   {(() => {
                     const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
                     const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
@@ -546,48 +546,48 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     }
 
                     return (
-                      <div className="space-y-3">
+                      <div className="space-y-2.5">
                         {completedToday.length > 0 && (
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
                             <div className="flex items-center gap-2 text-green-700">
-                              <CheckCircle2 className="h-5 w-5" />
-                              <span className="text-sm font-medium">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span className="text-xs font-medium">
                                 ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
                               </span>
                             </div>
                           </div>
                         )}
 
-                        <div className="grid sm:grid-cols-2 gap-3 w-full overflow-hidden">
+                        <div className="grid sm:grid-cols-2 gap-2.5 w-full overflow-hidden">
                           {pendingActivities.slice(0, 4).map((activity) => (
                             <div
                               key={activity?.id}
-                              className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
+                              className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
                               onClick={() => {
                                 setSelectedWeek(progressData.currentWeek)
                                 setCurrentView('week')
                               }}
                             >
-                              <div className="flex items-start justify-between gap-3 max-w-full overflow-hidden">
+                              <div className="flex items-start justify-between gap-2 max-w-full overflow-hidden">
                                 <div className="flex-1 min-w-0 overflow-hidden">
-                                  <h4 className="font-semibold text-base text-gray-900 mb-1 truncate">
+                                  <h4 className="font-semibold text-sm text-gray-900 mb-1 truncate">
                                     {activity?.title}
                                   </h4>
-                                  <p className="text-sm text-gray-600 line-clamp-2 break-words">
+                                  <p className="text-xs text-gray-600 line-clamp-2 break-words">
                                     {formatMarkdownText(activity?.description)}
                                   </p>
-                                  <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                    <Badge variant="secondary" className="text-xs py-0.5 px-2 whitespace-nowrap">
-                                      <Clock className="h-3 w-3 mr-1" />
+                                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                    <Badge variant="secondary" className="text-xs py-0.5 px-1.5 whitespace-nowrap">
+                                      <Clock className="h-3 w-3 mr-0.5" />
                                       {activity?.duration} min
                                     </Badge>
-                                    <Badge variant="outline" className="text-xs py-0.5 px-2 truncate max-w-[120px]">
+                                    <Badge variant="outline" className="text-xs py-0.5 px-1.5 truncate max-w-[110px]">
                                       {activity?.category}
                                     </Badge>
                                   </div>
                                 </div>
-                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
-                                  <Zap className="h-6 w-6" />
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                  <Zap className="h-5 w-5" />
                                 </div>
                               </div>
                             </div>
@@ -595,15 +595,15 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                         </div>
 
                         {pendingActivities.length > 4 && (
-                          <div className="text-center pt-2">
+                          <div className="text-center pt-1.5">
                             <Button
-                              size="default"
+                              size="sm"
                               variant="outline"
                               onClick={() => {
                                 setSelectedWeek(progressData.currentWeek)
                                 setCurrentView('week')
                               }}
-                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50"
+                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs h-8"
                             >
                               Ver {pendingActivities.length - 4} actividades más
                             </Button>
@@ -616,22 +616,22 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               </Card>
 
               {/* Novedades - Tutor AI y Prácticas 1 a 1 (Compactas lado a lado) */}
-              <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              <div className="grid sm:grid-cols-2 gap-3 mb-6">
                 {/* Tutor de IA */}
                 <Card className="border-2 border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative hover:shadow-lg transition-shadow">
-                  <div className="absolute top-2 right-2">
-                    <Badge className="bg-yellow-400 text-purple-900 border-0 px-2 py-0.5 text-xs font-bold shadow-md">
+                  <div className="absolute top-1.5 right-1.5">
+                    <Badge className="bg-yellow-400 text-purple-900 border-0 px-1.5 py-0.5 text-xs font-bold shadow-md">
                       ✨ NUEVO
                     </Badge>
                   </div>
                   
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <Mic className="h-6 w-6 text-white" />
+                  <CardHeader className="pb-2 pt-3 px-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <Mic className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-base mb-0.5 text-gray-900">
+                        <CardTitle className="text-sm mb-0 text-gray-900">
                           Tutor de IA 🎤
                         </CardTitle>
                         <CardDescription className="text-xs">
@@ -641,27 +641,28 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="pt-0 space-y-3">
-                    <div className="flex gap-2 text-xs">
-                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-emerald-200">
-                        <MessageSquare className="h-4 w-4 text-emerald-600 mx-auto mb-1" />
-                        <span className="font-medium text-gray-900 block">Voz Real</span>
+                  <CardContent className="pt-0 px-3 pb-3 space-y-2">
+                    <div className="flex gap-1.5 text-xs">
+                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
+                        <MessageSquare className="h-3 w-3 text-emerald-600 mx-auto mb-0.5" />
+                        <span className="font-medium text-gray-900 block text-xs">Voz Real</span>
                       </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-emerald-200">
-                        <Trophy className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-                        <span className="font-medium text-gray-900 block">Gamificación</span>
+                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
+                        <Trophy className="h-3 w-3 text-purple-600 mx-auto mb-0.5" />
+                        <span className="font-medium text-gray-900 block text-xs">Gamificación</span>
                       </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-emerald-200">
-                        <BookOpen className="h-4 w-4 text-orange-600 mx-auto mb-1" />
-                        <span className="font-medium text-gray-900 block">Vocabulario</span>
+                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
+                        <BookOpen className="h-3 w-3 text-orange-600 mx-auto mb-0.5" />
+                        <span className="font-medium text-gray-900 block text-xs">Vocabulario</span>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md"
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md text-xs h-8"
                       onClick={() => router.push('/tutor')}
                     >
-                      <Mic className="h-4 w-4 mr-2" />
+                      <Mic className="h-3 w-3 mr-1.5" />
                       Empezar Ahora
                     </Button>
                     
@@ -673,19 +674,19 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
                 {/* Prácticas 1 a 1 */}
                 <Card className="border-2 border-blue-500 shadow-md bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden relative hover:shadow-lg transition-shadow">
-                  <div className="absolute top-2 right-2">
-                    <Badge className="bg-green-500 text-white border-0 px-2 py-0.5 text-xs font-bold shadow-md">
+                  <div className="absolute top-1.5 right-1.5">
+                    <Badge className="bg-green-500 text-white border-0 px-1.5 py-0.5 text-xs font-bold shadow-md">
                       ¡NOVEDAD!
                     </Badge>
                   </div>
                   
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <Users className="h-6 w-6 text-white" />
+                  <CardHeader className="pb-2 pt-3 px-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <Users className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-base mb-0.5 text-gray-900">
+                        <CardTitle className="text-sm mb-0 text-gray-900">
                           Prácticas 1 a 1 🤝
                         </CardTitle>
                         <CardDescription className="text-xs">
@@ -695,27 +696,28 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     </div>
                   </CardHeader>
 
-                  <CardContent className="pt-0 space-y-3">
-                    <div className="flex gap-2 text-xs">
-                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-blue-200">
-                        <MessageSquare className="h-4 w-4 text-blue-600 mx-auto mb-1" />
-                        <span className="font-medium text-gray-900 block">Conversación</span>
+                  <CardContent className="pt-0 px-3 pb-3 space-y-2">
+                    <div className="flex gap-1.5 text-xs">
+                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
+                        <MessageSquare className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
+                        <span className="font-medium text-gray-900 block text-xs">Conversación</span>
                       </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-blue-200">
-                        <Users className="h-4 w-4 text-blue-600 mx-auto mb-1" />
-                        <span className="font-medium text-gray-900 block">En vivo</span>
+                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
+                        <Users className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
+                        <span className="font-medium text-gray-900 block text-xs">En vivo</span>
                       </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-2 text-center border border-blue-200">
-                        <Target className="h-4 w-4 text-blue-600 mx-auto mb-1" />
-                        <span className="font-medium text-gray-900 block">Colaborativo</span>
+                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
+                        <Target className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
+                        <span className="font-medium text-gray-900 block text-xs">Colaborativo</span>
                       </div>
                     </div>
 
                     <Button 
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md"
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md text-xs h-8"
                       onClick={() => router.push('/practica')}
                     >
-                      <Users className="h-4 w-4 mr-2" />
+                      <Users className="h-3 w-3 mr-1.5" />
                       Explorar Ahora
                     </Button>
                     
