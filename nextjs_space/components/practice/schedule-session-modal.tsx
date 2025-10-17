@@ -82,8 +82,10 @@ export function ScheduleSessionModal({
 
       toast({
         title: '¡Sesión programada! 🎉',
-        description: data.meetLink 
-          ? 'Evento agregado a tu Calendar con link de Meet'
+        description: data.googleMeetGenerated
+          ? '✅ Evento creado en Google Calendar con enlace de Meet automático'
+          : data.meetLink 
+          ? 'Sesión confirmada con enlace de videollamada'
           : `Sesión confirmada con ${partner.name || partner.email}`
       })
 
@@ -144,23 +146,24 @@ export function ScheduleSessionModal({
           </div>
 
           {hasGoogleCalendar && (
-            <div className="flex items-start space-x-2 p-4 bg-green-50 rounded-lg border border-green-200">
-              <Checkbox
-                id="useCalendar"
-                checked={useGoogleCalendar}
-                onCheckedChange={(checked) => setUseGoogleCalendar(!!checked)}
-              />
-              <div className="space-y-1">
-                <label
-                  htmlFor="useCalendar"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  <Calendar className="inline h-4 w-4 mr-1" />
-                  Crear evento en Google Calendar
-                </label>
-                <p className="text-xs text-muted-foreground">
-                  Se generará un link de Google Meet automáticamente y ambos recibirán recordatorios
-                </p>
+            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-start gap-3">
+                <div className="flex h-5 items-center">
+                  <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm font-medium text-green-900">
+                    <Calendar className="inline h-4 w-4 mr-1" />
+                    Google Calendar Conectado
+                  </div>
+                  <p className="text-xs text-green-700">
+                    ✨ Se generará automáticamente un enlace de Google Meet para esta sesión y ambos participantes recibirán recordatorios por email
+                  </p>
+                </div>
               </div>
             </div>
           )}

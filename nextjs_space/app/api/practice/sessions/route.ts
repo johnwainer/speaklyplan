@@ -42,6 +42,7 @@ export async function POST(request: Request) {
 
     let meetLink: string | undefined = externalLink
     let calendarEventId: string | undefined
+    let googleMeetGenerated = false
 
     // Verificar si el usuario tiene Google Calendar conectado
     const user = await prisma.user.findUnique({
@@ -53,8 +54,9 @@ export async function POST(request: Request) {
       }
     })
 
-    // Si el usuario tiene Google Calendar conectado, crear el evento automáticamente
-    if (user?.googleConnected && user.googleAccessToken && user.googleRefreshToken) {
+    // Si el usuario tiene Google Calendar conectado Y hay una fecha programada,
+    // crear el evento automáticamente con Google Meet
+    if (user?.googleConnected && user.googleAccessToken && user.googleRefreshToken && scheduledFor) {
       try {
         const calendarResult = await createPracticeEvent({
           userId: session.user.id,
@@ -66,11 +68,13 @@ export async function POST(request: Request) {
 
         meetLink = calendarResult.meetLink || undefined
         calendarEventId = calendarResult.eventId
+        googleMeetGenerated = true
         
-        console.log('✅ Evento de Google Meet creado:', calendarEventId)
+        console.log('✅ Evento de Google Calendar creado con Meet:', calendarEventId)
+        console.log('✅ Enlace de Google Meet:', meetLink)
       } catch (calendarError: any) {
         console.error('⚠️ Error creando evento de Calendar:', calendarError)
-        // Continuar sin Calendar si falla
+        // Continuar sin Calendar si falla, pero notificar
       }
     }
 
@@ -96,8 +100,11 @@ export async function POST(request: Request) {
       success: true,
       session: meeting,
       meetLink,
-      message: meetLink 
-        ? 'Sesión programada con Google Meet' 
+      googleMeetGenerated,
+      message: googleMeetGenerated
+        ? '✅ Sesión programada con Google Meet automático' 
+        : meetLink
+        ? 'Sesión programada con enlace externo'
         : 'Sesión programada correctamente'
     })
   } catch (error: any) {
