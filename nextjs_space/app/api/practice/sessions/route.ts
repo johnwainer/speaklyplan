@@ -43,31 +43,34 @@ export async function POST(request: Request) {
     let meetLink: string | undefined = externalLink
     let calendarEventId: string | undefined
 
-    // Si el usuario quiere usar Google Calendar
-    if (useGoogleCalendar) {
+    // Verificar si el usuario tiene Google Calendar conectado
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        googleConnected: true,
+        googleAccessToken: true,
+        googleRefreshToken: true,
+      }
+    })
+
+    // Si el usuario tiene Google Calendar conectado, crear el evento automáticamente
+    if (user?.googleConnected && user.googleAccessToken && user.googleRefreshToken) {
       try {
-        const integration = await prisma.calendarIntegration.findUnique({
-          where: { userId: session.user.id }
-        })
-
-        if (!integration) {
-          return NextResponse.json(
-            { error: 'Conecta Google Calendar primero' },
-            { status: 400 }
-          )
-        }
-
         const calendarResult = await createPracticeEvent({
           userId: session.user.id,
           partnerId,
           scheduledFor: new Date(scheduledFor),
-          topic
+          topic,
+          durationMinutes: 30
         })
 
         meetLink = calendarResult.meetLink || undefined
         calendarEventId = calendarResult.eventId
+        
+        console.log('✅ Evento de Google Meet creado:', calendarEventId)
       } catch (calendarError: any) {
-        console.error('Error con Calendar, continuando sin él:', calendarError)
+        console.error('⚠️ Error creando evento de Calendar:', calendarError)
+        // Continuar sin Calendar si falla
       }
     }
 

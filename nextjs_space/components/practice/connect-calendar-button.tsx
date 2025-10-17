@@ -14,31 +14,15 @@ export function ConnectCalendarButton({ isConnected }: { isConnected: boolean })
     try {
       setLoading(true)
 
-      const response = await fetch('/api/auth/google-calendar')
+      const response = await fetch('/api/google/auth')
       const data = await response.json()
 
       if (!data.authUrl) {
         throw new Error('Error obteniendo URL de autorización')
       }
 
-      const width = 600
-      const height = 700
-      const left = window.screen.width / 2 - width / 2
-      const top = window.screen.height / 2 - height / 2
-
-      const popup = window.open(
-        data.authUrl,
-        'Google Calendar Authorization',
-        `width=${width},height=${height},left=${left},top=${top}`
-      )
-
-      const checkClosed = setInterval(() => {
-        if (popup?.closed) {
-          clearInterval(checkClosed)
-          setLoading(false)
-          window.location.reload()
-        }
-      }, 500)
+      // Redirect to Google OAuth page
+      window.location.href = data.authUrl
     } catch (error: any) {
       console.error('Error conectando Calendar:', error)
       toast({

@@ -13,7 +13,7 @@ export const metadata = {
 export default async function PracticePage({
   searchParams
 }: {
-  searchParams: { calendar?: string }
+  searchParams: { connected?: string; error?: string }
 }) {
   const session = await getServerSession(authOptions)
 
@@ -24,13 +24,16 @@ export default async function PracticePage({
   const userId = session.user.id
 
   // Check if calendar was just connected
-  const calendarStatus = searchParams.calendar
+  const calendarStatus = searchParams.connected === 'true' ? 'connected' : 
+                         searchParams.error ? 'error' : undefined
 
-  // Fetch user data including calendar integration
+  // Fetch user data including Google Calendar status
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: {
-      calendarIntegration: true
+    select: {
+      id: true,
+      googleConnected: true,
+      googleTokenExpiresAt: true,
     }
   })
 
@@ -217,7 +220,7 @@ export default async function PracticePage({
     take: 10
   })
 
-  const hasGoogleCalendar = !!user?.calendarIntegration
+  const hasGoogleCalendar = !!user?.googleConnected
 
   return (
     <PracticeClient

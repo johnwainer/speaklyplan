@@ -9,37 +9,44 @@ function createOAuth2Client() {
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.NEXTAUTH_URL}/api/auth/google-calendar/callback`
+    `${process.env.NEXTAUTH_URL}/api/google/callback`
   )
 }
 
 // Obtener cliente autenticado para un usuario
 async function getAuthenticatedClient(userId: string): Promise<OAuth2Client> {
-  const integration = await prisma.calendarIntegration.findUnique({
-    where: { userId }
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      googleAccessToken: true,
+      googleRefreshToken: true,
+      googleTokenExpiresAt: true,
+      googleConnected: true,
+    }
   })
 
-  if (!integration) {
+  if (!user?.googleConnected || !user.googleAccessToken || !user.googleRefreshToken) {
     throw new Error('Usuario no ha conectado Google Calendar')
   }
 
   const oauth2Client = createOAuth2Client()
   
   oauth2Client.setCredentials({
-    access_token: integration.accessToken,
-    refresh_token: integration.refreshToken,
-    expiry_date: integration.expiresAt.getTime()
+    access_token: user.googleAccessToken,
+    refresh_token: user.googleRefreshToken,
+    expiry_date: user.googleTokenExpiresAt?.getTime()
   })
 
   // Si el token está expirado, refrescarlo
-  if (integration.expiresAt < new Date()) {
+  if (user.googleTokenExpiresAt && user.googleTokenExpiresAt < new Date()) {
     const { credentials } = await oauth2Client.refreshAccessToken()
     
-    await prisma.calendarIntegration.update({
-      where: { userId },
+    await prisma.user.update({
+      where: { id: userId },
       data: {
-        accessToken: credentials.access_token!,
-        expiresAt: new Date(credentials.expiry_date!)
+        googleAccessToken: credentials.access_token!,
+        googleTokenExpiresAt: new Date(credentials.expiry_date!),
+        googleRefreshToken: credentials.refresh_token || user.googleRefreshToken,
       }
     })
 

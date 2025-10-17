@@ -62,6 +62,13 @@ model User {
   practiceAvailable Boolean @default(true)
   practiceTopics    String[] @default([])
   practiceTimezone  String?
+  
+  // Google Calendar Integration
+  googleAccessToken     String? @db.Text
+  googleRefreshToken    String? @db.Text
+  googleTokenExpiresAt  DateTime?
+  googleCalendarId      String?
+  googleConnected       Boolean @default(false)
 
   accounts        Account[]
   sessions        Session[]
