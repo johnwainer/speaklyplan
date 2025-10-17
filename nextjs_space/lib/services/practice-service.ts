@@ -336,8 +336,9 @@ export async function createMeeting(data: {
   scheduledFor?: Date | null
   topic?: string
   externalLink?: string
+  calendarEventId?: string
 }) {
-  const { initiatorId, partnerId, scheduledFor, topic, externalLink } = data
+  const { initiatorId, partnerId, scheduledFor, topic, externalLink, calendarEventId } = data
 
   // Verify connection exists
   const connection = await getConnection(initiatorId, partnerId)
@@ -354,6 +355,7 @@ export async function createMeeting(data: {
       scheduledFor: scheduledFor || null,
       topic,
       externalLink,
+      calendarEventId,
       status: 'SCHEDULED'
     },
     include: {

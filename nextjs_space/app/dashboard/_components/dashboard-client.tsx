@@ -715,7 +715,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     <Button 
                       size="sm"
                       className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md text-sm h-8"
-                      onClick={() => router.push('/practica')}
+                      onClick={() => router.push('/practice')}
                     >
                       <Users className="h-3 w-3 mr-1.5" />
                       Explorar Ahora

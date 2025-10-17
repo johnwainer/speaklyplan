@@ -4,7 +4,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { createMeeting, getUserMeetings } from '@/lib/services/practice-service'
 import { notifySessionScheduled } from '@/lib/services/practice-notification-service'
+import { createPracticeEvent } from '@/lib/services/google-calendar-service'
 import { MeetingStatus } from '@prisma/client'
+import { prisma } from '@/lib/db'
 
 /**
  * POST /api/practice/sessions
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { partnerId, scheduledFor, topic, externalLink } = body
+    const { partnerId, scheduledFor, topic, externalLink, useGoogleCalendar } = body
 
     if (!partnerId) {
       return NextResponse.json(
@@ -31,13 +33,52 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!scheduledFor || !topic) {
+      return NextResponse.json(
+        { error: 'Fecha y tema requeridos' },
+        { status: 400 }
+      )
+    }
+
+    let meetLink: string | undefined = externalLink
+    let calendarEventId: string | undefined
+
+    // Si el usuario quiere usar Google Calendar
+    if (useGoogleCalendar) {
+      try {
+        const integration = await prisma.calendarIntegration.findUnique({
+          where: { userId: session.user.id }
+        })
+
+        if (!integration) {
+          return NextResponse.json(
+            { error: 'Conecta Google Calendar primero' },
+            { status: 400 }
+          )
+        }
+
+        const calendarResult = await createPracticeEvent({
+          userId: session.user.id,
+          partnerId,
+          scheduledFor: new Date(scheduledFor),
+          topic
+        })
+
+        meetLink = calendarResult.meetLink || undefined
+        calendarEventId = calendarResult.eventId
+      } catch (calendarError: any) {
+        console.error('Error con Calendar, continuando sin él:', calendarError)
+      }
+    }
+
     // Create meeting
     const meeting = await createMeeting({
       initiatorId: session.user.id,
       partnerId,
       scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
       topic,
-      externalLink
+      externalLink: meetLink,
+      calendarEventId
     })
 
     // Notify partner
@@ -50,7 +91,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      session: meeting
+      session: meeting,
+      meetLink,
+      message: meetLink 
+        ? 'Sesión programada con Google Meet' 
+        : 'Sesión programada correctamente'
     })
   } catch (error: any) {
     console.error('Error creating session:', error)

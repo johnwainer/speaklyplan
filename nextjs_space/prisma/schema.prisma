@@ -88,6 +88,9 @@ model User {
   initiatedMeetings    PracticeMeeting[]    @relation("InitiatedMeetings")
   partnerMeetings      PracticeMeeting[]    @relation("PartnerMeetings")
   practiceNotifications PracticeNotification[]
+  
+  // Calendar integration
+  calendarIntegration  CalendarIntegration?
 }
 
 model VerificationToken {
@@ -564,6 +567,7 @@ model PracticeMeeting {
   topic        String?  @db.Text
   notes        String?  @db.Text
   externalLink String?  // Link to Zoom, Meet, etc.
+  calendarEventId String? // Google Calendar event ID
   
   // Mutual feedback (post-session)
   initiatorFeedback String? @db.Text
@@ -625,4 +629,21 @@ enum NotificationType {
   SESSION_STARTING_SOON
   SESSION_COMPLETED
   FEEDBACK_REQUESTED
+}
+
+// Google Calendar Integration
+model CalendarIntegration {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  provider      String   // "google", "outlook"
+  accessToken   String   @db.Text
+  refreshToken  String   @db.Text
+  expiresAt     DateTime
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
 }
