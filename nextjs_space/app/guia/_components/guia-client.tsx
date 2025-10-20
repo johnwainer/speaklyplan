@@ -2,9 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -16,13 +15,13 @@ import {
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { getProfileImageUrl } from '@/lib/utils'
+import { AppHeader } from '@/components/app-header'
 import { 
-  BookOpen, Target, Calendar, Library, TrendingUp, 
+  Target, Calendar, Library, TrendingUp, 
   Users, Clock, Lightbulb, CheckCircle2, XCircle, 
-  Rocket, Award, MessageSquare, ArrowLeft,
+  Rocket, Award, MessageSquare, BookOpen,
   Smartphone, Youtube, Radio, Film, AlertCircle, 
-  BarChart3, Zap, Heart, LogOut, User, Home,
+  BarChart3, Zap, Heart, Home,
   Play, ChevronRight, Brain, Star, Trophy, Flame,
   Check, Circle, MapPin, Monitor, Smartphone as Phone
 } from 'lucide-react'
@@ -603,74 +602,11 @@ export default function GuiaClient({ user }: GuiaClientProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
-        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-            <div className="text-left">
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
-              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Guía de Uso</p>
-            </div>
-          </button>
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="hidden md:flex items-center space-x-3 text-sm text-gray-700">
-              {currentUser?.image ? (
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
-                  <Image
-                    src={getProfileImageUrl(currentUser.image) || ''}
-                    alt={currentUser.name || 'User'}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <User className="h-5 w-5 text-blue-600" />
-                </div>
-              )}
-              <span className="font-medium">{currentUser?.name || currentUser?.email}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/perfil')}
-              className="text-xs sm:text-sm"
-            >
-              <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Mi Perfil</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="text-xs sm:text-sm"
-            >
-              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Salir</span>
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard')}
-              className="my-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <AppHeader 
+        title="SpeaklyPlan"
+        subtitle="Guía de Uso"
+        currentView="/guia"
+      />
 
       {/* Main Content */}
       <main className="py-8 px-4">

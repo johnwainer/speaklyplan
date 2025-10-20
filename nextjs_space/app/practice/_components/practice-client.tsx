@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { AppHeader } from "@/components/app-header";
 import { InviteModal } from "@/components/practice/invite-modal";
 import { InvitationCard } from "@/components/practice/invitation-card";
 import { PartnersList } from "@/components/practice/partners-list";
@@ -123,15 +124,22 @@ export function PracticeClient() {
   ).length;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Prácticas 1 a 1</h1>
-          <p className="text-muted-foreground mt-1">
-            Practica inglés con otros usuarios de la plataforma
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <AppHeader 
+        title="SpeaklyPlan"
+        subtitle="Prácticas 1 a 1"
+        currentView="/practice"
+      />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Prácticas 1 a 1</h1>
+            <p className="text-muted-foreground mt-1">
+              Practica inglés con otros usuarios de la plataforma
+            </p>
+          </div>
 
         <div className="flex gap-2">
           {unreadCount > 0 && (
@@ -256,12 +264,13 @@ export function PracticeClient() {
         </TabsContent>
       </Tabs>
 
-      {/* Invite Modal */}
-      <InviteModal
-        isOpen={inviteModalOpen}
-        onClose={() => setInviteModalOpen(false)}
-        onSuccess={handleRefresh}
-      />
+        {/* Invite Modal */}
+        <InviteModal
+          isOpen={inviteModalOpen}
+          onClose={() => setInviteModalOpen(false)}
+          onSuccess={handleRefresh}
+        />
+      </div>
     </div>
   );
 }

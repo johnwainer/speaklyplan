@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Mic, MicOff, Volume2, VolumeX, Sparkles, Award, History, MessageSquare, Zap, Brain, Target, TrendingUp } from 'lucide-react';
+import { Send, Mic, MicOff, Volume2, VolumeX, Sparkles, Award, History, MessageSquare, Zap, Brain, Target, TrendingUp, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -381,7 +381,6 @@ export default function TutorClientV2({ initialData, userId }: TutorClientProps)
       </div>
       
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Conversation State Indicator */}
         <Card className="p-6 bg-white/50 backdrop-blur-sm border-2 border-dashed border-gray-200">
