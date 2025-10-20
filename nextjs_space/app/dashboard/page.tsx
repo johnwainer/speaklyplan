@@ -46,8 +46,8 @@ async function getDashboardData(userId: string) {
     // Calculate user progress
     const totalActivities = await prisma.planActivity.count()
     const completedActivities = user.progress?.filter(p => p.completed)?.length || 0
-    const currentStreak = user.streaks?.[0]?.currentStreak || 0
-    const bestStreak = user.streaks?.[0]?.bestStreak || 0
+    const currentStreak = user.currentStreak || 0
+    const bestStreak = user.bestStreak || 0
 
     // Find current week (first week with incomplete activities)
     let currentWeek = 1
