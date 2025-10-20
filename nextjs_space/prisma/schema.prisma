@@ -418,6 +418,7 @@ model PracticeMeeting {
   status            MeetingStatus      @default(SCHEDULED)
   topic             String?
   notes             String?
+  jitsiRoomName     String?            // Unique Jitsi room identifier
   externalLink      String?
   initiatorFeedback String?
   partnerFeedback   String?

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { generateJitsiRoomName, generateJitsiMeetUrl } from "@/lib/jitsi";
 
 // GET - Get meetings (scheduled or completed)
 export async function GET(req: NextRequest) {
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
     }
 
-    const { partnerId, scheduledFor, topic, externalLink } = await req.json();
+    const { partnerId, scheduledFor, topic } = await req.json();
 
     if (!partnerId || !scheduledFor) {
       return NextResponse.json(
@@ -115,6 +116,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Generate unique Jitsi room
+    const jitsiRoomName = generateJitsiRoomName(initiator.id, partnerId);
+    const jitsiMeetUrl = generateJitsiMeetUrl(jitsiRoomName);
+
     // Create meeting
     const meeting = await prisma.practiceMeeting.create({
       data: {
@@ -123,7 +128,8 @@ export async function POST(req: NextRequest) {
         partnerId,
         scheduledFor: new Date(scheduledFor),
         topic,
-        externalLink,
+        jitsiRoomName,
+        externalLink: jitsiMeetUrl,
         status: "SCHEDULED",
       },
       include: {
@@ -142,8 +148,8 @@ export async function POST(req: NextRequest) {
         userId: partnerId,
         type: "SESSION_SCHEDULED",
         title: "Nueva sesión programada",
-        message: `${initiator.name || initiator.email} programó una sesión de práctica`,
-        actionUrl: "/practice?tab=sessions",
+        message: `${initiator.name || initiator.email} programó una sesión de práctica${topic ? `: ${topic}` : ''}`,
+        actionUrl: "/one-on-one?tab=sessions",
         meetingId: meeting.id,
       },
     });
