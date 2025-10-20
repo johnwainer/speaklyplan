@@ -143,6 +143,7 @@ export function AppHeader({
                     return (
                       <button
                         key={item.key}
+                        data-tour={`nav-${item.key}`}
                         onClick={() => router.push(item.href)}
                         className={`
                           relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm
@@ -173,7 +174,7 @@ export function AppHeader({
                   {/* Desktop User Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild className="hidden md:flex">
-                      <Button variant="ghost" className="flex items-center gap-2 hover:bg-gray-50 group">
+                      <Button variant="ghost" data-tour="user-menu" className="flex items-center gap-2 hover:bg-gray-50 group">
                         {user?.image ? (
                           <div className="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-100 group-hover:ring-blue-300 transition-all">
                             <Image

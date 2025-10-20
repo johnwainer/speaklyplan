@@ -18,144 +18,175 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
   }, [runTour]);
 
   const steps: Step[] = [
+    // Bienvenida
     {
       target: 'body',
       content: (
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">¡Bienvenido a SpeaklyPlan! 🎉</h2>
           <p className="text-gray-700">
-            Te voy a mostrar una guía rápida de todas las secciones de tu plan de aprendizaje. 
-            Puedes saltar esta guía en cualquier momento.
+            Te mostraré las secciones clave de tu plataforma de aprendizaje en 2 minutos.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Puedes saltar este tour en cualquier momento.
           </p>
         </div>
       ),
       placement: 'center',
       disableBeacon: true,
     },
+
+    // Paso 1: Actividades pendientes
     {
       target: '[data-tour="pending-activities"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📝 ¡Empieza aquí!</h3>
+          <h3 className="text-lg font-bold mb-2">📝 Actividades del Día</h3>
           <p className="text-gray-700">
-            Esta es tu lista de tareas pendientes. Aquí verás las actividades que debes completar hoy. 
-            Las actividades se desbloquean en orden, así que completa una para avanzar a la siguiente.
+            Aquí están tus tareas pendientes. Completa cada actividad para desbloquear la siguiente y ganar puntos XP.
           </p>
         </div>
       ),
       placement: 'bottom',
     },
+
+    // Paso 2: Progreso y nivel
     {
       target: '[data-tour="progress-sidebar"]',
       content: (
         <div>
           <h3 className="text-lg font-bold mb-2">📊 Tu Progreso</h3>
           <p className="text-gray-700">
-            Aquí puedes ver tu nivel actual, puntos de experiencia y progreso hacia el siguiente nivel. 
-            ¡Gana XP completando actividades y usando el Tutor AI!
+            Nivel actual, puntos XP y progreso al siguiente nivel. ¡Completa actividades para subir de nivel!
           </p>
         </div>
       ),
       placement: 'left',
     },
+
+    // Paso 3: Misiones diarias
     {
       target: '[data-tour="daily-missions"]',
       content: (
         <div>
           <h3 className="text-lg font-bold mb-2">🎯 Misiones Diarias</h3>
           <p className="text-gray-700">
-            Completa estas misiones diarias para ganar puntos extra. Las misiones se reinician cada día 
-            y te ayudan a mantener una práctica constante.
+            Objetivos diarios que se reinician cada 24 horas. Gana puntos extra completándolas todas.
           </p>
         </div>
       ),
       placement: 'left',
     },
+
+    // Paso 4: Plan semanal
     {
       target: '[data-tour="weekly-plan"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📅 Plan Semanal</h3>
+          <h3 className="text-lg font-bold mb-2">📅 Plan de 24 Semanas</h3>
           <p className="text-gray-700">
-            Este es tu plan completo de 24 semanas. Puedes navegar entre semanas, ver tu progreso 
-            y agregar notas o reflexiones personales para cada semana.
+            Navega entre semanas, revisa tu progreso y agrega notas personales. Tu roadmap completo al inglés fluido.
           </p>
         </div>
       ),
       placement: 'top',
     },
+
+    // Paso 5: Dashboard principal
+    {
+      target: '[data-tour="nav-dashboard"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">🏠 Dashboard</h3>
+          <p className="text-gray-700">
+            Tu centro de comando. Actividades, progreso semanal, estadísticas y logros en un solo lugar.
+          </p>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+
+    // Paso 6: Tutor AI
     {
       target: '[data-tour="nav-tutor"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">🤖 Tutor AI</h3>
+          <h3 className="text-lg font-bold mb-2">🤖 AI Tutor</h3>
           <p className="text-gray-700">
-            Tu profesor de inglés personal disponible 24/7. Practica conversaciones en diferentes contextos: 
-            casual, reuniones, entrevistas, emails y más. ¡Recibe feedback instantáneo!
+            Tu profesor personal 24/7. Conversaciones con voz en tiempo real, análisis de pronunciación y feedback instantáneo.
           </p>
         </div>
       ),
       placement: 'bottom',
     },
+
+    // Paso 7: Prácticas 1-on-1
+    {
+      target: '[data-tour="nav-one-on-one"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-bold mb-2">👥 Práctica 1-on-1</h3>
+          <p className="text-gray-700">
+            Conecta con otros usuarios. Envía invitaciones, programa sesiones y practica juntos en tiempo real.
+          </p>
+        </div>
+      ),
+      placement: 'bottom',
+    },
+
+    // Paso 8: Vocabulario
     {
       target: '[data-tour="nav-vocabulary"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📚 Vocabulario Interactivo</h3>
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-3">
-            <p className="font-bold text-emerald-700 mb-1">✨ NOVEDAD: Práctica de Pronunciación</p>
-            <p className="text-sm text-gray-700">Ahora cada término incluye herramientas de pronunciación:</p>
-          </div>
-          <div className="space-y-2 text-sm text-gray-700">
-            <p>🔊 <strong>Escuchar:</strong> Reproduce la pronunciación correcta con voz nativa</p>
-            <p>🎤 <strong>Practicar:</strong> Graba tu pronunciación con reconocimiento de voz</p>
-            <p>⭐ <strong>Calificar:</strong> Recibe puntuación 0-100 y feedback instantáneo</p>
-          </div>
-          <p className="text-gray-700 mt-3">
-            Más de 1200 términos organizados en 12 categorías profesionales para dominar.
+          <h3 className="text-lg font-bold mb-2">📚 Vocabulario</h3>
+          <p className="text-gray-700">
+            Más de 1,200 términos profesionales con pronunciación interactiva. Escucha, practica y recibe calificación instantánea.
           </p>
         </div>
       ),
       placement: 'bottom',
     },
+
+    // Paso 9: Recursos
     {
       target: '[data-tour="nav-resources"]',
       content: (
         <div>
           <h3 className="text-lg font-bold mb-2">🎓 Recursos</h3>
           <p className="text-gray-700">
-            Encuentra recursos externos recomendados: apps, podcasts, videos y cursos 
-            para complementar tu aprendizaje.
+            Apps, podcasts, videos y cursos externos recomendados para complementar tu aprendizaje.
           </p>
         </div>
       ),
       placement: 'bottom',
     },
+
+    // Paso 10: Menú de usuario
     {
-      target: '[data-tour="nav-guide"]',
+      target: '[data-tour="user-menu"]',
       content: (
         <div>
-          <h3 className="text-lg font-bold mb-2">📖 Guía de Uso</h3>
+          <h3 className="text-lg font-bold mb-2">👤 Tu Perfil</h3>
           <p className="text-gray-700">
-            Guía completa e interactiva sobre cómo usar la plataforma, 
-            con tutoriales, FAQs y consejos para aprovechar al máximo tu aprendizaje.
+            Accede a tu perfil, guía de uso y cierra sesión desde aquí.
           </p>
         </div>
       ),
       placement: 'bottom',
     },
+
+    // Final
     {
       target: 'body',
       content: (
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">¡Listo para empezar! 🚀</h2>
+          <h2 className="text-2xl font-bold mb-2">¡Todo listo! 🚀</h2>
           <p className="text-gray-700 mb-3">
-            Ya conoces todas las secciones principales. Recuerda que puedes volver a ver 
-            este tour en cualquier momento desde el botón flotante en la esquina inferior izquierda.
+            Ya conoces las secciones principales. Comienza completando tus actividades y practicando con el AI Tutor.
           </p>
           <p className="text-sm text-gray-600">
-            💡 <strong>Tip:</strong> Comienza completando tus actividades del día y 
-            luego practica con el Tutor AI. ¡Buena suerte! 🎯
+            💡 <strong>Tip:</strong> Mantén una racha diaria completando misiones para maximizar tu progreso.
           </p>
         </div>
       ),
