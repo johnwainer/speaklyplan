@@ -17,6 +17,7 @@ import {
   Clock, 
   LogOut,
   User,
+  Users,
   Award,
   Flame,
   HelpCircle,
@@ -523,6 +524,17 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                     </Button>
                     <Button
                       variant="outline"
+                      className="w-full justify-start bg-gradient-to-r from-green-50 to-blue-50 border-green-200"
+                      onClick={() => {
+                        router.push('/one-on-one')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Users className="h-4 w-4 mr-2 text-green-600" />
+                      <span className="font-medium">Práctica 1 a 1</span>
+                    </Button>
+                    <Button
+                      variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
                         router.push('/vocabulario')
@@ -622,6 +634,14 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 AI Tutor
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => router.push('/one-on-one')}
+                className="my-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Práctica 1 a 1
               </Button>
               <Button
                 data-tour="nav-vocabulary"

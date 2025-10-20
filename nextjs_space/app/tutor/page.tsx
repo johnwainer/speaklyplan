@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import TutorClient from './_components/tutor-client';
+import TutorClientV2 from './_components/tutor-client-v2';
 
 async function getTutorData(userId: string) {
   try {
@@ -117,7 +117,7 @@ export default async function TutorPage() {
   const tutorData = await getTutorData(session.user.id);
   
   return (
-    <TutorClient 
+    <TutorClientV2 
       initialData={tutorData}
       userId={session.user.id}
     />
