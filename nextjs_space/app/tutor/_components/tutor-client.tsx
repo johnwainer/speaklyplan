@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,18 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User, Users, Bell, UserPlus, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProfileImageUrl } from '@/lib/utils';
+import { InviteModal } from '@/components/practice/invite-modal';
+import { InvitationCard } from '@/components/practice/invitation-card';
+import { PartnersList } from '@/components/practice/partners-list';
+import { SessionsList } from '@/components/practice/sessions-list';
+import { HistoryList } from '@/components/practice/history-list';
 
 interface Message {
   id: string;
@@ -45,6 +51,9 @@ const contextModes = [
 ];
 
 export default function TutorClient({ initialData, userId }: TutorClientProps) {
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams?.get('tab') || 'chat';
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +67,17 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const [conversationHistory, setConversationHistory] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  
+  // Practice 1-on-1 states
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [receivedInvitations, setReceivedInvitations] = useState([]);
+  const [sentInvitations, setSentInvitations] = useState([]);
+  const [connections, setConnections] = useState([]);
+  const [scheduledMeetings, setScheduledMeetings] = useState([]);
+  const [completedMeetings, setCompletedMeetings] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -143,6 +163,95 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       recognitionRef.current = recognition;
     }
   };
+  
+  // Practice 1-on-1 functions
+  const fetchInvitations = async () => {
+    try {
+      const [receivedRes, sentRes] = await Promise.all([
+        fetch('/api/practice/invitations?type=received'),
+        fetch('/api/practice/invitations?type=sent'),
+      ]);
+
+      if (receivedRes.ok) {
+        const data = await receivedRes.json();
+        setReceivedInvitations(data.invitations);
+      }
+
+      if (sentRes.ok) {
+        const data = await sentRes.json();
+        setSentInvitations(data.invitations);
+      }
+    } catch (error) {
+      console.error('Error fetching invitations:', error);
+    }
+  };
+
+  const fetchConnections = async () => {
+    try {
+      const res = await fetch('/api/practice/connections');
+      if (res.ok) {
+        const data = await res.json();
+        setConnections(data.connections);
+      }
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+    }
+  };
+
+  const fetchMeetings = async () => {
+    try {
+      const [scheduledRes, completedRes] = await Promise.all([
+        fetch('/api/practice/meetings?status=scheduled'),
+        fetch('/api/practice/meetings?status=completed'),
+      ]);
+
+      if (scheduledRes.ok) {
+        const data = await scheduledRes.json();
+        setScheduledMeetings(data.meetings);
+      }
+
+      if (completedRes.ok) {
+        const data = await completedRes.json();
+        setCompletedMeetings(data.meetings);
+      }
+    } catch (error) {
+      console.error('Error fetching meetings:', error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/practice/notifications');
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const handlePracticeRefresh = () => {
+    fetchInvitations();
+    fetchConnections();
+    fetchMeetings();
+    fetchNotifications();
+  };
+
+  // Load practice data when practice tab is active
+  useEffect(() => {
+    if (activeTab === 'practice') {
+      fetchInvitations();
+      fetchConnections();
+      fetchMeetings();
+      fetchNotifications();
+
+      // Poll notifications every 30 seconds when in practice tab
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
   
   const toggleRecording = () => {
     if (!recognitionRef.current) {
@@ -625,11 +734,31 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
         </div>
       </div>
       
-      <div className="container max-w-7xl mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
-          {/* Panel Lateral - Solo Desktop */}
-          <div className="hidden lg:block lg:col-span-1 space-y-4">
+      {/* Tabs for AI Chat and 1-on-1 Practice */}
+      <div className="container max-w-7xl mx-auto px-4 pt-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              AI Chat
+            </TabsTrigger>
+            <TabsTrigger value="practice" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Práctica 1 a 1
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="ml-1">
+                  {unreadCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* AI Chat Tab Content */}
+          <TabsContent value="chat">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              
+              {/* Panel Lateral - Solo Desktop */}
+              <div className="hidden lg:block lg:col-span-1 space-y-4">
             <Card className="p-4">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-600" />
@@ -822,7 +951,136 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             </div>
           </Card>
         </div>
-      </div>
+      </TabsContent>
+
+      {/* Practice 1-on-1 Tab Content */}
+      <TabsContent value="practice" className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-muted-foreground">
+              Practica inglés con otros usuarios de la plataforma
+            </p>
+          </div>
+          <Button onClick={() => setInviteModalOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Nueva Invitación
+          </Button>
+        </div>
+
+        <Tabs defaultValue="invitations" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="invitations" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Invitaciones
+              {receivedInvitations.filter((inv: any) => inv.status === 'PENDING').length > 0 && (
+                <Badge variant="destructive" className="ml-1">
+                  {receivedInvitations.filter((inv: any) => inv.status === 'PENDING').length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="partners" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Compañeros
+              <Badge variant="secondary" className="ml-1">
+                {connections.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="sessions" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Sesiones
+              <Badge variant="secondary" className="ml-1">
+                {scheduledMeetings.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              Historial
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Invitations Tab */}
+          <TabsContent value="invitations" className="space-y-6 mt-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4">
+                Invitaciones Recibidas ({receivedInvitations.length})
+              </h2>
+              {receivedInvitations.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">
+                    No tienes invitaciones recibidas.
+                  </p>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {receivedInvitations.map((invitation: any) => (
+                    <InvitationCard
+                      key={invitation.id}
+                      invitation={invitation}
+                      type="received"
+                      onUpdate={handlePracticeRefresh}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold mb-4">
+                Invitaciones Enviadas ({sentInvitations.length})
+              </h2>
+              {sentInvitations.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">
+                    No has enviado invitaciones aún.
+                  </p>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {sentInvitations.map((invitation: any) => (
+                    <InvitationCard
+                      key={invitation.id}
+                      invitation={invitation}
+                      type="sent"
+                      onUpdate={handlePracticeRefresh}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Partners Tab */}
+          <TabsContent value="partners" className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">
+              Compañeros de Práctica ({connections.length})
+            </h2>
+            <PartnersList connections={connections} onUpdate={handlePracticeRefresh} />
+          </TabsContent>
+
+          {/* Sessions Tab */}
+          <TabsContent value="sessions" className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">
+              Sesiones Programadas ({scheduledMeetings.length})
+            </h2>
+            <SessionsList meetings={scheduledMeetings} onUpdate={handlePracticeRefresh} />
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history" className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">
+              Historial de Sesiones ({completedMeetings.length})
+            </h2>
+            <HistoryList meetings={completedMeetings} />
+          </TabsContent>
+        </Tabs>
+
+        {/* Invite Modal */}
+        <InviteModal
+          isOpen={inviteModalOpen}
+          onClose={() => setInviteModalOpen(false)}
+          onSuccess={handlePracticeRefresh}
+        />
+      </TabsContent>
       
       {/* Historial Dialog */}
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
@@ -1054,6 +1312,9 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           )}
         </DialogContent>
       </Dialog>
+      
+      </Tabs>
+      </div>
     </div>
   );
 }
