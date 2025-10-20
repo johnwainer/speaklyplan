@@ -68,6 +68,11 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
   const [analytics, setAnalytics] = useState<any>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   
+  // Fluent conversation mode states
+  const [fluidMode, setFluidMode] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [conversationState, setConversationState] = useState<'idle' | 'listening' | 'processing' | 'speaking'>('idle');
+  
   // Practice 1-on-1 states
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -134,7 +139,10 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       
       recognition.onstart = () => {
         setIsRecording(true);
-        toast.info('🎤 Listening...');
+        setConversationState('listening');
+        if (!fluidMode) {
+          toast.info('🎤 Listening...');
+        }
       };
       
       recognition.onresult = (event: any) => {
@@ -145,7 +153,14 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           
         setInput(transcript);
         
-        if (event.results[0].isFinal) {
+        // En modo fluido, enviar automáticamente cuando termine de hablar
+        if (event.results[0].isFinal && fluidMode && transcript.trim()) {
+          setIsRecording(false);
+          // Enviar mensaje automáticamente después de un pequeño delay
+          setTimeout(() => {
+            sendMessageFromVoice(transcript);
+          }, 500);
+        } else if (event.results[0].isFinal) {
           setIsRecording(false);
         }
       };
@@ -153,11 +168,17 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsRecording(false);
-        toast.error('Error en reconocimiento de voz');
+        setConversationState('idle');
+        if (!fluidMode) {
+          toast.error('Error en reconocimiento de voz');
+        }
       };
       
       recognition.onend = () => {
         setIsRecording(false);
+        if (conversationState === 'listening' && !isSpeaking) {
+          setConversationState('idle');
+        }
       };
       
       recognitionRef.current = recognition;
@@ -252,6 +273,14 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
       return () => clearInterval(interval);
     }
   }, [activeTab]);
+  
+  // Reiniciar reconocimiento de voz cuando cambia fluidMode
+  useEffect(() => {
+    if (recognitionRef.current) {
+      // Reinicializar el reconocimiento de voz para que use el nuevo valor de fluidMode
+      initSpeechRecognition();
+    }
+  }, [fluidMode]);
   
   const toggleRecording = () => {
     if (!recognitionRef.current) {
@@ -379,8 +408,103 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
+  // Función auxiliar para enviar mensajes desde voz (modo fluido)
+  const sendMessageFromVoice = async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return;
+    
+    setConversationState('processing');
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: messageText,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/tutor/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: messageText,
+          conversationId,
+          context,
+          userId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      
+      const data = await response.json();
+      
+      const assistantMessage: Message = {
+        id: data.messageId,
+        role: 'assistant',
+        content: data.content,
+        translation: data.translation,
+        grammarFeedback: data.grammarFeedback,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+      setConversationId(data.conversationId);
+      
+      // Award points for sending message
+      await fetch('/api/tutor/gamification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'award_points',
+          points: 5,
+          reason: 'Mensaje enviado'
+        })
+      });
+      
+      loadGamificationStats();
+      
+      // En modo fluido, reproducir la respuesta automáticamente
+      if (fluidMode) {
+        speakTextFluid(data.content);
+      }
+      
+      // Mostrar feedback de gramática de forma más prominente
+      if (data.grammarFeedback?.hasErrors) {
+        toast.error(`❌ Grammar: ${data.grammarFeedback.suggestion}`, {
+          duration: 7000,
+          style: {
+            background: '#fef3c7',
+            color: '#92400e',
+            fontWeight: '600'
+          }
+        });
+      } else if (fluidMode && !data.grammarFeedback?.hasErrors) {
+        toast.success('✅ Perfect grammar!', {
+          duration: 2000
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setConversationState('idle');
+      toast.error('Error al comunicarse con el tutor. Por favor, intenta de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
+    
+    // Si está en modo fluido, usar la función especial
+    if (fluidMode) {
+      sendMessageFromVoice(input);
+      return;
+    }
     
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -451,6 +575,45 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
+  // Función para modo fluido: habla y luego reactiva el micrófono
+  const speakTextFluid = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setConversationState('speaking');
+      setIsSpeaking(true);
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.85;
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setConversationState('idle');
+        
+        // En modo fluido, reactivar el micrófono automáticamente después de 1 segundo
+        if (fluidMode && recognitionRef.current) {
+          setTimeout(() => {
+            try {
+              recognitionRef.current.start();
+            } catch (error) {
+              console.error('Error restarting recognition:', error);
+            }
+          }, 1000);
+        }
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setConversationState('idle');
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    } else {
+      toast.error('Tu navegador no soporta síntesis de voz');
+      setConversationState('idle');
+    }
+  };
+  
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
@@ -481,6 +644,42 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     setTimeout(() => {
       shouldAutoScroll.current = true;
     }, 300);
+  };
+  
+  const toggleFluidMode = () => {
+    const newFluidMode = !fluidMode;
+    setFluidMode(newFluidMode);
+    
+    if (newFluidMode) {
+      toast.success('🎙️ Modo Conversación Fluida ACTIVADO', {
+        description: 'Habla libremente. El AI responderá automáticamente con voz.',
+        duration: 4000
+      });
+      // Iniciar el micrófono automáticamente
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+        } catch (error) {
+          console.error('Error starting recognition:', error);
+        }
+      }
+    } else {
+      toast.info('Modo Conversación Fluida desactivado');
+      setConversationState('idle');
+      // Detener el micrófono si está activo
+      if (isRecording && recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error('Error stopping recognition:', error);
+        }
+      }
+      // Detener la síntesis de voz si está activa
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setIsSpeaking(false);
+    }
   };
   
   return (
@@ -711,6 +910,15 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             
             <nav className="hidden md:flex items-center space-x-2">
               <Button
+                variant={fluidMode ? "secondary" : "ghost"}
+                size="sm"
+                className={fluidMode ? "bg-yellow-400 text-purple-900 hover:bg-yellow-300 font-bold animate-pulse" : "text-white hover:bg-white/20"}
+                onClick={toggleFluidMode}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Modo Fluido {fluidMode && '✓'}
+              </Button>
+              <Button
                 variant="ghost"
                 size="sm"
                 className="text-white hover:bg-white/20"
@@ -830,13 +1038,47 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
           {/* Panel Principal: Chat */}
           <Card className="col-span-1 lg:col-span-3 flex flex-col h-[600px] lg:h-[calc(100vh-12rem)]">
             <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <MessageSquare className="h-6 w-6" />
-                English Tutor AI
-              </h2>
-              <p className="text-sm text-blue-100 mt-1">
-                {contextModes.find(m => m.value === context)?.description}
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <MessageSquare className="h-6 w-6" />
+                    English Tutor AI
+                  </h2>
+                  <p className="text-sm text-blue-100 mt-1">
+                    {contextModes.find(m => m.value === context)?.description}
+                  </p>
+                </div>
+                
+                {/* Indicador de Estado en Modo Fluido */}
+                {fluidMode && (
+                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                    {conversationState === 'listening' && (
+                      <>
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium">🎤 Escuchando...</span>
+                      </>
+                    )}
+                    {conversationState === 'processing' && (
+                      <>
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium">⚡ Procesando...</span>
+                      </>
+                    )}
+                    {conversationState === 'speaking' && (
+                      <>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium">🔊 Hablando...</span>
+                      </>
+                    )}
+                    {conversationState === 'idle' && (
+                      <>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                        <span className="text-sm font-medium">💬 Listo</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             
             <ScrollArea className="flex-1 p-4 overflow-y-auto">
@@ -886,10 +1128,27 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                         </div>
                       )}
                       
+                      {/* Feedback Gramatical - Más Prominente */}
                       {message.grammarFeedback?.hasErrors && (
-                        <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                          <p className="text-xs font-medium text-yellow-900 mb-1">💡 Grammar Tip:</p>
-                          <p className="text-xs text-yellow-800">{message.grammarFeedback.suggestion}</p>
+                        <div className="mt-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-orange-300 rounded-lg shadow-md animate-in fade-in slide-in-from-top-2 duration-500">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-lg">⚠️</span>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-bold text-orange-900 mb-2">Grammar Correction:</p>
+                              <p className="text-sm text-orange-800 leading-relaxed">{message.grammarFeedback.suggestion}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Indicador de gramática perfecta en modo fluido */}
+                      {fluidMode && message.role === 'user' && !message.grammarFeedback?.hasErrors && (
+                        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-xs font-medium text-green-900 flex items-center gap-2">
+                            <span className="text-base">✅</span> Perfect grammar!
+                          </p>
                         </div>
                       )}
                     </div>
@@ -913,6 +1172,17 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
             </ScrollArea>
             
             <div className="p-4 border-t bg-gray-50">
+              {fluidMode && (
+                <div className="mb-3 p-3 bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-300 rounded-lg text-center">
+                  <p className="text-sm font-semibold text-yellow-900">
+                    🎙️ Modo Conversación Fluida Activo
+                  </p>
+                  <p className="text-xs text-yellow-800 mt-1">
+                    Habla libremente • El AI responderá automáticamente con voz • Las correcciones aparecerán en tiempo real
+                  </p>
+                </div>
+              )}
+              
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -920,34 +1190,44 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
                 }}
                 className="flex gap-2 max-w-4xl mx-auto"
               >
-                <Button
-                  type="button"
-                  variant={isRecording ? "destructive" : "outline"}
-                  size="icon"
-                  onClick={toggleRecording}
-                  disabled={isLoading}
-                >
-                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
+                {!fluidMode && (
+                  <Button
+                    type="button"
+                    variant={isRecording ? "destructive" : "outline"}
+                    size="icon"
+                    onClick={toggleRecording}
+                    disabled={isLoading}
+                  >
+                    {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "Type or speak your message in English..."}
-                  disabled={isLoading}
+                  placeholder={
+                    fluidMode 
+                      ? (conversationState === 'listening' ? "🎤 Listening..." : conversationState === 'speaking' ? "🔊 AI is speaking..." : "💬 Conversation active...")
+                      : (isRecording ? "Listening..." : "Type or speak your message in English...")
+                  }
+                  disabled={isLoading || fluidMode}
                   className="flex-1 bg-white"
                 />
-                <Button 
-                  type="submit" 
-                  disabled={isLoading || !input.trim()}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
+                {!fluidMode && (
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading || !input.trim()}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                )}
               </form>
-              <p className="text-xs text-center text-muted-foreground mt-2">
-                🎤 Habla o escribe • Enter para enviar
-              </p>
+              {!fluidMode && (
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  🎤 Habla o escribe • Enter para enviar
+                </p>
+              )}
             </div>
           </Card>
         </div>
