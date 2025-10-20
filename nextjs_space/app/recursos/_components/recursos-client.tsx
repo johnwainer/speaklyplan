@@ -155,9 +155,7 @@ export default function RecursosClient({ user }: RecursosClientProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <AppHeader 
-        title="SpeaklyPlan"
-        subtitle="Recursos Gratuitos"
-        currentView="/recursos"
+        currentPage="recursos"
       />
 
       {/* Main Content */}

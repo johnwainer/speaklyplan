@@ -124,36 +124,76 @@ export function OneOnOneClient() {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
-      {/* Header */}
+      {/* Modern Header */}
       <AppHeader 
-        title="Práctica 1 a 1"
-        subtitle="Conecta y practica con otros estudiantes"
-        currentView="/one-on-one"
+        currentPage="one-on-one"
+        actions={
+          <>
+            <Button variant="ghost" size="icon" className="relative shadow-sm">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              onClick={() => setInviteModalOpen(true)}
+              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 shadow-sm"
+              size="sm"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Invitar
+            </Button>
+          </>
+        }
+        statsBar={
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center shadow-sm">
+                  <Users className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-green-600">{connections.length}</div>
+                  <div className="text-xs text-gray-600">Compañeros</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-sm">
+                  <Calendar className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-blue-600">{scheduledMeetings.filter((m: any) => new Date(m.scheduledFor) > new Date()).length}</div>
+                  <div className="text-xs text-gray-600">Sesiones programadas</div>
+                </div>
+              </div>
+
+              {receivedInvitations.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center shadow-sm">
+                    <UserPlus className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-orange-600">{receivedInvitations.length}</div>
+                    <div className="text-xs text-gray-600">Invitaciones pendientes</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="bg-white/80 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Conecta y practica con otros estudiantes
+                </span>
+              </div>
+            </div>
+          </div>
+        }
       />
-      
-      {/* Secondary Action Bar */}
-      <div className="bg-white/50 backdrop-blur-sm border-b py-3">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-end gap-3">
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </Button>
-          
-          {/* Invite Button */}
-          <Button
-            onClick={() => setInviteModalOpen(true)}
-            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Invitar
-          </Button>
-        </div>
-      </div>
       
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

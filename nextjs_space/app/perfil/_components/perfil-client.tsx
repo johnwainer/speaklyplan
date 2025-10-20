@@ -283,9 +283,7 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <AppHeader 
-        title="SpeaklyPlan"
-        subtitle="Mi Perfil"
-        currentView="/perfil"
+        currentPage="perfil"
       />
 
       {/* Main Content */}

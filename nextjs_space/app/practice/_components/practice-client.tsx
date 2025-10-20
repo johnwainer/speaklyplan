@@ -126,9 +126,7 @@ export function PracticeClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <AppHeader 
-        title="SpeaklyPlan"
-        subtitle="Prácticas 1 a 1"
-        currentView="/practice"
+        currentPage="one-on-one"
       />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">

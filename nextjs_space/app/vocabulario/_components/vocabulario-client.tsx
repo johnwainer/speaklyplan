@@ -18,7 +18,8 @@ import {
   Volume2,
   Mic,
   MicOff,
-  Star
+  Star,
+  BookOpen
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { AppHeader } from '@/components/app-header'
@@ -324,105 +325,54 @@ export default function VocabularioClient({ initialData, user }: VocabularioClie
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
+      {/* Modern Header */}
       <AppHeader 
-        title="Vocabulario"
-        subtitle="Vocabulario Profesional"
-        currentView="/vocabulario"
-      />
-
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/dashboard')}
-              className="my-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      {/* How to Use - Pronunciation Features */}
-      <section className="py-4 px-4 bg-gradient-to-br from-blue-50 to-white">
-        <div className="container max-w-7xl mx-auto">
-          <Card className="border border-blue-200 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-white/20 rounded-lg shrink-0">
-                  <Volume2 className="h-5 w-5" />
+        currentPage="vocabulario"
+        statsBar={
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-sm">
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-base mb-2">Práctica de Pronunciación Interactiva</h4>
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-1.5">
-                      <Volume2 className="h-4 w-4" />
-                      <span><strong>Escuchar:</strong> pronunciación nativa</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Mic className="h-4 w-4" />
-                      <span><strong>Practicar:</strong> graba tu voz</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Star className="h-4 w-4" />
-                      <span><strong>Calificación:</strong> feedback 0-100</span>
-                    </div>
-                  </div>
+                <div>
+                  <div className="text-xl font-bold text-blue-600">{progress.percentage}%</div>
+                  <div className="text-xs text-gray-600">Progreso</div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
-      {/* Progress Section */}
-      <section className="py-6 px-4 bg-white border-b">
-        <div className="container max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="border-0 bg-blue-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-5 w-5 text-blue-600" />
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center shadow-sm">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-blue-600">{progress.percentage}%</div>
-                <div className="text-sm text-gray-600">Progreso</div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="text-xl font-bold text-green-600">{progress.learned}</div>
+                  <div className="text-xs text-gray-600">Dominados</div>
+                </div>
+              </div>
 
-            <Card className="border-0 bg-green-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center shadow-sm">
+                  <BookOpen className="h-5 w-5 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-green-600">{progress.learned}</div>
-                <div className="text-sm text-gray-600">Palabras aprendidas</div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="text-xl font-bold text-purple-600">{progress.total}</div>
+                  <div className="text-xs text-gray-600">Total</div>
+                </div>
+              </div>
+            </div>
 
-            <Card className="border-0 bg-purple-50">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="text-2xl font-bold text-purple-600">{progress.total}</div>
-                <div className="text-sm text-gray-600">Total de términos</div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-2">
+              <div className="bg-white/80 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2">
+                <Volume2 className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  Pronunciación interactiva disponible
+                </span>
+              </div>
+            </div>
           </div>
-
-          <div className="mt-4">
-            <Progress value={progress.percentage} className="h-3" />
-            <p className="text-sm text-gray-600 mt-2 text-center">
-              {progress.learned} de {progress.total} términos dominados
-            </p>
-          </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* Search and Filter */}
       <section className="py-6 px-4">

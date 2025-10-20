@@ -387,127 +387,20 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
+      {/* Modern Header with Tabs and Stats */}
       <AppHeader 
-        title="SpeaklyPlan"
-        subtitle="Dashboard"
-        currentView="/dashboard"
-      />
-
-
-      {/* Navigation */}
-      <nav className="border-b bg-white">
-        <div className="container max-w-7xl mx-auto px-4">
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex justify-between items-center">
-            <div className="flex space-x-8">
-              <button
-                onClick={() => setCurrentView('overview')}
-                className={`py-4 text-sm font-medium border-b-2 ${
-                  currentView === 'overview'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Vista General
-              </button>
-              <button
-                onClick={() => setCurrentView('week')}
-                className={`py-4 text-sm font-medium border-b-2 ${
-                  currentView === 'week'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Vista Semanal
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                data-tour="nav-tutor"
-                size="sm"
-                onClick={() => router.push('/tutor')}
-                className="my-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                AI Tutor
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => router.push('/one-on-one')}
-                className="my-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Práctica 1 a 1
-              </Button>
-              <Button
-                data-tour="nav-vocabulary"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/vocabulario')}
-                className="my-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800"
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Vocabulario
-              </Button>
-              <Button
-                data-tour="nav-resources"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/recursos')}
-                className="my-2"
-              >
-                <Library className="h-4 w-4 mr-2" />
-                Recursos
-              </Button>
-              <Button
-                data-tour="nav-guide"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/guia')}
-                className="my-2"
-              >
-                <HelpCircle className="h-4 w-4 mr-2" />
-                Guía de Uso
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation - Tabs only */}
-          <div className="md:hidden flex justify-center">
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setCurrentView('overview')}
-                className={`py-3 px-4 text-sm font-medium border-b-2 ${
-                  currentView === 'overview'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                General
-              </button>
-              <button
-                onClick={() => setCurrentView('week')}
-                className={`py-3 px-4 text-sm font-medium border-b-2 ${
-                  currentView === 'week'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500'
-                }`}
-              >
-                Semanal
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Compact Progress Stats */}
-      <section className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
-        <div className="container max-w-7xl mx-auto">
+        currentPage="dashboard"
+        tabs={[
+          { key: 'overview', label: 'Vista General', icon: TrendingUp },
+          { key: 'week', label: 'Vista Semanal', icon: Calendar }
+        ]}
+        currentTab={currentView}
+        onTabChange={(tab) => setCurrentView(tab as 'overview' | 'week')}
+        statsBar={
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-6 flex-wrap">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-sm">
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -517,7 +410,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center shadow-sm">
                   <Flame className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -527,7 +420,7 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center shadow-sm">
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -535,17 +428,31 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <div className="text-xs text-gray-600">de 24 semanas</div>
                 </div>
               </div>
+
+              {gamificationStats && (
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center shadow-sm">
+                    <Zap className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-amber-600">{gamificationStats.level}</div>
+                    <div className="text-xs text-gray-600">Nivel</div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-gray-500" />
-              <span className="font-medium text-gray-700">
-                {progressData.completedActivities} de {progressData.totalActivities} actividades
-              </span>
+            <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-2 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+                <CheckCircle2 className="w-4 h-4 text-gray-500" />
+                <span className="font-medium text-gray-700">
+                  {progressData.completedActivities} de {progressData.totalActivities} actividades
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* Main Content */}
       <main className="py-8 px-4">

@@ -335,50 +335,81 @@ export default function TutorClientV2({ initialData, userId }: TutorClientProps)
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Header */}
+      {/* Modern Header */}
       <AppHeader 
-        title="AI Tutor"
-        subtitle="Conversación Fluida"
-        currentView="/tutor"
-      />
-      
-      {/* Secondary Action Bar */}
-      <div className="bg-white/50 backdrop-blur-sm border-b py-3">
-        <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
-          {/* Gamification Stats */}
-          {gamificationStats && (
-            <div className="flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-bold">{gamificationStats.points}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-base">🔥</span>
-                <span className="text-sm font-bold">{gamificationStats.currentStreak}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-bold">Nivel {gamificationStats.level}</span>
-              </div>
-            </div>
-          )}
-          
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => { loadHistory(); setShowHistory(true); }}>
+        currentPage="tutor"
+        actions={
+          <>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => { loadHistory(); setShowHistory(true); }}
+              className="shadow-sm"
+            >
               <History className="h-4 w-4 mr-2" />
               Historial
             </Button>
             
             {conversationId && messages.length >= 2 && (
-              <Button variant="outline" size="sm" onClick={endSessionAndAnalyze}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={endSessionAndAnalyze}
+                className="shadow-sm bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:border-blue-300"
+              >
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Ver Análisis
               </Button>
             )}
-          </div>
-        </div>
-      </div>
+          </>
+        }
+        statsBar={
+          gamificationStats && (
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-sm">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-amber-600">{gamificationStats.points}</div>
+                    <div className="text-xs text-gray-600">XP Total</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-sm">
+                    <span className="text-xl">🔥</span>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-orange-600">{gamificationStats.currentStreak}</div>
+                    <div className="text-xs text-gray-600">Racha</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-sm">
+                    <Award className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-purple-600">Nivel {gamificationStats.level}</div>
+                    <div className="text-xs text-gray-600">Progreso</div>
+                  </div>
+                </div>
+              </div>
+
+              {conversationId && messages.length > 0 && (
+                <div className="flex items-center gap-2 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+                  <MessageSquare className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {messages.length} mensajes en esta sesión
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        }
+      />
       
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">

@@ -603,9 +603,7 @@ export default function GuiaClient({ user }: GuiaClientProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <AppHeader 
-        title="SpeaklyPlan"
-        subtitle="Guía de Uso"
-        currentView="/guia"
+        currentPage="guia"
       />
 
       {/* Main Content */}
