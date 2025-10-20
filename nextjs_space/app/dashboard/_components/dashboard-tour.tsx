@@ -136,7 +136,7 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
 
     // Paso 8: Vocabulario
     {
-      target: '[data-tour="nav-vocabulary"]',
+      target: '[data-tour="nav-vocabulario"]',
       content: (
         <div>
           <h3 className="text-lg font-bold mb-2">📚 Vocabulario</h3>
@@ -150,7 +150,7 @@ export default function DashboardTour({ runTour, onTourEnd }: DashboardTourProps
 
     // Paso 9: Recursos
     {
-      target: '[data-tour="nav-resources"]',
+      target: '[data-tour="nav-recursos"]',
       content: (
         <div>
           <h3 className="text-lg font-bold mb-2">🎓 Recursos</h3>
