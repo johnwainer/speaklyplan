@@ -25,3 +25,8 @@ yarn-error.log*
 # Core dumps
 core
 *.core
+
+# Environment variables
+.env
+.env.local
+.env*.local
