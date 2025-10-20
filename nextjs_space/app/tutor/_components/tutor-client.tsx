@@ -1,23 +1,30 @@
 
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Home, Mic, MicOff, Award, TrendingUp, Sparkles, 
-  Zap, CheckCircle, AlertCircle, GraduationCap, Volume2, BookOpen, Languages,
-  MessageSquare, User, ChevronDown, ChevronUp, TrendingDown, PlayCircle, PauseCircle
-} from 'lucide-react';
+import { Send, Volume2, BookOpen, Target, MessageSquare, Home, BarChart3, Languages, Menu, X, Mic, MicOff, Award, History, TrendingUp, Sparkles, RotateCcw, LogOut, User } from 'lucide-react';
 import { toast } from 'sonner';
-import { AppHeader } from '@/components/app-header';
-import { SectionNavigator } from '@/components/section-navigator';
-import { cn } from '@/lib/utils';
-import { AnalysisPanel } from './analysis-panel';
+import Link from 'next/link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { getProfileImageUrl } from '@/lib/utils';
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  translation?: string;
+  grammarFeedback?: any;
+  timestamp: Date;
+}
 
 interface TutorClientProps {
   initialData: {
@@ -29,175 +36,48 @@ interface TutorClientProps {
   userId: string;
 }
 
-interface VocabWord {
-  term: string;
-  translation: string;
-  pronunciation?: string;
-  attempts: number;
-  mastered: boolean;
-}
-
-interface GrammarAnalysis {
-  errors: any[];
-  feedback: {
-    hasErrors: boolean;
-    suggestion: string;
-    accuracyScore: number;
-  };
-}
-
-interface PronunciationAnalysis {
-  pronunciationScore: number;
-  fluencyScore: number;
-  phonemeErrors: any[];
-  strengths: string[];
-  areasToImprove: string[];
-  suggestions: string[];
-  suggestionsSpanish?: string[];
-  overallFeedback: string;
-  overallFeedbackSpanish?: string;
-}
-
-interface Message {
-  type: 'user' | 'tutor';
-  text: string;
-  translation?: string;
-  timestamp: Date;
-  suggestedWords?: VocabWord[];
-  grammarAnalysis?: GrammarAnalysis | null;
-  pronunciationAnalysis?: PronunciationAnalysis | null;
-}
+const contextModes = [
+  { value: 'casual', label: '💬 Conversación Casual', description: 'Charla amigable sobre trabajo e intereses' },
+  { value: 'meeting', label: '🤝 Simulación de Reunión', description: 'Practica reuniones profesionales' },
+  { value: 'interview', label: '👔 Entrevista de Trabajo', description: 'Prepárate para entrevistas' },
+  { value: 'email', label: '📧 Práctica de Emails', description: 'Redacción profesional' },
+  { value: 'grammar', label: '📝 Ejercicios de Gramática', description: 'Refuerza la gramática' }
+];
 
 export default function TutorClient({ initialData, userId }: TutorClientProps) {
-  // States
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [context, setContext] = useState('casual');
+  const [isRecording, setIsRecording] = useState(false);
   const [gamificationStats, setGamificationStats] = useState<any>(null);
-  const [suggestedVocab, setSuggestedVocab] = useState<VocabWord[]>([]);
-  const [practiceWords, setPracticeWords] = useState<VocabWord[]>([]);
-  const [showAnalysis, setShowAnalysis] = useState(true);
-  const [currentAnalysis, setCurrentAnalysis] = useState<{
-    grammar: GrammarAnalysis | null;
-    pronunciation: PronunciationAnalysis | null;
-  }>({ grammar: null, pronunciation: null });
+  const [showHistory, setShowHistory] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   
+  const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const shouldAutoScroll = useRef(true);
+  const { data: session, status } = useSession() || {};
   
-  // Initialize on mount
+  // Auto-scroll removed - users can scroll manually
+  
+  // Load gamification stats on mount
   useEffect(() => {
-    initVoiceSystem();
     loadGamificationStats();
-    loadPracticeVocabulary();
-    startInitialConversation();
-    
-    return () => {
-      stopListening();
-      stopSpeaking();
-    };
+    initSpeechRecognition();
+    setSessionStartTime(new Date());
   }, []);
   
-  const initVoiceSystem = () => {
-    // Initialize Speech Recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-      recognition.maxAlternatives = 1;
-      
-      recognition.onstart = () => {
-        setIsListening(true);
-        toast.success('🎤 Escuchando...');
-      };
-      
-      recognition.onresult = async (event: any) => {
-        const current = event.resultIndex;
-        const transcriptResult = event.results[current][0].transcript;
-        
-        // Solo mostrar el transcript cuando es final, no los resultados intermedios
-        if (event.results[current].isFinal) {
-          setTranscript(transcriptResult);
-          await handleVoiceInput(transcriptResult);
-        } else {
-          // Opcionalmente, mostrar el texto intermedio pero en tiempo real (sin saltos)
-          setTranscript(transcriptResult);
-        }
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        
-        if (event.error === 'no-speech') {
-          toast.info('No speech detected. Try speaking again.');
-        } else {
-          toast.error('Voice recognition error. Please try again.');
-        }
-      };
-      
-      recognition.onend = () => {
-        if (isListening) {
-          setTimeout(() => {
-            try {
-              recognition.start();
-            } catch (e) {
-              console.log('Recognition restart failed:', e);
-            }
-          }, 100);
-        }
-      };
-      
-      recognitionRef.current = recognition;
-    }
-    
-    // Initialize Speech Synthesis
-    if ('speechSynthesis' in window) {
-      synthRef.current = window.speechSynthesis;
-      
-      // Force load voices
-      const loadVoices = () => {
-        const voices = synthRef.current?.getVoices() || [];
-        console.log('🔊 Voces cargadas:', voices.length);
-        if (voices.length > 0) {
-          console.log('✅ Voces disponibles:', voices.slice(0, 5).map(v => `${v.name} (${v.lang})`));
-        }
-        return voices;
-      };
-      
-      // Load voices immediately
-      loadVoices();
-      
-      // Set up listener for when voices change
-      if (synthRef.current.onvoiceschanged !== undefined) {
-        synthRef.current.onvoiceschanged = loadVoices;
-      }
-      
-      // Reset synthesis state
-      synthRef.current.cancel();
-      
-      // CRITICAL: Enable audio context with user interaction
-      // This ensures audio will work when called later
-      const enableAudio = () => {
-        if (synthRef.current && synthRef.current.getVoices().length > 0) {
-          console.log('🔊 Sistema de audio activado por interacción del usuario');
-          // Remove listener after first activation
-          document.removeEventListener('click', enableAudio);
-          document.removeEventListener('touchstart', enableAudio);
-        }
-      };
-      
-      document.addEventListener('click', enableAudio, { once: true });
-      document.addEventListener('touchstart', enableAudio, { once: true });
-    }
-  };
+  // Update streak when component mounts
+  useEffect(() => {
+    updateStreakOnServer();
+  }, []);
   
   const loadGamificationStats = async () => {
     try {
@@ -211,681 +91,969 @@ export default function TutorClient({ initialData, userId }: TutorClientProps) {
     }
   };
   
-  const loadPracticeVocabulary = async () => {
+  const updateStreakOnServer = async () => {
     try {
-      const response = await fetch('/api/tutor/practice-vocabulary');
-      if (response.ok) {
-        const data = await response.json();
-        setPracticeWords(data.words || []);
-      }
+      await fetch('/api/tutor/gamification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_streak' })
+      });
     } catch (error) {
-      console.error('Error loading vocabulary:', error);
+      console.error('Error updating streak:', error);
     }
   };
   
-  const startInitialConversation = async () => {
-    // MEJORA: Reducir delay inicial para conversación más fluida
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    // Mensaje de bienvenida del tutor (más corto y directo)
-    const welcomeMessage: Message = {
-      type: 'tutor',
-      text: "Hi! I'm your tutor. What do you want to talk about?",
-      translation: "¡Hola! Soy tu tutor. ¿De qué quieres hablar?",
-      timestamp: new Date()
-    };
-    
-    setMessages([welcomeMessage]);
-    
-    // Show prominent notification about audio
-    toast.info('🔊 Tutor listo. Usa el botón 🔊 si no escuchas audio', {
-      duration: 4000
-    });
-    
-    // MEJORA: Iniciar audio más rápido
-    setTimeout(async () => {
-      console.log('🎬 Iniciando mensaje de bienvenida');
-      await speakText(welcomeMessage.text);
-    }, 200);
+  const initSpeechRecognition = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsRecording(true);
+        toast.info('🎤 Listening...');
+      };
+      
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+          
+        setInput(transcript);
+        
+        if (event.results[0].isFinal) {
+          setIsRecording(false);
+        }
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+        toast.error('Error en reconocimiento de voz');
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
   };
   
-  const startListening = () => {
+  const toggleRecording = () => {
     if (!recognitionRef.current) {
-      toast.error('Voice recognition not supported in your browser');
+      toast.error('Tu navegador no soporta reconocimiento de voz');
       return;
     }
     
-    try {
-      recognitionRef.current.start();
-      setIsListening(true);
-    } catch (e) {
-      console.error('Failed to start recognition:', e);
-      toast.error('Error starting voice recognition');
-    }
-  };
-  
-  const stopListening = () => {
-    if (recognitionRef.current) {
+    if (isRecording) {
       recognitionRef.current.stop();
-      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
     }
   };
   
-  const handleVoiceInput = async (transcriptText: string) => {
-    if (!transcriptText.trim()) return;
+  const endSessionAndAnalyze = async () => {
+    if (!conversationId || messages.length < 2) return;
     
-    // Agregar mensaje del usuario
+    try {
+      toast.loading('Analizando sesión...');
+      
+      const response = await fetch('/api/tutor/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          sessionType: context
+        })
+      });
+      
+      if (response.ok) {
+        const analytics = await response.json();
+        setAnalytics(analytics);
+        setShowAnalytics(true);
+        
+        // Check for achievements
+        await checkAchievements(analytics);
+        
+        toast.success('¡Sesión analizada!');
+      }
+    } catch (error) {
+      console.error('Error analyzing session:', error);
+      toast.error('Error al analizar sesión');
+    }
+  };
+  
+  const checkAchievements = async (sessionAnalytics: any) => {
+    try {
+      const response = await fetch('/api/tutor/gamification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'check_achievements',
+          metrics: {
+            streak: gamificationStats?.currentStreak,
+            totalMessages: gamificationStats?.points ? Math.floor(gamificationStats.points / 5) : 0,
+            totalSessions: sessionAnalytics ? 1 : 0,
+            perfectGrammarSessions: sessionAnalytics?.grammarAccuracy >= 95 ? 1 : 0,
+            vocabularyLearned: sessionAnalytics?.newWordsLearned?.length || 0
+          }
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.achievements && data.achievements.length > 0) {
+          data.achievements.forEach((achievement: any) => {
+            toast.success(`🏆 ¡Logro desbloqueado! ${achievement.achievement.name}`, {
+              duration: 5000
+            });
+          });
+          loadGamificationStats();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking achievements:', error);
+    }
+  };
+  
+  const loadConversationHistory = async () => {
+    try {
+      const response = await fetch('/api/tutor/history');
+      if (response.ok) {
+        const data = await response.json();
+        setConversationHistory(data);
+        setShowHistory(true);
+      }
+    } catch (error) {
+      console.error('Error loading history:', error);
+      toast.error('Error al cargar historial');
+    }
+  };
+  
+  const loadConversation = async (convId: string) => {
+    try {
+      shouldAutoScroll.current = false; // Desactivar auto-scroll al cargar conversación
+      const response = await fetch(`/api/tutor/history?conversationId=${convId}`);
+      if (response.ok) {
+        const conversation = await response.json();
+        
+        const loadedMessages: Message[] = conversation.messages.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          translation: msg.translation,
+          grammarFeedback: msg.grammarErrors,
+          timestamp: new Date(msg.createdAt)
+        }));
+        
+        setMessages(loadedMessages);
+        setConversationId(conversation.id);
+        setContext(conversation.context || 'casual');
+        setShowHistory(false);
+        
+        toast.success('Conversación cargada');
+        
+        // Reactivar auto-scroll después de un delay
+        setTimeout(() => {
+          shouldAutoScroll.current = true;
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+      toast.error('Error al cargar conversación');
+      shouldAutoScroll.current = true;
+    }
+  };
+  
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+    
     const userMessage: Message = {
-      type: 'user',
-      text: transcriptText,
+      id: Date.now().toString(),
+      role: 'user',
+      content: input,
       timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
-    setTranscript('');
-    setIsAnalyzing(true);
+    setInput('');
+    setIsLoading(true);
     
     try {
-      // Obtener respuesta del tutor con traducción y vocabulario sugerido
-      const response = await fetch('/api/tutor/voice/conversation', {
+      const response = await fetch('/api/tutor/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userMessage: transcriptText,
-          conversationHistory: messages.slice(-6), // Últimos 6 mensajes para contexto
-          practiceWords: practiceWords
+          message: input,
+          conversationId,
+          context,
+          userId
         })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to get tutor response');
+        throw new Error('Failed to send message');
       }
       
       const data = await response.json();
       
-      // Actualizar análisis actual
-      if (data.grammarAnalysis || data.pronunciationAnalysis) {
-        setCurrentAnalysis({
-          grammar: data.grammarAnalysis,
-          pronunciation: data.pronunciationAnalysis
-        });
-      }
-      
-      // Agregar respuesta del tutor con análisis
-      const tutorMessage: Message = {
-        type: 'tutor',
-        text: data.response,
+      const assistantMessage: Message = {
+        id: data.messageId,
+        role: 'assistant',
+        content: data.content,
         translation: data.translation,
-        timestamp: new Date(),
-        suggestedWords: data.suggestedWords,
-        grammarAnalysis: data.grammarAnalysis,
-        pronunciationAnalysis: data.pronunciationAnalysis
+        grammarFeedback: data.grammarFeedback,
+        timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, tutorMessage]);
-      setIsAnalyzing(false);
+      setMessages(prev => [...prev, assistantMessage]);
+      setConversationId(data.conversationId);
       
-      // Actualizar vocabulario sugerido si hay
-      if (data.suggestedWords && data.suggestedWords.length > 0) {
-        setSuggestedVocab(data.suggestedWords);
-      }
-      
-      // Mostrar toast con resumen del análisis
-      if (data.pronunciationAnalysis && data.pronunciationAnalysis.pronunciationScore < 80) {
-        toast.info(`💡 Score de pronunciación: ${data.pronunciationAnalysis.pronunciationScore}/100`);
-      }
-      if (data.grammarAnalysis && data.grammarAnalysis.errors.length > 0) {
-        toast.info(`📝 Se detectaron ${data.grammarAnalysis.errors.length} error(es) gramatical(es)`);
-      }
-      
-      // Hablar la respuesta
-      await speakText(data.response);
-      
-      // Gamificación en background
-      fetch('/api/tutor/gamification', {
+      // Award points for sending message
+      await fetch('/api/tutor/gamification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'award_points',
-          points: 10,
-          reason: 'Conversación con el tutor'
+          points: 5,
+          reason: 'Mensaje enviado'
         })
-      }).then(() => loadGamificationStats())
-        .catch(err => console.log('Gamification error:', err));
+      });
       
-    } catch (error) {
-      console.error('Error processing voice input:', error);
-      toast.error('Error al procesar tu mensaje');
-      setIsAnalyzing(false);
+      loadGamificationStats();
       
-      // Agregar respuesta de fallback
-      const fallbackMessage: Message = {
-        type: 'tutor',
-        text: "I see. Could you tell me more about that?",
-        translation: "Ya veo. ¿Podrías contarme más sobre eso?",
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, fallbackMessage]);
-      await speakText(fallbackMessage.text);
-    }
-  };
-  
-  const speakText = async (text: string): Promise<void> => {
-    return new Promise((resolve) => {
-      if (!synthRef.current) {
-        console.error('❌ Speech synthesis not available');
-        toast.error('Sistema de voz no disponible en tu navegador');
-        resolve();
-        return;
+      // Mostrar feedback de gramática si hay
+      if (data.grammarFeedback?.hasErrors) {
+        toast.info(data.grammarFeedback.suggestion, {
+          duration: 5000
+        });
       }
       
-      console.log('🔊 Intentando reproducir:', text.substring(0, 50) + '...');
-      
-      // Cancel any ongoing speech
-      synthRef.current.cancel();
-      
-      // MEJORA: Reducir delay para respuesta más rápida
-      setTimeout(() => {
-        if (!synthRef.current) {
-          resolve();
-          return;
-        }
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        
-        // Get all available voices
-        const voices = synthRef.current.getVoices();
-        console.log('🔊 Voces disponibles:', voices.length);
-        
-        if (voices.length === 0) {
-          console.warn('⚠️ No hay voces cargadas todavía, esperando...');
-          // Try again after a short delay
-          setTimeout(() => speakText(text), 200);
-          resolve();
-          return;
-        }
-        
-        // MEJORA: Seleccionar las voces más naturales y humanas disponibles
-        const preferredVoiceNames = [
-          // Voces premium de Google (más naturales)
-          'Google US English',
-          'Google UK English Female',
-          // Voces naturales de Microsoft
-          'Microsoft Aria Online (Natural)',
-          'Microsoft Jenny Online (Natural)',
-          'Microsoft Guy Online (Natural)',
-          // Voces de calidad de Apple (Mac/iOS)
-          'Samantha',
-          'Karen',
-          'Victoria',
-          'Allison',
-          // Voces estándar de Microsoft
-          'Microsoft Zira',
-          'Microsoft David',
-          // Otras voces de Apple
-          'Alex',
-          'Daniel'
-        ];
-        
-        let selectedVoice = null;
-        
-        // Prioridad 1: Buscar voces "Natural" o "Premium"
-        selectedVoice = voices.find(v => 
-          v.lang.startsWith('en') && 
-          (v.name.includes('Natural') || v.name.includes('Premium') || v.name.includes('Neural'))
-        );
-        
-        if (selectedVoice) {
-          console.log('✅ Voz Natural/Premium encontrada:', selectedVoice.name);
-        } else {
-          // Prioridad 2: Voces preferidas de la lista
-          for (const name of preferredVoiceNames) {
-            selectedVoice = voices.find(v => v.name.includes(name));
-            if (selectedVoice) {
-              console.log('✅ Voz preferida encontrada:', selectedVoice.name);
-              break;
-            }
-          }
-        }
-        
-        // Prioridad 3: Cualquier voz en inglés remota (mejor calidad)
-        if (!selectedVoice) {
-          selectedVoice = voices.find(v => 
-            v.lang.startsWith('en') && !v.localService
-          );
-          if (selectedVoice) {
-            console.log('✅ Voz remota encontrada:', selectedVoice.name);
-          }
-        }
-        
-        // Prioridad 4: Cualquier voz en inglés
-        if (!selectedVoice) {
-          selectedVoice = voices.find(v => v.lang.startsWith('en'));
-          if (selectedVoice) {
-            console.log('✅ Voz local encontrada:', selectedVoice.name);
-          }
-        }
-        
-        // Último recurso: primera voz disponible
-        if (!selectedVoice && voices.length > 0) {
-          selectedVoice = voices[0];
-          console.log('⚠️ Usando voz por defecto:', selectedVoice.name);
-        }
-        
-        if (selectedVoice) {
-          utterance.voice = selectedVoice;
-        } else {
-          console.error('❌ No se pudo seleccionar una voz');
-        }
-        
-        // MEJORA: Parámetros optimizados para voz más natural y humana
-        utterance.lang = 'en-US';
-        utterance.rate = 0.95;  // Velocidad ligeramente más natural (antes 0.9)
-        utterance.pitch = 1.05; // Tono un poco más agudo para sonar más amigable
-        utterance.volume = 1.0;
-        
-        utterance.onstart = () => {
-          console.log('▶️ Audio iniciado');
-          setIsSpeaking(true);
-        };
-        
-        utterance.onend = () => {
-          console.log('✅ Audio completado');
-          setIsSpeaking(false);
-          resolve();
-        };
-        
-        utterance.onerror = (event) => {
-          console.error('❌ Error de audio:', event.error);
-          
-          // Show user-friendly error
-          if (event.error === 'not-allowed') {
-            toast.error('Permiso de audio denegado. Haz clic en el ícono 🔊 para escuchar.');
-          } else if (event.error === 'network') {
-            toast.error('Error de red. Verifica tu conexión.');
-          } else {
-            toast.error('Error reproduciendo audio. Intenta de nuevo.');
-          }
-          
-          setIsSpeaking(false);
-          resolve();
-        };
-        
-        // Speak the text
-        try {
-          synthRef.current.speak(utterance);
-          console.log('🎵 Audio en cola de reproducción');
-        } catch (error) {
-          console.error('❌ Error al encolar audio:', error);
-          toast.error('Error al reproducir audio');
-          setIsSpeaking(false);
-          resolve();
-        }
-      }, 50); // MEJORA: Reducido para respuesta más rápida (antes 100ms)
-    });
-  };
-  
-  const stopSpeaking = () => {
-    if (synthRef.current) {
-      synthRef.current.cancel();
-      setIsSpeaking(false);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Error al comunicarse con el tutor. Por favor, intenta de nuevo.');
+    } finally {
+      setIsLoading(false);
     }
   };
   
-  const toggleConversation = () => {
-    if (isListening) {
-      stopListening();
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
     } else {
-      startListening();
+      toast.error('Tu navegador no soporta síntesis de voz');
     }
   };
   
-  const resetConversation = () => {
-    stopListening();
-    stopSpeaking();
-    setMessages([]);
-    setSuggestedVocab([]);
-    startInitialConversation();
-    toast.success('Conversación reiniciada');
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   };
-
+  
+  const changeContext = (newContext: string) => {
+    shouldAutoScroll.current = false; // Desactivar auto-scroll al cambiar contexto
+    setContext(newContext);
+    setMessages([]);
+    setConversationId(null);
+    toast.success(`Modo cambiado: ${contextModes.find(m => m.value === newContext)?.label}`);
+    
+    // Reactivar auto-scroll después de un delay
+    setTimeout(() => {
+      shouldAutoScroll.current = true;
+    }, 300);
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <AppHeader currentSection="tutor" />
-
-      {/* Section Navigator - Submenu General */}
-      <SectionNavigator 
-        currentSection="tutor"
-        rightActions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant={showAnalysis ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setShowAnalysis(!showAnalysis)}
-              className={cn(
-                "h-8 text-xs transition-all",
-                showAnalysis && "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-              )}
-            >
-              {showAnalysis ? <CheckCircle className="h-3 w-3 mr-1" /> : <AlertCircle className="h-3 w-3 mr-1" />}
-              Análisis
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetConversation}
-              disabled={isListening || isSpeaking}
-              className="h-8 text-xs"
-            >
-              Reiniciar
-            </Button>
-          </div>
-        }
-      />
-
-      {/* Progress Header */}
-      {gamificationStats && (
-        <div className="border-b bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
-          <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center shadow-md">
-                  <TrendingUp className="h-4 w-4 text-white" />
-                </div>
-                <h3 className="font-bold text-sm text-purple-900">Tu Progreso</h3>
-              </div>
-              
-              <div className="flex items-center gap-3 sm:gap-6 flex-1">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
-                  <Award className="h-4 w-4 text-blue-600" />
-                  <span className="text-xs text-gray-600">Nivel</span>
-                  <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text ml-1">
-                    {gamificationStats.level}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-purple-200 shadow-sm">
-                  <Sparkles className="h-4 w-4 text-purple-600" />
-                  <span className="text-xs text-gray-600">Puntos</span>
-                  <span className="text-sm font-bold text-purple-600 ml-1">
-                    {gamificationStats.points} XP
-                  </span>
-                </div>
-                
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-lg border border-orange-200 shadow-sm">
-                  <TrendingUp className="h-4 w-4 text-orange-600" />
-                  <span className="text-xs text-gray-600">Racha</span>
-                  <span className="text-sm font-bold text-orange-600 ml-1">
-                    {gamificationStats.currentStreak} días 🔥
-                  </span>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Main Header - Same as Dashboard */}
+      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
+        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
+          <Link href="/dashboard" className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity">
+            <BookOpen className="h-8 w-8 text-blue-600" />
+            <div className="text-left">
+              <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-sm text-gray-600 hidden sm:block text-left">AI Tutor</p>
             </div>
+          </Link>
+          
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-3 text-sm text-gray-700">
+              {session?.user?.image ? (
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
+                  <Image
+                    src={getProfileImageUrl(session.user.image) || ''}
+                    alt={session.user.name || 'User'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+              )}
+              <span className="font-medium">{session?.user?.name || session?.user?.email}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/perfil')}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Mi Perfil
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/' })}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Salir
+            </Button>
           </div>
-        </div>
-      )}
-      
-      <div className="container max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
-        <div className="grid lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] gap-4 lg:gap-6">
-          {/* Main Chat Area - Modern Messenger Style */}
-          <div className="flex flex-col">
-            {/* Chat Container - Reduced Height */}
-            <Card className="flex flex-col border-2 shadow-lg" style={{ height: 'calc(100vh - 380px)', minHeight: '400px', maxHeight: '550px' }}>
-              {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50/50 to-white" style={{ minHeight: '300px' }}>
-                {messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 flex items-center justify-center mb-4">
-                      <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-indigo-600" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                      ¡Listo para practicar!
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-500 max-w-sm">
-                      Presiona el botón del micrófono para empezar a hablar en inglés
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    {messages.map((message, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "flex gap-2 sm:gap-3 animate-in slide-in-from-bottom-2 duration-300",
-                          message.type === 'user' ? 'justify-end' : 'justify-start'
-                        )}
-                      >
-                        {/* Avatar */}
-                        {message.type === 'tutor' && (
-                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 shadow-md">
-                            <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+          
+          {/* Mobile Menu */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                  Menú del Tutor
+                </SheetTitle>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-6">
+                {/* Gamification Stats */}
+                {gamificationStats && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-muted-foreground">TU PROGRESO</h4>
+                    <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-yellow-500" />
+                            <span className="font-bold text-lg">{gamificationStats.points}</span>
                           </div>
-                        )}
-                        
-                        {/* Message Bubble */}
-                        <div className={cn(
-                          "max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 shadow-sm",
-                          message.type === 'user'
-                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-sm'
-                            : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'
-                        )}>
-                          <div className="flex items-start gap-2">
-                            <p className="text-xs sm:text-sm leading-relaxed break-words flex-1">{message.text}</p>
-                            {/* Play Audio Button for Tutor Messages */}
-                            {message.type === 'tutor' && (
-                              <button
-                                onClick={() => speakText(message.text)}
-                                className="flex-shrink-0 p-1 hover:bg-gray-100 rounded-full transition-colors"
-                                title="Escuchar este mensaje"
-                              >
-                                <Volume2 className="h-3.5 w-3.5 text-green-600" />
-                              </button>
-                            )}
-                          </div>
-                          
-                          {/* Translation */}
-                          {message.translation && (
-                            <div className={cn(
-                              "mt-2 pt-2 border-t flex items-start gap-2 text-xs",
-                              message.type === 'user' 
-                                ? 'border-blue-400/30 text-blue-50'
-                                : 'border-gray-200 text-gray-600'
-                            )}>
-                              <Languages className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                              <p className="italic">{message.translation}</p>
-                            </div>
-                          )}
-                          
-                          {/* Suggested Words */}
-                          {message.suggestedWords && message.suggestedWords.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 -mx-3 sm:-mx-4 px-3 sm:px-4 py-2 rounded-b-2xl">
-                              <p className="text-xs font-medium text-yellow-900 mb-1.5 flex items-center gap-1">
-                                <BookOpen className="h-3 w-3" />
-                                Vocabulario para practicar:
-                              </p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {message.suggestedWords.map((word, wi) => (
-                                  <Badge 
-                                    key={wi} 
-                                    variant="outline" 
-                                    className="bg-white text-xs py-0.5 px-2"
-                                    title={word.translation}
-                                  >
-                                    {word.term}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                          <Badge variant="secondary">
+                            Nivel {gamificationStats.level}
+                          </Badge>
                         </div>
                         
-                        {/* User Avatar */}
-                        {message.type === 'user' && (
-                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
-                            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
-                          </div>
-                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Racha actual</span>
+                          <span className="text-lg font-bold">🔥 {gamificationStats.currentStreak}</span>
+                        </div>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setShowAchievements(true);
+                            document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                          }}
+                        >
+                          <Award className="h-4 w-4 mr-2" />
+                          Ver Logros ({gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements})
+                        </Button>
                       </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </>
-                )}
-              </div>
-              
-              {/* Input Area */}
-              <div className="border-t bg-white p-3 sm:p-4">
-                {/* Speaking Indicator - MOST PROMINENT */}
-                {isSpeaking && (
-                  <div className="mb-3 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-xl shadow-lg animate-pulse">
-                    <p className="text-sm sm:text-base text-green-900 font-semibold flex items-center gap-2">
-                      <Volume2 className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 animate-pulse text-green-600" />
-                      <span>🔊 El tutor está hablando. Escucha el audio...</span>
-                    </p>
+                    </Card>
                   </div>
                 )}
                 
-                {/* Live Transcript */}
-                {transcript && !isSpeaking && (
-                  <div className="mb-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                    <p className="text-xs sm:text-sm text-blue-900 flex items-center gap-2">
-                      <Mic className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 animate-pulse" />
-                      <span className="flex-1 leading-relaxed">{transcript}</span>
-                    </p>
-                  </div>
-                )}
-                
-                {/* Analyzing Indicator - MEJORADO */}
-                {isAnalyzing && !isSpeaking && (
-                  <div className="mb-3 p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-xl animate-pulse">
-                    <p className="text-xs sm:text-sm text-purple-900 font-semibold flex items-center gap-2">
-                      <Zap className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-purple-600" />
-                      <span>⚡ Procesando respuesta...</span>
-                    </p>
-                  </div>
-                )}
-                
-                {/* Control Buttons */}
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Button
-                    size="lg"
-                    onClick={toggleConversation}
-                    disabled={isSpeaking || isAnalyzing}
-                    className={cn(
-                      "flex-1 h-12 sm:h-14 text-sm sm:text-base font-semibold rounded-xl transition-all duration-300 shadow-lg",
-                      isListening 
-                        ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
-                        : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                    )}
-                  >
-                    {isListening ? (
-                      <>
-                        <MicOff className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                        Detener
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                        {isSpeaking ? 'Escuchando...' : 'Hablar'}
-                      </>
-                    )}
-                  </Button>
-                  
-                  {isSpeaking && (
+                {/* Actions */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">ACCIONES</h4>
+                  <div className="space-y-2">
+                    <Link href="/dashboard" className="block">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                      >
+                        <Home className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
                     <Button
-                      size="lg"
-                      onClick={stopSpeaking}
-                      className="h-12 sm:h-14 px-4 sm:px-6 rounded-xl bg-orange-500 hover:bg-orange-600"
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        loadConversationHistory();
+                        document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                      }}
                     >
-                      <PauseCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <History className="h-4 w-4 mr-2" />
+                      Ver Historial
                     </Button>
-                  )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        endSessionAndAnalyze();
+                        document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                      }}
+                      disabled={!conversationId || messages.length < 2}
+                    >
+                      <TrendingUp className="h-4 w-4 mr-2" />
+                      Analizar Sesión
+                    </Button>
+                  </div>
                 </div>
                 
-                <p className="text-xs sm:text-sm text-center text-gray-500 mt-2">
-                  💡 Habla claramente en inglés para recibir análisis en tiempo real
-                </p>
+                {/* Context Modes */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">MODO DE PRÁCTICA</h4>
+                  <div className="space-y-2">
+                    {contextModes.map(mode => (
+                      <Button
+                        key={mode.value}
+                        variant={context === mode.value ? 'default' : 'outline'}
+                        className="w-full justify-start text-left h-auto py-3"
+                        size="sm"
+                        onClick={() => {
+                          changeContext(mode.value);
+                          document.querySelector('[data-state="open"]')?.dispatchEvent(new Event('click'));
+                        }}
+                      >
+                        <div>
+                          <div className="font-medium text-sm">{mode.label}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {mode.description}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </header>
+      
+      {/* Tutor-Specific Bar */}
+      <div className="sticky top-16 z-40 w-full border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
+        <div className="container max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Badge variant="secondary" className="bg-white text-blue-600">
+                <MessageSquare className="h-3 w-3 mr-1" />
+                AI Tutor
+              </Badge>
+              
+              {/* Gamification Stats - Desktop */}
+              {gamificationStats && (
+                <div className="hidden lg:flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="font-bold">{gamificationStats.points}</span>
+                  </div>
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white">
+                    Level {gamificationStats.level}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white">
+                    🔥 {gamificationStats.currentStreak}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                    onClick={() => setShowAchievements(true)}
+                  >
+                    <Award className="h-4 w-4 mr-1" />
+                    {gamificationStats.unlockedAchievements}/{gamificationStats.totalAchievements}
+                  </Button>
+                </div>
+              )}
+              
+              {/* Gamification Stats - Mobile (compact) */}
+              {gamificationStats && (
+                <div className="flex lg:hidden items-center gap-2">
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    {gamificationStats.points}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm border-0 text-white text-xs">
+                    🔥 {gamificationStats.currentStreak}
+                  </Badge>
+                </div>
+              )}
+            </div>
+            
+            <nav className="hidden md:flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+                onClick={loadConversationHistory}
+              >
+                <History className="h-4 w-4 mr-2" />
+                Historial
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+                onClick={endSessionAndAnalyze}
+                disabled={!conversationId || messages.length < 2}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Análisis
+              </Button>
+            </nav>
+          </div>
+        </div>
+      </div>
+      
+      <div className="container max-w-7xl mx-auto py-8 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* Panel Lateral - Solo Desktop */}
+          <div className="hidden lg:block lg:col-span-1 space-y-4">
+            <Card className="p-4">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Target className="h-5 w-5 text-blue-600" />
+                Modo de Práctica
+              </h3>
+              
+              <div className="space-y-2">
+                {contextModes.map(mode => (
+                  <Button
+                    key={mode.value}
+                    variant={context === mode.value ? 'default' : 'outline'}
+                    className="w-full justify-start text-left h-auto py-3"
+                    size="sm"
+                    onClick={() => changeContext(mode.value)}
+                  >
+                    <div>
+                      <div className="font-medium">{mode.label}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {mode.description}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </Card>
+            
+            {/* Vocabulario de la semana */}
+            <Card className="p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-green-600" />
+                Vocabulario de la Semana
+              </h3>
+              <div className="space-y-2 mb-3">
+                {initialData.currentWeekVocab?.slice(0, 8).map(term => (
+                  <div key={term.id} className="p-2 bg-blue-50 rounded-lg">
+                    <p className="font-medium text-sm">{term.term}</p>
+                    <p className="text-xs text-muted-foreground">{term.translation}</p>
+                  </div>
+                ))}
+              </div>
+              <Link href="/tutor/vocabulary-review">
+                <Button variant="outline" size="sm" className="w-full">
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Sistema de Repaso
+                </Button>
+              </Link>
+            </Card>
+            
+            {/* Estadísticas */}
+            <Card className="p-4">
+              <h3 className="font-semibold mb-3">Tu Progreso</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Nivel:</span>
+                  <Badge>{initialData.learningContext.currentLevel}</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Conversaciones:</span>
+                  <span className="font-medium">{initialData.learningContext.totalConversations}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Mensajes:</span>
+                  <span className="font-medium">{initialData.learningContext.totalMessages}</span>
+                </div>
               </div>
             </Card>
           </div>
           
-          {/* Sidebar - Feedback & Info */}
-          <div className="space-y-3 sm:space-y-4">
-            {/* Analysis Panel - Moved from Below Chat */}
-            <div className="hidden lg:block">
-              <AnalysisPanel
-                grammarAnalysis={currentAnalysis.grammar}
-                pronunciationAnalysis={currentAnalysis.pronunciation}
-                isVisible={showAnalysis}
-              />
+          {/* Panel Principal: Chat */}
+          <Card className="col-span-1 lg:col-span-3 flex flex-col h-[600px] lg:h-[calc(100vh-12rem)]">
+            <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <MessageSquare className="h-6 w-6" />
+                English Tutor AI
+              </h2>
+              <p className="text-sm text-blue-100 mt-1">
+                {contextModes.find(m => m.value === context)?.description}
+              </p>
             </div>
             
-            {/* Analysis Panel - Mobile View Below Chat */}
-            <div className="lg:hidden mt-4">
-              <AnalysisPanel
-                grammarAnalysis={currentAnalysis.grammar}
-                pronunciationAnalysis={currentAnalysis.pronunciation}
-                isVisible={showAnalysis}
-              />
+            <ScrollArea className="flex-1 p-4 overflow-y-auto">
+              <div className="space-y-4 max-w-4xl mx-auto">
+                {messages.length === 0 && (
+                  <div className="text-center py-16 text-muted-foreground">
+                    <div className="mb-4">
+                      <MessageSquare className="h-16 w-16 mx-auto text-blue-200" />
+                    </div>
+                    <p className="text-lg mb-2 font-medium">👋 Hello! I'm your AI tutor.</p>
+                    <p className="text-sm">Start a conversation in English, and I'll help you improve!</p>
+                    <p className="text-xs mt-2">Try saying: "Hello, how are you?"</p>
+                  </div>
+                )}
+                
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${
+                        message.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-900 border border-gray-200'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      
+                      {message.role === 'assistant' && (
+                        <div className="mt-3 flex flex-wrap gap-2 items-center">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-3 text-xs hover:bg-blue-50"
+                            onClick={() => speakText(message.content)}
+                          >
+                            <Volume2 className="h-3 w-3 mr-1" />
+                            Escuchar
+                          </Button>
+                          
+                          {message.translation && (
+                            <div className="text-xs text-muted-foreground bg-blue-50 px-3 py-1 rounded-full">
+                              📖 {message.translation}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {message.grammarFeedback?.hasErrors && (
+                        <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-xs font-medium text-yellow-900 mb-1">💡 Grammar Tip:</p>
+                          <p className="text-xs text-yellow-800">{message.grammarFeedback.suggestion}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                      <div className="flex space-x-2">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100"></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={scrollRef} />
+              </div>
+            </ScrollArea>
+            
+            <div className="p-4 border-t bg-gray-50">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendMessage();
+                }}
+                className="flex gap-2 max-w-4xl mx-auto"
+              >
+                <Button
+                  type="button"
+                  variant={isRecording ? "destructive" : "outline"}
+                  size="icon"
+                  onClick={toggleRecording}
+                  disabled={isLoading}
+                >
+                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={isRecording ? "Listening..." : "Type or speak your message in English..."}
+                  disabled={isLoading}
+                  className="flex-1 bg-white"
+                />
+                <Button 
+                  type="submit" 
+                  disabled={isLoading || !input.trim()}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                🎤 Habla o escribe • Enter para enviar
+              </p>
             </div>
-            
-            {/* Practice Vocabulary */}
-            {practiceWords.length > 0 && (
-              <Card className="p-4 border-2 border-blue-200 shadow-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 flex items-center justify-center">
-                    <BookOpen className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="font-bold text-sm text-blue-900">Vocabulario</h3>
-                </div>
-                
-                <div className="space-y-2 max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                  {practiceWords.slice(0, 8).map((word, i) => (
-                    <div key={i} className="p-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:border-blue-300 transition-all">
-                      <p className="text-xs font-semibold text-blue-900">{word.term}</p>
-                      {word.pronunciation && (
-                        <p className="text-xs text-blue-600">[{word.pronunciation}]</p>
-                      )}
-                      <p className="text-xs text-gray-600 mt-0.5">{word.translation}</p>
-                      {!word.mastered && (
-                        <Badge variant="outline" className="text-xs mt-1 h-4">
-                          {word.attempts} intentos
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-            
-            {/* Suggested Vocab in Conversation */}
-            {suggestedVocab.length > 0 && (
-              <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 shadow-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center">
-                    <AlertCircle className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="font-bold text-sm text-yellow-900">Sugeridas</h3>
-                </div>
-                
-                <p className="text-xs text-gray-600 mb-2">
-                  Palabras incluidas en la conversación:
-                </p>
-                
-                <div className="space-y-1.5">
-                  {suggestedVocab.map((word, i) => (
-                    <div key={i} className="p-2 bg-white rounded-lg border border-yellow-200">
-                      <p className="text-xs font-semibold text-gray-900">{word.term}</p>
-                      <p className="text-xs text-gray-600">{word.translation}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-          </div>
+          </Card>
         </div>
       </div>
+      
+      {/* Historial Dialog */}
+      <Dialog open={showHistory} onOpenChange={setShowHistory}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Historial de Conversaciones
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {conversationHistory.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No hay conversaciones guardadas aún
+              </p>
+            ) : (
+              conversationHistory.map((conv) => (
+                <Card
+                  key={conv.id}
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => loadConversation(conv.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium">{conv.title || 'Conversación sin título'}</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {conv.context && contextModes.find(m => m.value === conv.context)?.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {conv._count?.messages || 0} mensajes • {new Date(conv.lastMessageAt).toLocaleDateString('es-ES')}
+                      </p>
+                      {conv.messages?.[0] && (
+                        <p className="text-sm mt-2 line-clamp-2">
+                          {conv.messages[0].content}
+                        </p>
+                      )}
+                    </div>
+                    <Badge variant="outline">{conv.isActive ? 'Activa' : 'Archivada'}</Badge>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Analytics Dialog */}
+      <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Análisis de Sesión
+            </DialogTitle>
+          </DialogHeader>
+          {analytics && (
+            <div className="space-y-4">
+              {/* Overall Score */}
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-2">Puntuación General</p>
+                  <p className="text-5xl font-bold text-blue-600">
+                    {analytics.overallScore?.toFixed(0) || 0}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">de 100</p>
+                </div>
+              </Card>
+              
+              {/* Detailed Scores */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Fluidez</p>
+                  <p className="text-2xl font-bold">{analytics.fluencyScore?.toFixed(0) || 0}</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Precisión</p>
+                  <p className="text-2xl font-bold">{analytics.accuracyScore?.toFixed(0) || 0}</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Comprensión</p>
+                  <p className="text-2xl font-bold">{analytics.comprehensionScore?.toFixed(0) || 0}</p>
+                </Card>
+              </div>
+              
+              {/* Stats */}
+              <Card className="p-4">
+                <h4 className="font-semibold mb-3">Estadísticas</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Duración</p>
+                    <p className="font-medium">{Math.floor(analytics.duration / 60)} min {analytics.duration % 60} seg</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Mensajes</p>
+                    <p className="font-medium">{analytics.messagesCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Palabras habladas</p>
+                    <p className="font-medium">{analytics.wordsSpoken}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Palabras nuevas</p>
+                    <p className="font-medium">{analytics.newWordsLearned?.length || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Precisión gramatical</p>
+                    <p className="font-medium">{analytics.grammarAccuracy?.toFixed(0) || 0}%</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Diversidad vocabulario</p>
+                    <p className="font-medium">{analytics.vocabularyDiversity?.toFixed(0) || 0}%</p>
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Strengths */}
+              {analytics.strengths && analytics.strengths.length > 0 && (
+                <Card className="p-4 bg-green-50 border-green-200">
+                  <h4 className="font-semibold mb-2 text-green-900">✨ Fortalezas</h4>
+                  <ul className="space-y-1">
+                    {analytics.strengths.map((strength: string, i: number) => (
+                      <li key={i} className="text-sm text-green-800">• {strength}</li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+              
+              {/* Areas to Improve */}
+              {analytics.areasToImprove && analytics.areasToImprove.length > 0 && (
+                <Card className="p-4 bg-yellow-50 border-yellow-200">
+                  <h4 className="font-semibold mb-2 text-yellow-900">🎯 Áreas de Mejora</h4>
+                  <ul className="space-y-1">
+                    {analytics.areasToImprove.map((area: string, i: number) => (
+                      <li key={i} className="text-sm text-yellow-800">• {area}</li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+              
+              {/* Feedback */}
+              {analytics.feedback && (
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-2">💬 Retroalimentación</h4>
+                  <p className="text-sm text-muted-foreground">{analytics.feedback}</p>
+                </Card>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Achievements Dialog */}
+      <Dialog open={showAchievements} onOpenChange={setShowAchievements}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5" />
+              Logros y Progreso
+            </DialogTitle>
+          </DialogHeader>
+          {gamificationStats && (
+            <div className="space-y-4">
+              {/* Level Progress */}
+              <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-muted-foreground mb-1">Nivel Actual</p>
+                  <p className="text-4xl font-bold text-purple-600">{gamificationStats.level}</p>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <span>{gamificationStats.levelProgress?.current || 0} puntos</span>
+                    <span>{gamificationStats.levelProgress?.needed || 0} necesarios</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min(gamificationStats.levelProgress?.percentage || 0, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-3">
+                <Card className="p-4 text-center">
+                  <Sparkles className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                  <p className="text-2xl font-bold">{gamificationStats.points}</p>
+                  <p className="text-xs text-muted-foreground">Puntos</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold">🔥</p>
+                  <p className="text-2xl font-bold">{gamificationStats.currentStreak}</p>
+                  <p className="text-xs text-muted-foreground">Racha</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <Award className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                  <p className="text-2xl font-bold">{gamificationStats.unlockedAchievements}</p>
+                  <p className="text-xs text-muted-foreground">Logros</p>
+                </Card>
+              </div>
+              
+              {/* Unlocked Achievements */}
+              <div>
+                <h4 className="font-semibold mb-3">Logros Desbloqueados</h4>
+                <div className="space-y-2">
+                  {gamificationStats.achievements?.map((ua: any) => (
+                    <Card key={ua.id} className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50">
+                      <div className="flex items-start gap-3">
+                        <div className="text-2xl">{ua.achievement.icon}</div>
+                        <div className="flex-1">
+                          <h5 className="font-medium">{ua.achievement.name}</h5>
+                          <p className="text-xs text-muted-foreground">{ua.achievement.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Desbloqueado: {new Date(ua.unlockedAt).toLocaleDateString('es-ES')}
+                          </p>
+                        </div>
+                        <Badge variant="secondary">+{ua.achievement.points}</Badge>
+                      </div>
+                    </Card>
+                  ))}
+                  {(!gamificationStats.achievements || gamificationStats.achievements.length === 0) && (
+                    <p className="text-center text-muted-foreground py-4">
+                      Aún no has desbloqueado logros. ¡Sigue practicando!
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-

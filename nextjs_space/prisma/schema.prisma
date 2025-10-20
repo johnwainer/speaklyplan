@@ -57,18 +57,6 @@ model User {
   
   // Tour/Onboarding
   hasSeenTour   Boolean   @default(false)
-  
-  // Practice Preferences
-  practiceAvailable Boolean @default(true)
-  practiceTopics    String[] @default([])
-  practiceTimezone  String?
-  
-  // Google Calendar Integration
-  googleAccessToken     String? @db.Text
-  googleRefreshToken    String? @db.Text
-  googleTokenExpiresAt  DateTime?
-  googleCalendarId      String?
-  googleConnected       Boolean @default(false)
 
   accounts        Account[]
   sessions        Session[]
@@ -85,19 +73,6 @@ model User {
   userAchievements UserAchievement[]
   vocabularyCards  VocabularyCard[]
   sessionAnalytics SessionAnalytics[]
-  voiceSessions    VoiceSession[]
-  
-  // Practice 1-on-1 relations
-  sentInvitations      PracticeInvitation[] @relation("SentInvitations")
-  receivedInvitations  PracticeInvitation[] @relation("ReceivedInvitations")
-  connectionsAsUser1   PracticeConnection[] @relation("ConnectionsAsUser1")
-  connectionsAsUser2   PracticeConnection[] @relation("ConnectionsAsUser2")
-  initiatedMeetings    PracticeMeeting[]    @relation("InitiatedMeetings")
-  partnerMeetings      PracticeMeeting[]    @relation("PartnerMeetings")
-  practiceNotifications PracticeNotification[]
-  
-  // Calendar integration
-  calendarIntegration  CalendarIntegration?
 }
 
 model VerificationToken {
@@ -263,7 +238,6 @@ model ChatConversation {
   lastMessageAt DateTime       @default(now())
   isActive     Boolean         @default(true)
   messages     ChatMessage[]
-  voiceSessions VoiceSession[]
   
   @@index([userId, isActive])
 }
@@ -317,7 +291,6 @@ model CommonMistake {
   lastSeenAt   DateTime @default(now())
   mastered     Boolean  @default(false)
   
-  @@unique([userId, mistake])
   @@index([userId, mastered])
 }
 
@@ -436,221 +409,4 @@ model SessionAnalytics {
   
   @@index([userId, createdAt])
   @@index([userId, sessionType])
-}
-
-// Invitations System
-model Invitation {
-  id            String   @id @default(cuid())
-  senderEmail   String?  // Email of who sent the invitation (can be null for landing page invites)
-  senderName    String?  // Name of who sent the invitation
-  recipientEmail String
-  recipientName String?
-  status        String   @default("pending") // "pending", "registered", "expired"
-  inviteCode    String   @unique
-  message       String?  @db.Text
-  sentAt        DateTime @default(now())
-  registeredAt  DateTime?
-  expiresAt     DateTime
-  
-  @@index([recipientEmail])
-  @@index([inviteCode])
-  @@index([status])
-}
-
-// Voice Conversation System
-model VoiceSession {
-  id                  String            @id @default(cuid())
-  userId              String
-  conversationId      String?
-  transcript          String            @db.Text
-  pronunciationScore  Float             @default(0)
-  fluencyScore        Float             @default(0)
-  accentScore         Float             @default(0)
-  phonemeErrors       Json?
-  suggestions         String[]
-  createdAt           DateTime          @default(now())
-  
-  // Relations
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  conversation        ChatConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
-  
-  @@index([userId])
-  @@index([conversationId])
-  @@index([createdAt])
-}
-
-// ============================================
-// PRACTICE 1-ON-1 SYSTEM
-// ============================================
-
-// Practice Invitations between users
-model PracticeInvitation {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  senderId    String
-  sender      User     @relation("SentInvitations", fields: [senderId], references: [id], onDelete: Cascade)
-  
-  receiverId  String
-  receiver    User     @relation("ReceivedInvitations", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  // Invitation data
-  message     String?  @db.Text
-  status      InvitationStatus @default(PENDING)
-  
-  // Metadata
-  respondedAt DateTime?
-  
-  @@index([senderId])
-  @@index([receiverId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  CANCELLED
-  EXPIRED
-}
-
-// Practice Connections (accepted invitations)
-model PracticeConnection {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Bidirectional relationship
-  user1Id     String
-  user1       User     @relation("ConnectionsAsUser1", fields: [user1Id], references: [id], onDelete: Cascade)
-  
-  user2Id     String
-  user2       User     @relation("ConnectionsAsUser2", fields: [user2Id], references: [id], onDelete: Cascade)
-
-  // Statistics
-  totalSessions    Int @default(0)
-  lastSessionAt    DateTime?
-  
-  // Status
-  isActive    Boolean  @default(true)
-  
-  // Relations
-  meetings    PracticeMeeting[]
-  
-  @@unique([user1Id, user2Id])
-  @@index([user1Id])
-  @@index([user2Id])
-  @@index([isActive])
-}
-
-// Practice Meetings (1-on-1 sessions)
-model PracticeMeeting {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  connectionId String
-  connection   PracticeConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
-  
-  initiatorId  String
-  initiator    User     @relation("InitiatedMeetings", fields: [initiatorId], references: [id], onDelete: Cascade)
-  
-  partnerId    String
-  partner      User     @relation("PartnerMeetings", fields: [partnerId], references: [id], onDelete: Cascade)
-
-  // Session data
-  scheduledFor DateTime? // Null = immediate
-  startedAt    DateTime?
-  endedAt      DateTime?
-  durationMinutes Int?   // Calculated on completion
-  
-  status       MeetingStatus @default(SCHEDULED)
-  
-  // Content
-  topic        String?  @db.Text
-  notes        String?  @db.Text
-  externalLink String?  // Link to Zoom, Meet, etc.
-  calendarEventId String? // Google Calendar event ID
-  
-  // Mutual feedback (post-session)
-  initiatorFeedback String? @db.Text
-  partnerFeedback   String? @db.Text
-  initiatorRating   Int?    // 1-5
-  partnerRating     Int?    // 1-5
-  
-  @@index([connectionId])
-  @@index([initiatorId])
-  @@index([partnerId])
-  @@index([status])
-  @@index([scheduledFor])
-  @@index([createdAt])
-}
-
-enum MeetingStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
-
-// Practice Notifications
-model PracticeNotification {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relation
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Content
-  type        NotificationType
-  title       String
-  message     String   @db.Text
-  actionUrl   String?  // Link to relevant page
-  
-  // Status
-  isRead      Boolean  @default(false)
-  readAt      DateTime?
-  
-  // References
-  invitationId String?
-  meetingId    String?
-  
-  @@index([userId])
-  @@index([isRead])
-  @@index([createdAt])
-  @@index([userId, isRead])
-}
-
-enum NotificationType {
-  INVITATION_RECEIVED
-  INVITATION_ACCEPTED
-  INVITATION_REJECTED
-  SESSION_SCHEDULED
-  SESSION_STARTING_SOON
-  SESSION_COMPLETED
-  FEEDBACK_REQUESTED
-}
-
-// Google Calendar Integration
-model CalendarIntegration {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  provider      String   // "google", "outlook"
-  accessToken   String   @db.Text
-  refreshToken  String   @db.Text
-  expiresAt     DateTime
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@index([userId])
 }

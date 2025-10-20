@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getProfileImageUrl } from '@/lib/utils'
-import { AppHeader } from '@/components/app-header'
-import { SectionNavigator } from '@/components/section-navigator'
 import { 
   BookOpen, ArrowLeft, LogOut, User, 
   Smartphone, Globe, Youtube, Headphones, 
@@ -63,21 +61,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'Busuu', descripcion: 'Lecciones interactivas', url: 'https://www.busuu.com', nivel: 'Todos los niveles', rating: 4 },
       { nombre: 'Beelinguapp', descripcion: 'Lee textos bilingües', url: 'https://www.beelinguapp.com', nivel: 'Principiante-Intermedio', rating: 4 },
       { nombre: 'Quizlet', descripcion: 'Flashcards y juegos', url: 'https://quizlet.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Lingoda', descripcion: 'Clases en vivo (prueba gratis)', url: 'https://www.lingoda.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Mondly', descripcion: 'Realidad aumentada y chatbot', url: 'https://www.mondly.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Drops', descripcion: 'Vocabulario con ilustraciones', url: 'https://languagedrops.com', nivel: 'Principiante-Intermedio', rating: 4 },
-      { nombre: 'LingQ', descripcion: 'Leer y escuchar contenido auténtico', url: 'https://www.lingq.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Clozemaster', descripcion: 'Aprender por contexto', url: 'https://www.clozemaster.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Babbel', descripcion: 'Lecciones breves (free trial)', url: 'https://www.babbel.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Mango Languages', descripcion: 'Conversación práctica', url: 'https://mangolanguages.com', nivel: 'Todos los niveles', rating: 3 },
-      { nombre: 'Pimsleur', descripcion: 'Método audio (7 días gratis)', url: 'https://www.pimsleur.com', nivel: 'Principiante', rating: 4 },
-      { nombre: 'Rosetta Stone', descripcion: '3 días de prueba gratis', url: 'https://www.rosettastone.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'FluentU', descripcion: 'Videos del mundo real', url: 'https://www.fluentu.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Cake', descripcion: 'Videos cortos con subtítulos', url: 'https://mycake.me', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Lingvist', descripcion: 'Vocabulario adaptativo', url: 'https://lingvist.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Cambly (15 min free)', descripcion: 'Prueba con tutores nativos', url: 'https://www.cambly.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'TOEFL Go!', descripcion: 'Preparación TOEFL oficial', url: 'https://www.ets.org/toefl', nivel: 'Intermedio-Avanzado', rating: 4 },
-      { nombre: 'IELTS Word Power', descripcion: 'Vocabulario para IELTS', url: 'https://www.britishcouncil.org', nivel: 'Intermedio-Avanzado', rating: 4 },
     ],
     web: [
       { nombre: 'BBC Learning English', descripcion: 'Lecciones estructuradas + audio', url: 'https://www.bbc.co.uk/learningenglish', nivel: 'Todos los niveles', rating: 5 },
@@ -87,24 +70,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'FutureLearn', descripcion: 'Cursos de business English', url: 'https://www.futurelearn.com', nivel: 'Intermedio+', rating: 4 },
       { nombre: 'Alison', descripcion: 'Certificados gratuitos', url: 'https://alison.com', nivel: 'Todos los niveles', rating: 3 },
       { nombre: 'OpenLearn', descripcion: 'Open University courses', url: 'https://www.open.edu/openlearn', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'USA Learns', descripcion: 'Curso gratuito del gobierno de EE.UU.', url: 'https://www.usalearns.org', nivel: 'Principiante-Intermedio', rating: 5 },
-      { nombre: 'Perfect English Grammar', descripcion: 'Ejercicios de gramática', url: 'https://www.perfect-english-grammar.com', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'English Grammar Online', descripcion: 'Reglas y ejercicios', url: 'https://www.ego4u.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'English Page', descripcion: 'Tutoriales de gramática', url: 'https://www.englishpage.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'ESL Gold', descripcion: 'Miles de recursos gratis', url: 'https://www.eslgold.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Many Things', descripcion: 'Ejercicios interactivos', url: 'https://www.manythings.org', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'English Club', descripcion: 'Comunidad y lecciones', url: 'https://www.englishclub.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Dave\'s ESL Cafe', descripcion: 'Foros y recursos', url: 'https://www.eslcafe.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'British Council LearnEnglish', descripcion: 'Recursos oficiales UK', url: 'https://learnenglish.britishcouncil.org', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Engvid', descripcion: 'Videos de profesores nativos', url: 'https://www.engvid.com', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'English Listening Lesson Library', descripcion: 'Miles de audios gratuitos', url: 'https://www.elllo.org', nivel: 'Intermedio+', rating: 5 },
-      { nombre: 'English Central', descripcion: 'Videos interactivos', url: 'https://www.englishcentral.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Talk English', descripcion: 'Conversación para principiantes', url: 'https://www.talkenglish.com', nivel: 'Principiante-Intermedio', rating: 4 },
-      { nombre: 'English Forward', descripcion: 'Foro de preguntas', url: 'https://www.englishforums.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'News in Levels', descripcion: 'Noticias en 3 niveles', url: 'https://www.newsinlevels.com', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Simple English Wikipedia', descripcion: 'Wikipedia en inglés simple', url: 'https://simple.wikipedia.org', nivel: 'Principiante-Intermedio', rating: 5 },
-      { nombre: 'Lyrics Training', descripcion: 'Aprender con música', url: 'https://lyricstraining.com', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Forvo', descripcion: 'Pronunciación nativa de palabras', url: 'https://forvo.com', nivel: 'Todos los niveles', rating: 5 },
     ],
     youtube: [
       { nombre: 'English with Lucy', descripcion: 'Grammar + pronunciation', url: 'https://www.youtube.com/@EnglishwithLucy', nivel: 'Principiante-Intermedio', rating: 5 },
@@ -117,21 +82,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'English Addict with Mr Duncan', descripcion: 'Lecciones entretenidas', url: 'https://www.youtube.com/@duncaninchina', nivel: 'Todos los niveles', rating: 4 },
       { nombre: 'Speak English With Vanessa', descripcion: 'Conversación natural', url: 'https://www.youtube.com/@SpeakEnglishWithVanessa', nivel: 'Intermedio', rating: 5 },
       { nombre: 'JenniferESL', descripcion: 'Lecciones completas', url: 'https://www.youtube.com/@JenniferESL', nivel: 'Principiante-Intermedio', rating: 4 },
-      { nombre: 'BBC Learning English', descripcion: 'Videos educativos de calidad', url: 'https://www.youtube.com/@bbclearningenglish', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Go Natural English', descripcion: 'Conversación fluida', url: 'https://www.youtube.com/@GoNaturalEnglish', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'English Lessons with Adam', descripcion: 'Gramática avanzada', url: 'https://www.youtube.com/@engvidAdam', nivel: 'Intermedio-Avanzado', rating: 5 },
-      { nombre: 'mmmEnglish', descripcion: 'Pronunciación y speaking', url: 'https://www.youtube.com/@mmmEnglish_Emma', nivel: 'Intermedio', rating: 5 },
-      { nombre: 'English Speeches', descripcion: 'Discursos famosos con subtítulos', url: 'https://www.youtube.com/@EnglishSpeeches', nivel: 'Intermedio-Avanzado', rating: 5 },
-      { nombre: 'VOA Learning English', descripcion: 'Noticias lentas y claras', url: 'https://www.youtube.com/@VOALearningEnglish', nivel: 'Principiante-Intermedio', rating: 5 },
-      { nombre: 'English Speaking Success', descripcion: 'Inglés para la vida real', url: 'https://www.youtube.com/@EnglishSpeakingSuccess', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'Crown Academy of English', descripcion: 'Gramática británica', url: 'https://www.youtube.com/@CrownAcademyEnglish', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'English with Emma', descripcion: 'IELTS y vocabulario', url: 'https://www.youtube.com/@EnglishWithEmma', nivel: 'Intermedio-Avanzado', rating: 4 },
-      { nombre: 'Real English', descripcion: 'Conversaciones reales en la calle', url: 'https://www.youtube.com/@realenglish1', nivel: 'Intermedio+', rating: 5 },
-      { nombre: 'English Anyone', descripcion: 'Fluidez y confianza', url: 'https://www.youtube.com/@EnglishAnyone', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'Pronunciation with Emma', descripcion: 'Mejora tu acento', url: 'https://www.youtube.com/@EmmaSaying', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'ETJ English', descripcion: 'Slang y expresiones', url: 'https://www.youtube.com/@ETJEnglish', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'LetThemTalkTV', descripcion: 'Conversaciones auténticas', url: 'https://www.youtube.com/@LetThemTalkTV', nivel: 'Intermedio-Avanzado', rating: 4 },
-      { nombre: 'Linguamarina', descripcion: 'Tips para exámenes', url: 'https://www.youtube.com/@linguamarina', nivel: 'Intermedio', rating: 4 },
     ],
     podcasts: [
       { nombre: '6 Minute English (BBC)', descripcion: 'Lecciones cortas diarias', url: 'https://www.bbc.co.uk/learningenglish/english/features/6-minute-english', nivel: 'Principiante-Intermedio', rating: 5 },
@@ -144,19 +94,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'Espresso English', descripcion: 'Lecciones cortas', url: 'https://www.espressoenglish.net', nivel: 'Todos los niveles', rating: 4 },
       { nombre: 'Plain English', descripcion: 'Noticias y cultura', url: 'https://www.plainenglish.com/podcast', nivel: 'Intermedio', rating: 4 },
       { nombre: 'Voice of America News', descripcion: 'Noticias lentas', url: 'https://learningenglish.voanews.com', nivel: 'Principiante-Intermedio', rating: 5 },
-      { nombre: 'Culips ESL Podcast', descripcion: 'Inglés canadiense', url: 'https://www.culips.com', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'Happy English Podcast', descripcion: 'Motivación y lecciones', url: 'https://www.happyenglishpodcast.com', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'The English Learning Podcast', descripcion: 'Historias y conversaciones', url: 'https://www.englishlearningpodcast.com', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'Better at English', descripcion: 'Conversación real', url: 'https://www.betteratenglish.com', nivel: 'Intermedio-Avanzado', rating: 4 },
-      { nombre: 'English Class 101', descripcion: 'Lecciones estructuradas', url: 'https://www.englishclass101.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Speak English Now Podcast', descripcion: 'Método natural', url: 'https://speakenglishpodcast.com', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'English Made Simple', descripcion: 'Conversaciones informales', url: 'https://www.englishmadesimple.net', nivel: 'Intermedio', rating: 4 },
-      { nombre: 'Effortless English', descripcion: 'Aprendizaje natural', url: 'https://www.effortlessenglishclub.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'This American Life', descripcion: 'Historias americanas reales', url: 'https://www.thisamericanlife.org', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Stuff You Should Know', descripcion: 'Cultura general en inglés', url: 'https://www.iheart.com/podcast/sysk', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Grammar Girl', descripcion: 'Tips rápidos de gramática', url: 'https://www.quickanddirtytips.com/grammar-girl', nivel: 'Intermedio+', rating: 5 },
-      { nombre: 'NPR News Now', descripcion: 'Noticias cortas', url: 'https://www.npr.org', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Radiolab', descripcion: 'Ciencia y filosofía', url: 'https://radiolab.org', nivel: 'Avanzado', rating: 5 },
     ],
     comunidades: [
       { nombre: 'r/EnglishLearning', descripcion: 'Reddit - preguntas y práctica', url: 'https://www.reddit.com/r/EnglishLearning/', nivel: 'Todos los niveles', rating: 5 },
@@ -165,19 +102,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'Conversation Exchange', descripcion: 'Find language partners', url: 'https://www.conversationexchange.com', nivel: 'Intermedio+', rating: 4 },
       { nombre: 'My Language Exchange', descripcion: 'Penpal + voice chat', url: 'https://www.mylanguageexchange.com', nivel: 'Todos los niveles', rating: 3 },
       { nombre: 'Polyglot Club', descripcion: 'Eventos y meetups', url: 'https://www.polyglotclub.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'InterPals', descripcion: 'Amigos por correspondencia', url: 'https://www.interpals.net', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Slowly', descripcion: 'Cartas digitales a pen pals', url: 'https://www.getslowly.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'HiNative', descripcion: 'Pregunta a nativos', url: 'https://hinative.com', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Lang-8', descripcion: 'Corrección de textos', url: 'https://lang-8.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Meetup (Language Groups)', descripcion: 'Eventos locales', url: 'https://www.meetup.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Facebook English Groups', descripcion: 'Grupos de estudio', url: 'https://www.facebook.com', nivel: 'Todos los niveles', rating: 3 },
-      { nombre: 'WordReference Forums', descripcion: 'Foro de dudas lingüísticas', url: 'https://forum.wordreference.com', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Stack Exchange English', descripcion: 'Q&A de inglés', url: 'https://english.stackexchange.com', nivel: 'Intermedio-Avanzado', rating: 5 },
-      { nombre: 'English Learning Lounge', descripcion: 'Comunidad Discord activa', url: 'https://discord.gg/english', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Preply Community', descripcion: 'Foro de estudiantes', url: 'https://preply.com/en/blog', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'FluentU Community', descripcion: 'Comunidad de aprendices', url: 'https://www.fluentu.com/blog/english/', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Cambly Community', descripcion: 'Grupo de práctica', url: 'https://www.cambly.com/english', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Verbling Community', descripcion: 'Artículos y recursos', url: 'https://www.verbling.com/articles', nivel: 'Todos los niveles', rating: 4 },
     ],
     ia: [
       { nombre: 'ChatGPT', descripcion: 'Conversación ilimitada + feedback', url: 'https://chat.openai.com', nivel: 'Todos los niveles', rating: 5 },
@@ -186,18 +110,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'Reverso Context', descripcion: 'Contexto de palabras', url: 'https://context.reverso.net', nivel: 'Todos los niveles', rating: 5 },
       { nombre: 'DeepL', descripcion: 'Traductor preciso', url: 'https://www.deepl.com', nivel: 'Todos los niveles', rating: 5 },
       { nombre: 'Hemingway Editor', descripcion: 'Simplificar escritura', url: 'https://hemingwayapp.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'QuillBot', descripcion: 'Parafrasear y mejorar textos', url: 'https://quillbot.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'LanguageTool', descripcion: 'Corrector gramatical', url: 'https://languagetool.org', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Wordtune', descripcion: 'Reescritura de oraciones', url: 'https://www.wordtune.com', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Ginger Software', descripcion: 'Corrección y traducción', url: 'https://www.gingersoftware.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'ProWritingAid', descripcion: 'Análisis de escritura', url: 'https://prowritingaid.com', nivel: 'Avanzado', rating: 4 },
-      { nombre: 'Ludwig Guru', descripcion: 'Ejemplos contextuales', url: 'https://ludwig.guru', nivel: 'Intermedio+', rating: 5 },
-      { nombre: 'Writefull', descripcion: 'Feedback académico', url: 'https://www.writefull.com', nivel: 'Avanzado', rating: 4 },
-      { nombre: 'Linguix', descripcion: 'Asistente de escritura IA', url: 'https://linguix.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'Smodin', descripcion: 'Parafraseo y resumen', url: 'https://smodin.io', nivel: 'Intermedio+', rating: 3 },
-      { nombre: 'Wordvice AI', descripcion: 'Revisor de textos', url: 'https://wordvice.ai', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Trinka AI', descripcion: 'Corrección académica', url: 'https://www.trinka.ai', nivel: 'Avanzado', rating: 4 },
-      { nombre: 'Readable', descripcion: 'Analiza legibilidad', url: 'https://readable.com', nivel: 'Intermedio+', rating: 4 },
     ],
     profesional: [
       { nombre: 'Business English Pod', descripcion: 'Inglés de negocios práctico', url: 'https://www.businessenglishpod.com', nivel: 'Intermedio-Avanzado', rating: 5 },
@@ -209,21 +121,6 @@ export default function RecursosClient({ user }: RecursosClientProps) {
       { nombre: 'Speak Confident English', descripcion: 'Inglés para profesionales', url: 'https://www.speakconfidentenglish.com', nivel: 'Intermedio', rating: 4 },
       { nombre: 'ESL Fast', descripcion: 'Lecturas y ejercicios', url: 'https://www.eslfast.com', nivel: 'Principiante-Intermedio', rating: 4 },
       { nombre: 'Cambridge English', descripcion: 'Recursos oficiales', url: 'https://www.cambridgeenglish.org/learning-english/', nivel: 'Todos los niveles', rating: 5 },
-      { nombre: 'Bloomberg News', descripcion: 'Noticias financieras en inglés', url: 'https://www.bloomberg.com', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Financial Times', descripcion: 'Inglés de finanzas', url: 'https://www.ft.com', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'The Economist', descripcion: 'Inglés sofisticado', url: 'https://www.economist.com', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'MIT OpenCourseWare', descripcion: 'Cursos gratuitos en inglés', url: 'https://ocw.mit.edu', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Stanford Online', descripcion: 'Cursos universitarios', url: 'https://online.stanford.edu', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Phrasal Verbs for Business', descripcion: 'Phrasal verbs profesionales', url: 'https://www.englishclub.com/business-english/', nivel: 'Intermedio+', rating: 4 },
-      { nombre: 'Business English Site', descripcion: 'Recursos de inglés corporativo', url: 'https://www.businessenglishsite.com', nivel: 'Intermedio-Avanzado', rating: 4 },
-      { nombre: 'ESL Library', descripcion: 'Materiales para profesionales', url: 'https://esllibrary.com', nivel: 'Todos los niveles', rating: 4 },
-      { nombre: 'TechCrunch', descripcion: 'Inglés tech y startups', url: 'https://techcrunch.com', nivel: 'Intermedio-Avanzado', rating: 5 },
-      { nombre: 'Wired Magazine', descripcion: 'Tecnología en inglés', url: 'https://www.wired.com', nivel: 'Intermedio-Avanzado', rating: 5 },
-      { nombre: 'GitHub Docs', descripcion: 'Documentación técnica', url: 'https://docs.github.com', nivel: 'Intermedio-Avanzado', rating: 5 },
-      { nombre: 'Stack Overflow', descripcion: 'Inglés técnico de programación', url: 'https://stackoverflow.com', nivel: 'Intermedio+', rating: 5 },
-      { nombre: 'Medium Tech', descripcion: 'Artículos de tecnología', url: 'https://medium.com/tag/technology', nivel: 'Intermedio-Avanzado', rating: 4 },
-      { nombre: 'AWS Documentation', descripcion: 'Inglés técnico cloud', url: 'https://docs.aws.amazon.com', nivel: 'Avanzado', rating: 5 },
-      { nombre: 'Google Developers', descripcion: 'Documentación técnica', url: 'https://developers.google.com', nivel: 'Intermedio-Avanzado', rating: 5 },
     ],
   }
 
@@ -259,10 +156,74 @@ export default function RecursosClient({ user }: RecursosClientProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <AppHeader currentSection="recursos" />
+      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
+        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <div className="text-left">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Recursos Gratuitos</p>
+            </div>
+          </button>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden md:flex items-center space-x-3 text-sm text-gray-700">
+              {currentUser?.image ? (
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
+                  <Image
+                    src={getProfileImageUrl(currentUser.image) || ''}
+                    alt={currentUser.name || 'User'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+              )}
+              <span className="font-medium">{currentUser?.name || currentUser?.email}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/perfil')}
+              className="text-xs sm:text-sm"
+            >
+              <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Mi Perfil</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="text-xs sm:text-sm"
+            >
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      {/* Section Navigator */}
-      <SectionNavigator currentSection="recursos" />
+      {/* Navigation */}
+      <nav className="border-b bg-white">
+        <div className="container max-w-7xl mx-auto px-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/dashboard')}
+              className="my-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al Dashboard
+            </Button>
+          </div>
+        </div>
+      </nav>
 
       {/* Main Content */}
       <main className="py-8 px-4">

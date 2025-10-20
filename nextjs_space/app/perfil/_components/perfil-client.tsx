@@ -51,16 +51,11 @@ import {
   AlertCircle,
   ArrowLeft,
   Trash2,
-  Eye,
-  Lock,
-  Key,
-  EyeOff
+  Eye
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { AppHeader } from '@/components/app-header'
-import { SectionNavigator } from '@/components/section-navigator'
 
 interface UserData {
   id: string
@@ -92,21 +87,6 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
-
-  // Password change states
-  const [isChangingPassword, setIsChangingPassword] = useState(false)
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmNewPassword: ''
-  })
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false
-  })
-  const [passwordStrength, setPasswordStrength] = useState(0)
-  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false)
 
   const getLevelProgress = () => {
     const pointsForNextLevel = user.level * 1000
@@ -299,134 +279,57 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
     return `/api/profile/image/${encodeURIComponent(imagePath)}`
   }
 
-  // Calculate password strength
-  const calculatePasswordStrength = (password: string) => {
-    let strength = 0
-    if (password.length >= 6) strength += 25
-    if (password.length >= 8) strength += 25
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25
-    if (/[0-9]/.test(password)) strength += 15
-    if (/[^a-zA-Z0-9]/.test(password)) strength += 10
-    return Math.min(strength, 100)
-  }
-
-  const handlePasswordChange = (field: string, value: string) => {
-    setPasswordData(prev => ({ ...prev, [field]: value }))
-    if (field === 'newPassword') {
-      setPasswordStrength(calculatePasswordStrength(value))
-    }
-  }
-
-  const getPasswordStrengthColor = () => {
-    if (passwordStrength < 40) return 'bg-red-500'
-    if (passwordStrength < 70) return 'bg-yellow-500'
-    return 'bg-green-500'
-  }
-
-  const getPasswordStrengthText = () => {
-    if (passwordStrength < 40) return 'Débil'
-    if (passwordStrength < 70) return 'Media'
-    return 'Fuerte'
-  }
-
-  const handleSubmitPasswordChange = async () => {
-    // Validaciones
-    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmNewPassword) {
-      toast({
-        title: "Campos incompletos",
-        description: "Por favor completa todos los campos",
-        variant: "destructive"
-      })
-      return
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      toast({
-        title: "Contraseña muy corta",
-        description: "La nueva contraseña debe tener al menos 6 caracteres",
-        variant: "destructive"
-      })
-      return
-    }
-
-    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
-      toast({
-        title: "Las contraseñas no coinciden",
-        description: "La nueva contraseña y su confirmación deben ser iguales",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setIsSubmittingPassword(true)
-
-    try {
-      const response = await fetch('/api/profile/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al cambiar la contraseña')
-      }
-
-      toast({
-        title: "¡Contraseña actualizada!",
-        description: "Tu contraseña se ha cambiado correctamente",
-      })
-
-      // Reset form
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmNewPassword: ''
-      })
-      setPasswordStrength(0)
-      setIsChangingPassword(false)
-
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "No se pudo cambiar la contraseña",
-        variant: "destructive"
-      })
-    } finally {
-      setIsSubmittingPassword(false)
-    }
-  }
-
-  const handleCancelPasswordChange = () => {
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmNewPassword: ''
-    })
-    setPasswordStrength(0)
-    setIsChangingPassword(false)
-    setShowPasswords({
-      current: false,
-      new: false,
-      confirm: false
-    })
-  }
-
   const levelProgress = getLevelProgress()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <AppHeader currentSection="perfil" />
+      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
+        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <div className="text-left">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Mi Perfil</p>
+            </div>
+          </button>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+              <User className="h-4 w-4" />
+              <span>{user?.name || user?.email}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="text-xs sm:text-sm"
+            >
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      {/* Section Navigator - No section selected when in profile */}
-      <SectionNavigator currentSection={null} />
+      {/* Navigation */}
+      <nav className="border-b bg-white">
+        <div className="container max-w-7xl mx-auto px-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/dashboard')}
+              className="my-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al Dashboard
+            </Button>
+          </div>
+        </div>
+      </nav>
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-8">
@@ -720,246 +623,6 @@ export default function PerfilClient({ user: initialUser }: PerfilClientProps) {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Change Password Card */}
-            <Card className="border-2 border-purple-100 mt-6">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Lock className="h-5 w-5 text-purple-600" />
-                      Seguridad
-                    </CardTitle>
-                    <CardDescription>
-                      Cambia tu contraseña para mantener tu cuenta segura
-                    </CardDescription>
-                  </div>
-                  {!isChangingPassword && (
-                    <Button
-                      onClick={() => setIsChangingPassword(true)}
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Key className="h-4 w-4" />
-                      Cambiar Contraseña
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {!isChangingPassword ? (
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-                    <div className="flex items-start gap-3">
-                      <Shield className="h-5 w-5 text-purple-600 mt-0.5 shrink-0" />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-purple-900 text-sm mb-1">
-                          Tu cuenta está protegida
-                        </h4>
-                        <p className="text-xs text-purple-800">
-                          Haz clic en "Cambiar Contraseña" para actualizar tu contraseña de acceso
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-5">
-                    {/* Current Password */}
-                    <div className="space-y-2">
-                      <Label htmlFor="currentPassword" className="text-sm font-medium flex items-center gap-2">
-                        <Lock className="h-4 w-4 text-gray-600" />
-                        Contraseña Actual
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="currentPassword"
-                          type={showPasswords.current ? "text" : "password"}
-                          value={passwordData.currentPassword}
-                          onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
-                          placeholder="Ingresa tu contraseña actual"
-                          className="border-purple-200 focus:border-purple-500 pr-10"
-                          disabled={isSubmittingPassword}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          disabled={isSubmittingPassword}
-                        >
-                          {showPasswords.current ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* New Password */}
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="text-sm font-medium flex items-center gap-2">
-                        <Key className="h-4 w-4 text-gray-600" />
-                        Nueva Contraseña
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="newPassword"
-                          type={showPasswords.new ? "text" : "password"}
-                          value={passwordData.newPassword}
-                          onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-                          placeholder="Mínimo 6 caracteres"
-                          className="border-purple-200 focus:border-purple-500 pr-10"
-                          disabled={isSubmittingPassword}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          disabled={isSubmittingPassword}
-                        >
-                          {showPasswords.new ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                      
-                      {/* Password Strength Indicator */}
-                      {passwordData.newPassword && (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-600">Fortaleza:</span>
-                            <span className={`text-xs font-semibold ${
-                              passwordStrength < 40 ? 'text-red-600' : 
-                              passwordStrength < 70 ? 'text-yellow-600' : 
-                              'text-green-600'
-                            }`}>
-                              {getPasswordStrengthText()}
-                            </span>
-                          </div>
-                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full transition-all duration-300 ${getPasswordStrengthColor()}`}
-                              style={{ width: `${passwordStrength}%` }}
-                            />
-                          </div>
-                          <div className="text-xs text-gray-500 space-y-0.5">
-                            <p className={passwordData.newPassword.length >= 6 ? 'text-green-600' : ''}>
-                              {passwordData.newPassword.length >= 6 ? '✓' : '○'} Mínimo 6 caracteres
-                            </p>
-                            <p className={/[0-9]/.test(passwordData.newPassword) ? 'text-green-600' : ''}>
-                              {/[0-9]/.test(passwordData.newPassword) ? '✓' : '○'} Incluye números
-                            </p>
-                            <p className={(/[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword)) ? 'text-green-600' : ''}>
-                              {(/[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword)) ? '✓' : '○'} Combina mayúsculas y minúsculas
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Confirm New Password */}
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmNewPassword" className="text-sm font-medium flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-gray-600" />
-                        Confirmar Nueva Contraseña
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="confirmNewPassword"
-                          type={showPasswords.confirm ? "text" : "password"}
-                          value={passwordData.confirmNewPassword}
-                          onChange={(e) => handlePasswordChange('confirmNewPassword', e.target.value)}
-                          placeholder="Repite tu nueva contraseña"
-                          className={`border-purple-200 focus:border-purple-500 pr-10 ${
-                            passwordData.confirmNewPassword && 
-                            passwordData.newPassword !== passwordData.confirmNewPassword 
-                              ? 'border-red-300' 
-                              : ''
-                          }`}
-                          disabled={isSubmittingPassword}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          disabled={isSubmittingPassword}
-                        >
-                          {showPasswords.confirm ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                      {passwordData.confirmNewPassword && 
-                       passwordData.newPassword !== passwordData.confirmNewPassword && (
-                        <p className="text-xs text-red-600 flex items-center gap-1">
-                          <AlertCircle className="h-3 w-3" />
-                          Las contraseñas no coinciden
-                        </p>
-                      )}
-                      {passwordData.confirmNewPassword && 
-                       passwordData.newPassword === passwordData.confirmNewPassword && (
-                        <p className="text-xs text-green-600 flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Las contraseñas coinciden
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        onClick={handleSubmitPasswordChange}
-                        disabled={isSubmittingPassword}
-                        className="flex-1 gap-2 bg-purple-600 hover:bg-purple-700"
-                      >
-                        {isSubmittingPassword ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Actualizando...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4" />
-                            Actualizar Contraseña
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        onClick={handleCancelPasswordChange}
-                        disabled={isSubmittingPassword}
-                        variant="outline"
-                        className="gap-2"
-                      >
-                        <X className="h-4 w-4" />
-                        Cancelar
-                      </Button>
-                    </div>
-
-                    {/* Security Tips */}
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <Shield className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-                        <div className="flex-1">
-                          <h5 className="text-xs font-semibold text-blue-900 mb-1">
-                            Consejos de seguridad
-                          </h5>
-                          <ul className="text-xs text-blue-800 space-y-0.5">
-                            <li>• Usa una contraseña única para esta cuenta</li>
-                            <li>• Combina letras, números y símbolos</li>
-                            <li>• Evita información personal fácil de adivinar</li>
-                            <li>• Cambia tu contraseña regularmente</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
 

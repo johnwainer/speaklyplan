@@ -17,8 +17,6 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getProfileImageUrl } from '@/lib/utils'
-import { AppHeader } from '@/components/app-header'
-import { SectionNavigator } from '@/components/section-navigator'
 import { 
   BookOpen, Target, Calendar, Library, TrendingUp, 
   Users, Clock, Lightbulb, CheckCircle2, XCircle, 
@@ -51,11 +49,10 @@ export default function GuiaClient({ user }: GuiaClientProps) {
   const [checklistItems, setChecklistItems] = useState([
     { id: 1, text: 'Explorar el Dashboard y ver las actividades de la Semana 1', completed: false },
     { id: 2, text: 'Descargar Duolingo y completar la primera lección', completed: false },
-    { id: 3, text: 'Probar el Tutor de IA', completed: false },
-    { id: 4, text: 'Practicar con reconocimiento de voz', completed: false },
-    { id: 5, text: 'Revisar el vocabulario de la semana actual', completed: false },
-    { id: 6, text: 'Configurar tu horario diario de estudio (1 hora)', completed: false },
-    { id: 7, text: 'Unirte a una comunidad de intercambio (HelloTalk/Reddit)', completed: false },
+    { id: 3, text: 'Probar el AI Tutor con una conversación simple', completed: false },
+    { id: 4, text: 'Revisar el vocabulario de la semana actual', completed: false },
+    { id: 5, text: 'Configurar tu horario diario de estudio (1 hora)', completed: false },
+    { id: 6, text: 'Unirte a una comunidad de intercambio (HelloTalk/Reddit)', completed: false },
   ])
   
   // Estado para el quiz de nivel
@@ -101,10 +98,10 @@ export default function GuiaClient({ user }: GuiaClientProps) {
       action: 'AI Tutor'
     },
     {
-      title: 'Tutor de IA: Tu Profesor Personal 🤖',
-      description: 'Practica inglés 24/7 con voz. El tutor te corrige, te da feedback y se adapta a tu nivel. Incluye traducción simultánea al español.',
+      title: 'AI Tutor: Tu Profesor Personal 🤖',
+      description: 'Practica conversación en inglés 24/7. El tutor te corrige, te da feedback y se adapta a tu nivel.',
       icon: <MessageSquare className="h-12 w-12 text-purple-600" />,
-      action: 'Tutor'
+      action: 'Vocabulario'
     },
     {
       title: 'Vocabulario: Palabras Clave 📚',
@@ -311,19 +308,19 @@ export default function GuiaClient({ user }: GuiaClientProps) {
             <ul className="space-y-2 text-sm">
               <li className="flex justify-between items-start">
                 <span>• <strong>Duolingo:</strong> Para vocabulario y práctica diaria</span>
-                <span className="text-xs sm:text-sm text-gray-500">Básico-Intermedio</span>
+                <span className="text-xs text-gray-500">Básico-Intermedio</span>
               </li>
               <li className="flex justify-between items-start">
                 <span>• <strong>Anki:</strong> Sistema de repetición espaciada para memorizar</span>
-                <span className="text-xs sm:text-sm text-gray-500">Todos los niveles</span>
+                <span className="text-xs text-gray-500">Todos los niveles</span>
               </li>
               <li className="flex justify-between items-start">
                 <span>• <strong>HelloTalk:</strong> Intercambio de idiomas con nativos</span>
-                <span className="text-xs sm:text-sm text-gray-500">Intermedio+</span>
+                <span className="text-xs text-gray-500">Intermedio+</span>
               </li>
               <li className="flex justify-between items-start">
                 <span>• <strong>ELSA Speak:</strong> Mejora tu pronunciación con IA</span>
-                <span className="text-xs sm:text-sm text-gray-500">Todos los niveles</span>
+                <span className="text-xs text-gray-500">Todos los niveles</span>
               </li>
             </ul>
           </div>
@@ -606,10 +603,74 @@ export default function GuiaClient({ user }: GuiaClientProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <AppHeader currentSection="guia" />
+      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
+        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-2 sm:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <div className="text-left">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block text-left">Guía de Uso</p>
+            </div>
+          </button>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden md:flex items-center space-x-3 text-sm text-gray-700">
+              {currentUser?.image ? (
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
+                  <Image
+                    src={getProfileImageUrl(currentUser.image) || ''}
+                    alt={currentUser.name || 'User'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+              )}
+              <span className="font-medium">{currentUser?.name || currentUser?.email}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/perfil')}
+              className="text-xs sm:text-sm"
+            >
+              <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Mi Perfil</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="text-xs sm:text-sm"
+            >
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      {/* Section Navigator */}
-      <SectionNavigator currentSection="guia" />
+      {/* Navigation */}
+      <nav className="border-b bg-white">
+        <div className="container max-w-7xl mx-auto px-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/dashboard')}
+              className="my-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al Dashboard
+            </Button>
+          </div>
+        </div>
+      </nav>
 
       {/* Main Content */}
       <main className="py-8 px-4">
@@ -830,7 +891,7 @@ export default function GuiaClient({ user }: GuiaClientProps) {
                       <MessageSquare className="h-8 w-8 text-purple-600 mb-3" />
                       <h4 className="font-bold text-lg mb-2">AI Tutor</h4>
                       <p className="text-sm text-gray-700 mb-4">
-                        Practica inglés 24/7 con voz. Recibe correcciones y feedback instantáneo.
+                        Practica conversación 24/7. Recibe correcciones y feedback instantáneo.
                       </p>
                     </div>
                     

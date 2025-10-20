@@ -24,10 +24,7 @@ import {
   Menu,
   MessageSquare,
   Trophy,
-  Zap,
-  UserPlus,
-  Mic,
-  Users
+  Zap
 } from 'lucide-react'
 import {
   Sheet,
@@ -50,9 +47,6 @@ import {
   ActivityCompletionCelebration
 } from '@/components/gamification'
 import { getProfileImageUrl } from '@/lib/utils'
-import { InviteFriendsModal } from '@/components/invite-friends-modal'
-import { AppHeader } from '@/components/app-header'
-import { SectionNavigator } from '@/components/section-navigator'
 
 // Helper function to format Markdown text
 function formatMarkdownText(text: string | null | undefined): React.ReactNode {
@@ -404,32 +398,291 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <AppHeader currentSection="dashboard" />
-
-      {/* Section Navigator */}
-      <SectionNavigator 
-        currentSection="dashboard"
-        rightActions={
-          <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
+        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <BookOpen className="h-8 w-8 text-blue-600" />
+            <div className="text-left">
+              <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
+              <p className="text-sm text-gray-600 hidden sm:block text-left">Dashboard</p>
+            </div>
+          </button>
+          
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-3 text-sm text-gray-700">
+              {user?.image ? (
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
+                  <Image
+                    src={getProfileImageUrl(user.image) || ''}
+                    alt={user.name || 'User'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+              )}
+              <span className="font-medium">{user?.name || user?.email}</span>
+            </div>
             <Button
-              variant={currentView === 'overview' ? 'default' : 'outline'}
+              variant="outline"
               size="sm"
-              onClick={() => setCurrentView('overview')}
-              className="text-xs"
+              onClick={() => router.push('/perfil')}
             >
-              Vista General
+              <User className="h-4 w-4 mr-2" />
+              Mi Perfil
             </Button>
             <Button
-              variant={currentView === 'week' ? 'default' : 'outline'}
+              variant="outline"
               size="sm"
-              onClick={() => setCurrentView('week')}
-              className="text-xs"
+              onClick={() => signOut({ callbackUrl: '/' })}
             >
-              Vista Semanal
+              <LogOut className="h-4 w-4 mr-2" />
+              Salir
             </Button>
           </div>
-        }
-      />
+
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
+                  <span>Menú</span>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-8">
+                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                  {user?.image ? (
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-200 flex-shrink-0">
+                      <Image
+                        src={getProfileImageUrl(user.image) || ''}
+                        alt={user.name || 'User'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <User className="h-5 w-5 text-blue-600" />
+                  )}
+                  <span className="text-sm font-medium truncate">{user?.name || user?.email}</span>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <p className="text-sm font-medium text-gray-500 mb-3">Vistas</p>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant={currentView === 'overview' ? 'default' : 'outline'}
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setCurrentView('overview')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Target className="h-4 w-4 mr-2" />
+                      Vista General
+                    </Button>
+                    <Button
+                      variant={currentView === 'week' ? 'default' : 'outline'}
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setCurrentView('week')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Vista Semanal
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <p className="text-sm font-medium text-gray-500 mb-3">Recursos</p>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
+                      onClick={() => {
+                        router.push('/tutor')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2 text-blue-600" />
+                      <span className="font-medium">AI Tutor</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/vocabulario')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Vocabulario
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/recursos')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <Library className="h-4 w-4 mr-2" />
+                      Recursos
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        router.push('/guia')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Guía de Uso
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4 mt-auto">
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        router.push('/perfil')
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Mi Perfil
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Cerrar Sesión
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="border-b bg-white">
+        <div className="container max-w-7xl mx-auto px-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex justify-between items-center">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setCurrentView('overview')}
+                className={`py-4 text-sm font-medium border-b-2 ${
+                  currentView === 'overview'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Vista General
+              </button>
+              <button
+                onClick={() => setCurrentView('week')}
+                className={`py-4 text-sm font-medium border-b-2 ${
+                  currentView === 'week'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Vista Semanal
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                data-tour="nav-tutor"
+                size="sm"
+                onClick={() => router.push('/tutor')}
+                className="my-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                AI Tutor
+              </Button>
+              <Button
+                data-tour="nav-vocabulary"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/vocabulario')}
+                className="my-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Vocabulario
+              </Button>
+              <Button
+                data-tour="nav-resources"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/recursos')}
+                className="my-2"
+              >
+                <Library className="h-4 w-4 mr-2" />
+                Recursos
+              </Button>
+              <Button
+                data-tour="nav-guide"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/guia')}
+                className="my-2"
+              >
+                <HelpCircle className="h-4 w-4 mr-2" />
+                Guía de Uso
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation - Tabs only */}
+          <div className="md:hidden flex justify-center">
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setCurrentView('overview')}
+                className={`py-3 px-4 text-sm font-medium border-b-2 ${
+                  currentView === 'overview'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500'
+                }`}
+              >
+                General
+              </button>
+              <button
+                onClick={() => setCurrentView('week')}
+                className={`py-3 px-4 text-sm font-medium border-b-2 ${
+                  currentView === 'week'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500'
+                }`}
+              >
+                Semanal
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       {/* Compact Progress Stats */}
       <section className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
@@ -441,8 +694,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-bold text-blue-600">{progressData.percentageCompleted}%</div>
-                  <div className="text-xs sm:text-sm text-gray-600">Completado</div>
+                  <div className="text-xl font-bold text-blue-600">{progressData.percentageCompleted}%</div>
+                  <div className="text-xs text-gray-600">Completado</div>
                 </div>
               </div>
 
@@ -451,8 +704,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <Flame className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-bold text-green-600">{progressData.currentStreak} días</div>
-                  <div className="text-xs sm:text-sm text-gray-600">Racha actual</div>
+                  <div className="text-xl font-bold text-green-600">{progressData.currentStreak} días</div>
+                  <div className="text-xs text-gray-600">Racha actual</div>
                 </div>
               </div>
 
@@ -461,8 +714,8 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-bold text-purple-600">Semana {progressData.currentWeek}</div>
-                  <div className="text-xs sm:text-sm text-gray-600">de 24 semanas</div>
+                  <div className="text-xl font-bold text-purple-600">Semana {progressData.currentWeek}</div>
+                  <div className="text-xs text-gray-600">de 24 semanas</div>
                 </div>
               </div>
             </div>
@@ -480,254 +733,139 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
       {/* Main Content */}
       <main className="py-8 px-4">
         <div className="container max-w-7xl mx-auto">
-          {/* Top Section - Empieza Aquí (Full Width) */}
+          {/* Priority Section - Where to Start */}
           {currentView === 'overview' && (
-            <>
-              <Card data-tour="pending-activities" className="border-2 border-blue-500 shadow-md bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden mb-4">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <div className="flex items-center justify-between gap-2 sm:gap-3">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                        <Target className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="min-w-0 overflow-hidden">
-                        <CardTitle className="text-lg sm:text-xl truncate">¡Empieza aquí!</CardTitle>
-                        <CardDescription className="text-xs sm:text-sm truncate">
-                          Tus actividades de esta semana
-                        </CardDescription>
-                      </div>
+            <Card data-tour="pending-activities" className="mb-4 border-2 border-blue-500 shadow-lg bg-gradient-to-br from-blue-50 via-white to-purple-50">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                      <Target className="h-4 w-4 text-white" />
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setSelectedWeek(progressData.currentWeek)
-                        setCurrentView('week')
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-sm px-3 h-8"
-                    >
-                      Ver todas
-                    </Button>
+                    <div>
+                      <CardTitle className="text-lg">¡Empieza aquí!</CardTitle>
+                      <CardDescription className="text-xs">
+                        Tus actividades de esta semana
+                      </CardDescription>
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-2 px-4 pb-4 overflow-hidden">
-                  {(() => {
-                    const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
-                    const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
-                    const completedToday = currentWeek?.activities?.filter(a => {
-                      if (!a?.completedAt) return false
-                      const completedDate = new Date(a.completedAt)
-                      const today = new Date()
-                      return completedDate.toDateString() === today.toDateString()
-                    }) || []
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setSelectedWeek(progressData.currentWeek)
+                      setCurrentView('week')
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Ver todas
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {(() => {
+                  const currentWeek = planData?.find(w => w?.number === progressData.currentWeek)
+                  const pendingActivities = currentWeek?.activities?.filter(a => !a?.completed) || []
+                  const completedToday = currentWeek?.activities?.filter(a => {
+                    if (!a?.completedAt) return false
+                    const completedDate = new Date(a.completedAt)
+                    const today = new Date()
+                    return completedDate.toDateString() === today.toDateString()
+                  }) || []
 
-                    if (pendingActivities.length === 0) {
-                      return (
-                        <div className="text-center py-6">
-                          <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                            ¡Felicitaciones! Semana completada 🎉
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-4">
-                            Has completado todas las actividades de esta semana
-                          </p>
-                          <Button
-                            size="default"
-                            onClick={() => {
-                              setSelectedWeek(progressData.currentWeek + 1)
-                              setCurrentView('week')
-                            }}
-                            className="bg-purple-600 hover:bg-purple-700"
-                            disabled={progressData.currentWeek >= (planData?.length || 0)}
-                          >
-                            Ir a la siguiente semana
-                          </Button>
-                        </div>
-                      )
-                    }
-
+                  if (pendingActivities.length === 0) {
                     return (
-                      <div className="space-y-2.5">
-                        {completedToday.length > 0 && (
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
-                            <div className="flex items-center gap-2 text-green-700">
-                              <CheckCircle2 className="h-4 w-4" />
-                              <span className="text-xs font-medium">
-                                ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
-                              </span>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="grid sm:grid-cols-2 gap-2.5 w-full overflow-hidden">
-                          {pendingActivities.slice(0, 2).map((activity) => (
-                            <div
-                              key={activity?.id}
-                              className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer w-full overflow-hidden"
-                              onClick={() => {
-                                setSelectedWeek(progressData.currentWeek)
-                                setCurrentView('week')
-                              }}
-                            >
-                              <div className="flex items-start justify-between gap-2 max-w-full overflow-hidden">
-                                <div className="flex-1 min-w-0 overflow-hidden">
-                                  <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">
-                                    {activity?.title}
-                                  </h4>
-                                  <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 break-words">
-                                    {formatMarkdownText(activity?.description)}
-                                  </p>
-                                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                                    <Badge variant="secondary" className="text-xs py-0.5 px-1.5 whitespace-nowrap">
-                                      <Clock className="h-3 w-3 mr-0.5" />
-                                      {activity?.duration} min
-                                    </Badge>
-                                    <Badge variant="outline" className="text-xs py-0.5 px-1.5 truncate max-w-[110px]">
-                                      {activity?.category}
-                                    </Badge>
-                                  </div>
-                                </div>
-                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
-                                  <Zap className="h-5 w-5" />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {pendingActivities.length > 2 && (
-                          <div className="text-center pt-1.5">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedWeek(progressData.currentWeek)
-                                setCurrentView('week')
-                              }}
-                              className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-sm h-8"
-                            >
-                              Ver {pendingActivities.length - 2} actividades más
-                            </Button>
-                          </div>
-                        )}
+                      <div className="text-center py-4">
+                        <CheckCircle2 className="h-10 w-10 text-green-600 mx-auto mb-2" />
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">
+                          ¡Felicitaciones! Semana completada 🎉
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Has completado todas las actividades de esta semana
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedWeek(progressData.currentWeek + 1)
+                            setCurrentView('week')
+                          }}
+                          className="bg-purple-600 hover:bg-purple-700"
+                          disabled={progressData.currentWeek >= (planData?.length || 0)}
+                        >
+                          Ir a la siguiente semana
+                        </Button>
                       </div>
                     )
-                  })()}
-                </CardContent>
-              </Card>
+                  }
 
-              {/* Novedades - Tutor AI y Prácticas 1 a 1 (Compactas lado a lado) */}
-              <div className="grid sm:grid-cols-2 gap-3 mb-6">
-                {/* Tutor de IA */}
-                <Card className="border-2 border-emerald-500 shadow-md bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden relative hover:shadow-lg transition-shadow">
-                  <div className="absolute top-1.5 right-1.5">
-                    <Badge className="bg-yellow-400 text-purple-900 border-0 px-1.5 py-0.5 text-xs font-bold shadow-md">
-                      ✨ NUEVO
-                    </Badge>
-                  </div>
-                  
-                  <CardHeader className="pb-2 pt-3 px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <Mic className="h-4 w-4 text-white" />
+                  return (
+                    <div className="space-y-2">
+                      {completedToday.length > 0 && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
+                          <div className="flex items-center gap-2 text-green-700">
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span className="text-xs font-medium">
+                              ¡Excelente! Has completado {completedToday.length} {completedToday.length === 1 ? 'actividad' : 'actividades'} hoy
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid gap-2">
+                        {pendingActivities.slice(0, 2).map((activity) => (
+                          <div
+                            key={activity?.id}
+                            className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => {
+                              setSelectedWeek(progressData.currentWeek)
+                              setCurrentView('week')
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-sm text-gray-900 mb-1">
+                                  {activity?.title}
+                                </h4>
+                                <p className="text-xs text-gray-600 line-clamp-1">
+                                  {formatMarkdownText(activity?.description)}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="secondary" className="text-xs py-0 px-2">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    {activity?.duration} min
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs py-0 px-2">
+                                    {activity?.category}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+                                <Zap className="h-5 w-5" />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex-1">
-                        <CardTitle className="text-base sm:text-lg mb-0 text-gray-900">
-                          Tutor de IA 🎤
-                        </CardTitle>
-                        <CardDescription className="text-xs sm:text-sm">
-                          Practica conversación en tiempo real
-                        </CardDescription>
-                      </div>
+
+                      {pendingActivities.length > 2 && (
+                        <div className="text-center pt-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedWeek(progressData.currentWeek)
+                              setCurrentView('week')
+                            }}
+                            className="w-full border-blue-300 text-blue-600 hover:bg-blue-50 text-xs"
+                          >
+                            Ver {pendingActivities.length - 2} actividades más
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0 px-3 pb-3 space-y-2">
-                    <div className="flex gap-1.5 text-xs sm:text-sm">
-                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
-                        <MessageSquare className="h-3 w-3 text-emerald-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Voz Real</span>
-                      </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
-                        <Trophy className="h-3 w-3 text-purple-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Gamificación</span>
-                      </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-emerald-200">
-                        <BookOpen className="h-3 w-3 text-orange-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Vocabulario</span>
-                      </div>
-                    </div>
-
-                    <Button
-                      size="sm"
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md text-sm h-8"
-                      onClick={() => router.push('/tutor')}
-                    >
-                      <Mic className="h-3 w-3 mr-1.5" />
-                      Empezar Ahora
-                    </Button>
-                    
-                    <p className="text-center text-xs text-gray-500">
-                      💡 Disponible 24/7 · Sin límites
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Prácticas 1 a 1 */}
-                <Card className="border-2 border-blue-500 shadow-md bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden relative hover:shadow-lg transition-shadow">
-                  <div className="absolute top-1.5 right-1.5">
-                    <Badge className="bg-green-500 text-white border-0 px-1.5 py-0.5 text-xs font-bold shadow-md">
-                      ¡NOVEDAD!
-                    </Badge>
-                  </div>
-                  
-                  <CardHeader className="pb-2 pt-3 px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <Users className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className="text-base sm:text-lg mb-0 text-gray-900">
-                          Prácticas 1 a 1 🤝
-                        </CardTitle>
-                        <CardDescription className="text-xs sm:text-sm">
-                          Practica con otros estudiantes
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="pt-0 px-3 pb-3 space-y-2">
-                    <div className="flex gap-1.5 text-xs sm:text-sm">
-                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
-                        <MessageSquare className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Conversación</span>
-                      </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
-                        <Users className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">En vivo</span>
-                      </div>
-                      <div className="flex-1 bg-white/80 rounded-lg p-1.5 text-center border border-blue-200">
-                        <Target className="h-3 w-3 text-blue-600 mx-auto mb-0.5" />
-                        <span className="font-medium text-gray-900 block text-xs sm:text-sm">Colaborativo</span>
-                      </div>
-                    </div>
-
-                    <Button 
-                      size="sm"
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md text-sm h-8"
-                      onClick={() => router.push('/practice')}
-                    >
-                      <Users className="h-3 w-3 mr-1.5" />
-                      Explorar Ahora
-                    </Button>
-                    
-                    <p className="text-center text-xs text-gray-500">
-                      💡 Conecta · Practica · Mejora
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </>
+                  )
+                })()}
+              </CardContent>
+            </Card>
           )}
 
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">

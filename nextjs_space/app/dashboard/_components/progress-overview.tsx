@@ -26,9 +26,9 @@ interface ProgressOverviewProps {
 }
 
 const phaseColors = {
-  'FASE 1: FUNDACIÓN SÓLIDA': 'bg-blue-100 text-blue-800 border-blue-200',
-  'FASE 2: CONSTRUCCIÓN ACTIVA': 'bg-green-100 text-green-800 border-green-200',
-  'FASE 3: DOMINIO PROFESIONAL': 'bg-purple-100 text-purple-800 border-purple-200',
+  'FASE 1: CATARSIS': 'bg-blue-100 text-blue-800 border-blue-200',
+  'FASE 2: SPEAKING MÍNIMO VIABLE': 'bg-green-100 text-green-800 border-green-200',
+  'FASE 3: PLAYBOOK FOR JTBD': 'bg-purple-100 text-purple-800 border-purple-200',
 }
 
 export default function ProgressOverview({ planWeeks, progress, onWeekSelect }: ProgressOverviewProps) {
