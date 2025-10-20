@@ -4,7 +4,6 @@
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,26 +13,16 @@ import {
   TrendingUp, 
   Target, 
   CheckCircle2, 
-  Clock, 
-  LogOut,
-  User,
+  Clock,
   Users,
   Award,
   Flame,
   HelpCircle,
   Library,
-  Menu,
   MessageSquare,
   Trophy,
   Zap
 } from 'lucide-react'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
 import { PlanWeekData, UserProgressData } from '@/lib/types'
 import WeekView from './week-view'
 import ProgressOverview from './progress-overview'
@@ -47,7 +36,7 @@ import {
   LevelUpModal,
   ActivityCompletionCelebration
 } from '@/components/gamification'
-import { getProfileImageUrl } from '@/lib/utils'
+import { AppHeader } from '@/components/app-header'
 
 // Helper function to format Markdown text
 function formatMarkdownText(text: string | null | undefined): React.ReactNode {
@@ -399,204 +388,12 @@ export default function DashboardClient({ initialData, userId }: DashboardClient
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
-        <div className="container flex h-16 max-w-7xl mx-auto items-center justify-between px-4">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            <BookOpen className="h-8 w-8 text-blue-600" />
-            <div className="text-left">
-              <h1 className="text-xl font-bold text-gray-900">SpeaklyPlan</h1>
-              <p className="text-sm text-gray-600 hidden sm:block text-left">Dashboard</p>
-            </div>
-          </button>
-          
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-3 text-sm text-gray-700">
-              {user?.image ? (
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-300 shadow-sm">
-                  <Image
-                    src={getProfileImageUrl(user.image) || ''}
-                    alt={user.name || 'User'}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <User className="h-5 w-5 text-blue-600" />
-                </div>
-              )}
-              <span className="font-medium">{user?.name || user?.email}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/perfil')}
-            >
-              <User className="h-4 w-4 mr-2" />
-              Mi Perfil
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: '/' })}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Salir
-            </Button>
-          </div>
+      <AppHeader 
+        title="SpeaklyPlan"
+        subtitle="Dashboard"
+        currentView="/dashboard"
+      />
 
-          {/* Mobile Menu */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="sm">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                  <span>Menú</span>
-                </SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col gap-4 mt-8">
-                <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                  {user?.image ? (
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-blue-200 flex-shrink-0">
-                      <Image
-                        src={getProfileImageUrl(user.image) || ''}
-                        alt={user.name || 'User'}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <User className="h-5 w-5 text-blue-600" />
-                  )}
-                  <span className="text-sm font-medium truncate">{user?.name || user?.email}</span>
-                </div>
-                
-                <div className="border-t pt-4">
-                  <p className="text-sm font-medium text-gray-500 mb-3">Vistas</p>
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      variant={currentView === 'overview' ? 'default' : 'outline'}
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setCurrentView('overview')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <Target className="h-4 w-4 mr-2" />
-                      Vista General
-                    </Button>
-                    <Button
-                      variant={currentView === 'week' ? 'default' : 'outline'}
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setCurrentView('week')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Vista Semanal
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-sm font-medium text-gray-500 mb-3">Recursos</p>
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
-                      onClick={() => {
-                        router.push('/tutor')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <MessageSquare className="h-4 w-4 mr-2 text-blue-600" />
-                      <span className="font-medium">AI Tutor</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start bg-gradient-to-r from-green-50 to-blue-50 border-green-200"
-                      onClick={() => {
-                        router.push('/one-on-one')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <Users className="h-4 w-4 mr-2 text-green-600" />
-                      <span className="font-medium">Práctica 1 a 1</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        router.push('/vocabulario')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Vocabulario
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        router.push('/recursos')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <Library className="h-4 w-4 mr-2" />
-                      Recursos
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        router.push('/guia')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <HelpCircle className="h-4 w-4 mr-2" />
-                      Guía de Uso
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4 mt-auto">
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        router.push('/perfil')
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      Mi Perfil
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="w-full"
-                      onClick={() => signOut({ callbackUrl: '/' })}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Cerrar Sesión
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </header>
 
       {/* Navigation */}
       <nav className="border-b bg-white">

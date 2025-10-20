@@ -4,13 +4,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users, Calendar, History, Bell, X } from 'lucide-react';
-import Link from 'next/link';
-import { getProfileImageUrl } from '@/lib/utils';
+import { UserPlus, Users, Calendar, History, Bell } from 'lucide-react';
+import { AppHeader } from '@/components/app-header';
 import { InviteModal } from '@/components/practice/invite-modal';
 import { InvitationCard } from '@/components/practice/invitation-card';
 import { PartnersList } from '@/components/practice/partners-list';
@@ -127,65 +125,33 @@ export function OneOnOneClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="icon">
-                  <X className="h-5 w-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                  Práctica 1 a 1
-                </h1>
-                <p className="text-sm text-muted-foreground">Conecta y practica con otros estudiantes</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Notifications */}
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
-              
-              {/* Invite Button */}
-              <Button
-                onClick={() => setInviteModalOpen(true)}
-                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                Invitar
-              </Button>
-              
-              {/* User Profile */}
-              {session?.user && (
-                <Link href="/profile">
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    {session.user.image && getProfileImageUrl(session.user.image) ? (
-                      <Image
-                        src={getProfileImageUrl(session.user.image) as string}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-semibold">
-                        {session.user.name?.[0] || session.user.email?.[0] || 'U'}
-                      </div>
-                    )}
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
+      <AppHeader 
+        title="Práctica 1 a 1"
+        subtitle="Conecta y practica con otros estudiantes"
+        currentView="/one-on-one"
+      />
+      
+      {/* Secondary Action Bar */}
+      <div className="bg-white/50 backdrop-blur-sm border-b py-3">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-end gap-3">
+          {/* Notifications */}
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
+          </Button>
+          
+          {/* Invite Button */}
+          <Button
+            onClick={() => setInviteModalOpen(true)}
+            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invitar
+          </Button>
         </div>
       </div>
       

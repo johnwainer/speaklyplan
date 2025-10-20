@@ -3,18 +3,16 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
-import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Mic, MicOff, Volume2, VolumeX, Sparkles, Award, History, LogOut, User, MessageSquare, Zap, Brain, Target, TrendingUp, X } from 'lucide-react';
+import { Send, Mic, MicOff, Volume2, VolumeX, Sparkles, Award, History, MessageSquare, Zap, Brain, Target, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
-import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { getProfileImageUrl } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AppHeader } from '@/components/app-header';
 
 interface Message {
   id: string;
@@ -338,79 +336,52 @@ export default function TutorClientV2({ initialData, userId }: TutorClientProps)
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="icon">
-                  <X className="h-5 w-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  AI Tutor
-                </h1>
-                <p className="text-sm text-muted-foreground">Conversación Fluida</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Gamification Stats */}
-              {gamificationStats && (
-                <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-yellow-600" />
-                    <span className="text-sm font-bold">{gamificationStats.points}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">🔥</span>
-                    <span className="text-sm font-bold">{gamificationStats.currentStreak}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-bold">Nivel {gamificationStats.level}</span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Action Buttons */}
-              <Button variant="outline" size="sm" onClick={() => { loadHistory(); setShowHistory(true); }}>
-                <History className="h-4 w-4 mr-2" />
-                Historial
-              </Button>
-              
-              {conversationId && messages.length >= 2 && (
-                <Button variant="outline" size="sm" onClick={endSessionAndAnalyze}>
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Ver Análisis
-                </Button>
-              )}
-              
-              {/* User Menu */}
+      <AppHeader 
+        title="AI Tutor"
+        subtitle="Conversación Fluida"
+        currentView="/tutor"
+      />
+      
+      {/* Secondary Action Bar */}
+      <div className="bg-white/50 backdrop-blur-sm border-b py-3">
+        <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
+          {/* Gamification Stats */}
+          {gamificationStats && (
+            <div className="flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full">
               <div className="flex items-center gap-2">
-                <Link href="/profile">
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    {session?.user?.image && getProfileImageUrl(session.user.image) ? (
-                      <Image
-                        src={getProfileImageUrl(session.user.image) as string}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <User className="h-5 w-5" />
-                    )}
-                  </Button>
-                </Link>
+                <Sparkles className="h-4 w-4 text-yellow-600" />
+                <span className="text-sm font-bold">{gamificationStats.points}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-base">🔥</span>
+                <span className="text-sm font-bold">{gamificationStats.currentStreak}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Award className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-bold">Nivel {gamificationStats.level}</span>
               </div>
             </div>
+          )}
+          
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => { loadHistory(); setShowHistory(true); }}>
+              <History className="h-4 w-4 mr-2" />
+              Historial
+            </Button>
+            
+            {conversationId && messages.length >= 2 && (
+              <Button variant="outline" size="sm" onClick={endSessionAndAnalyze}>
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Ver Análisis
+              </Button>
+            )}
           </div>
         </div>
       </div>
       
       {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Conversation State Indicator */}
         <Card className="p-6 bg-white/50 backdrop-blur-sm border-2 border-dashed border-gray-200">
